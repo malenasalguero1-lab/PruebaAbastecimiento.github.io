@@ -35,6 +35,19 @@ function getSelValues(id) {
     return [...sel.selectedOptions].map(o => o.value).filter(v => v !== "__ALL__");
 }
 
+function syncScrolls() {
+    const top = document.getElementById('scroll-top');
+    const bottom = document.getElementById('scroll-bottom');
+    const content = document.getElementById('scroll-top-content');
+    const table = document.getElementById('tablaServicios');
+
+    if (top && bottom && content && table) {
+        content.style.width = table.offsetWidth + 'px';
+        top.onscroll = () => { bottom.scrollLeft = top.scrollLeft; };
+        bottom.onscroll = () => { top.scrollLeft = bottom.scrollLeft; };
+    }
+}
+
 function applyAll() {
     const selClientes = getSelValues("clienteSelect");
     const selPeriodos = getSelValues("clasif2Select");
@@ -58,7 +71,7 @@ function applyAll() {
         if (estCert === "verde") tr.classList.add("row-verde");
         else if (estCert === "rojo") tr.classList.add("row-rojo");
 
-        // MAPEO COMPLETO SEGÚN EXCEL ROSA
+        // MAPEO CORREGIDO SEGÚN ÚLTIMA CAPTURA
         tr.innerHTML = `
             <td>${r["CLIENTE"] || ""}</td>
             <td>${r["NRO. VA01/VA21"] || ""}</td>
@@ -67,8 +80,8 @@ function applyAll() {
             <td>${r["DESCRIPCION ITEM"] || ""}</td>
             <td>${r["CANTIDAD SOLICITADA"] || ""}</td>
             <td>${r["CANTIDAD TOTAL RECEPCIONAD"] || ""}</td>
-            <td>${r["CANTIDAD PENDIENTE DE"] || ""}</td>
-            <td>${r["CANTIDAD TOTAL PENDIENTE"] || ""}</td>
+            <td>${r["CANTIDAD PENDIENTE DE ADJUDICAR"] || ""}</td>
+            <td>${r["CANTIDAD TOTAL PENDIENTE RECEP."] || ""}</td>
             <td>${r["NRO. RECEPCION"] || ""}</td>
             <td>${r["FECHA RECEPCION"] || ""}</td>
             <td>${r["ESTADO ITEM"] || ""}</td>
@@ -79,6 +92,7 @@ function applyAll() {
         `;
         tbody.appendChild(tr);
     });
+    setTimeout(syncScrolls, 100);
 }
 
 window.addEventListener("DOMContentLoaded", () => {
@@ -101,6 +115,7 @@ window.addEventListener("DOMContentLoaded", () => {
         });
         applyAll();
         document.getElementById("loader").style.display = "none";
+        window.onresize = syncScrolls;
     });
 });
 

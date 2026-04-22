@@ -20,14 +20,14 @@
     .kpi-mini-label { font-size: 0.75rem; color: #64748b; text-transform: uppercase; font-weight: 700; margin-top: 5px; }
     .filters-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; align-items: end; }
 
-    /* BARRA DE DESPLAZAMIENTO ARRIBA */
-    .table-container { 
-        margin-top: 20px; 
-        overflow-x: auto; 
-        background: white; 
-        border-radius: 8px; 
-        border: 1px solid #e2e8f0; 
-        transform: rotateX(180deg); /* Truco para poner la barra arriba */
+    /* CONTENEDOR CON SCROLL ARRIBA Y ABAJO */
+    .table-wrapper {
+        width: 100%;
+        overflow-x: auto; /* Habilita el desplazamiento horizontal */
+        margin-top: 20px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        background: white;
     }
     
     table { 
@@ -35,8 +35,7 @@
         border-collapse: collapse; 
         font-family: 'Source Sans 3', sans-serif; 
         font-size: 0.82rem; 
-        min-width: 1500px; 
-        transform: rotateX(180deg); /* Volvemos el contenido a la normalidad */
+        min-width: 1600px; /* Forzamos que sea ancha para que aparezca el scroll */
     }
     
     th { background: #f8fafc; color: #1e293b; font-weight: 700; padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0; }
@@ -63,7 +62,8 @@
     <div class="topbar-right">
       <div class="update-box">
         <div class="update-label">Última actualización</div>
-        <div id="lastUpdate" class="update-date">22/04/2026</div> </div>
+        <div id="lastUpdate" class="update-date">22/04/2026</div>
+      </div>
     </div>
   </header>
 
@@ -82,29 +82,33 @@
         <div class="filter"><label>CLIENTE</label><select id="clienteSelect" multiple size="6" class="multi-select"><option value="__ALL__">Todos</option></select></div>
         <div class="filter"><label>PERÍODO</label><select id="clasif2Select" multiple size="6" class="multi-select"><option value="__ALL__">Todos</option></select></div>
         <div class="filter"><label>ESTADO</label><select id="gcocSelect" multiple size="6" class="multi-select"><option value="__ALL__">Todos</option></select></div>
-        <div class="filter"><label>TOTAL</label><div class="kpi-mini-box"><span id="kpiTotal" class="kpi-mini-value">0</span><span class="kpi-mini-label">Servicios</span></div></div>
+        <div class="filter"><label>TOTAL SELECCIONADO</label><div class="kpi-mini-box"><span id="kpiTotal" class="kpi-mini-value">0</span><span class="kpi-mini-label">Servicios</span></div></div>
         <div class="filter"><label>&nbsp;</label><button id="btnDownloadNO" class="btn">⬇ Descargar</button></div>
       </div>
     </section>
 
     <section class="panel">
       <div class="panel-title">ANÁLISIS GESTIÓN SERVICIOS</div>
-      <div class="table-container">
+      <div class="table-wrapper">
         <table id="tablaServicios">
           <thead>
             <tr>
               <th>Cliente</th>
-              <th>Nro. VA01</th>
+              <th>Nro. VA01/VA21</th>
               <th>Pos</th>
               <th>Cod. Item</th>
               <th>Descripción</th>
               <th>Cant. Solicitada</th>
               <th>Total Recep.</th>
-              <th>Pendiente</th>
-              <th>Fecha Entrega</th>
+              <th>Pendiente De</th>
+              <th>Total Pendiente</th>
+              <th>Nro. Recepcion</th>
+              <th>Fecha Recepcion</th>
+              <th>Estado Item</th>
+              <th>Fecha Entrega Esp.</th>
               <th>Nro. OC</th>
-              <th>Grupo Compra</th>
-              <th>Estado</th>
+              <th>Grupo Compra OC</th>
+              <th>Estado Servicio</th>
             </tr>
           </thead>
           <tbody id="tablaBody"></tbody>
@@ -114,6 +118,6 @@
   </main>
 
   <script src="help.js"></script>
-  <script src="servicios.js?v=25"></script>
+  <script src="servicios.js?v=50"></script>
 </body>
 </html>

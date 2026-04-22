@@ -20,15 +20,17 @@
     .kpi-mini-label { font-size: 0.75rem; color: #64748b; text-transform: uppercase; font-weight: 700; margin-top: 5px; }
     .filters-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; align-items: end; }
 
-    /* ESTILOS PARA LA DOBLE BARRA */
+    /* DOBLE BARRA DE SCROLL */
     .top-scroll-wrapper {
         width: 100%;
         overflow-x: auto;
         overflow-y: hidden;
-        height: 20px; /* Altura de la barra de scroll */
+        height: 18px;
         margin-top: 20px;
+        background: #f1f5f9;
+        border-radius: 8px 8px 0 0;
     }
-    .fake-content { height: 1px; } /* Se ajusta por JS */
+    .fake-content { height: 1px; }
 
     .master-wrapper {
         width: 100%;
@@ -43,7 +45,7 @@
         border-collapse: collapse; 
         font-family: 'Source Sans 3', sans-serif; 
         font-size: 0.8rem; 
-        min-width: 2200px; /* Forzamos ancho para scroll */
+        min-width: 2200px; 
     }
     
     th { 
@@ -97,7 +99,10 @@
         <div class="filter"><label>PERÍODO</label><select id="clasif2Select" multiple size="6" class="multi-select"><option value="__ALL__">Todos</option></select></div>
         <div class="filter"><label>ESTADO</label><select id="gcocSelect" multiple size="6" class="multi-select"><option value="__ALL__">Todos</option></select></div>
         <div class="filter"><label>TOTAL SELECCIONADO</label><div class="kpi-mini-box"><span id="kpiTotal" class="kpi-mini-value">0</span><span class="kpi-mini-label">Servicios</span></div></div>
-        <div class="filter"><label>&nbsp;</label><button id="btnDownloadNO" class="btn">⬇ Descargar</button></div>
+        <div class="filter">
+          <label>&nbsp;</label>
+          <button id="btnDownloadSelection" class="btn">⬇ Descargar Selección</button>
+        </div>
       </div>
     </section>
 
@@ -114,7 +119,7 @@
             <tr>
               <th>CLIENTE</th>
               <th>NRO. VA01/VA21</th>
-              <th>POS VA01/VA21</th>
+              <th>POS VA01/V A21</th>
               <th>CODIGO ITEM</th>
               <th>DESCRIPCION ITEM</th>
               <th>CANTIDAD SOLICITADA</th>
@@ -137,6 +142,6 @@
   </main>
 
   <script src="help.js"></script>
-  <script src="servicios.js?v=2026"></script>
+  <script src="servicios.js?v=3000"></script>
 </body>
 </html>

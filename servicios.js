@@ -58,16 +58,20 @@ function applyAll() {
         if (estCert === "verde") tr.classList.add("row-verde");
         else if (estCert === "rojo") tr.classList.add("row-rojo");
 
-        // MAPEO SEGÚN TU FOTO DE EXCEL (Rosa)
+        // MAPEO COMPLETO SEGÚN EXCEL ROSA
         tr.innerHTML = `
             <td>${r["CLIENTE"] || ""}</td>
             <td>${r["NRO. VA01/VA21"] || ""}</td>
-            <td>${r["POS VA01/VA21"] || ""}</td>
+            <td>${r["POS VA01/V A21"] || ""}</td>
             <td>${r["CODIGO ITEM"] || ""}</td>
             <td>${r["DESCRIPCION ITEM"] || ""}</td>
             <td>${r["CANTIDAD SOLICITADA"] || ""}</td>
             <td>${r["CANTIDAD TOTAL RECEPCIONAD"] || ""}</td>
+            <td>${r["CANTIDAD PENDIENTE DE"] || ""}</td>
             <td>${r["CANTIDAD TOTAL PENDIENTE"] || ""}</td>
+            <td>${r["NRO. RECEPCION"] || ""}</td>
+            <td>${r["FECHA RECEPCION"] || ""}</td>
+            <td>${r["ESTADO ITEM"] || ""}</td>
             <td>${r["FECHA ENTREGA ESPERADA"] || ""}</td>
             <td>${r["NRO. OC"] || ""}</td>
             <td>${r["GRUPO DE COMPRA OC"] || ""}</td>

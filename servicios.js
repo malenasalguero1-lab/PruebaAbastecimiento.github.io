@@ -61,12 +61,15 @@ function applyAll() {
         if (estCert === "verde") tr.classList.add("row-verde");
         else if (estCert === "rojo") tr.classList.add("row-rojo");
 
-        tr.innerHTML = `
+       tr.innerHTML = `
             <td>${r["CLIENTE"] || ""}</td>
             <td>${r["NRO. OC"] || ""}</td>
+            <td>${r["POS VA01/VA21"] || ""}</td>
             <td>${r["DESCRIPCION ITEM"] || ""}</td>
             <td>${r["CANTIDAD SOLICITADA"] || ""}</td>
             <td>${r["CANTIDAD TOTAL RECEPCIONAD"] || ""}</td>
+            <td>${r["CANTIDAD TOTAL PENDIENTE"] || ""}</td>
+            <td>${r["FECHA ENTREGA ESPERADA"] || ""}</td>
             <td>${r["Estado Servicio"] || ""}</td>
         `;
         tbody.appendChild(tr);

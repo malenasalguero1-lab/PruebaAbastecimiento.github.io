@@ -5,6 +5,7 @@ const CLIENT_COL_NAME = "CLIENTE";
 const PERIODO_COL_NAME = "Período de certificación";
 const ESTADO_COL_NAME = "Estado Servicio";
 const ESTADO_CERT_COL = "Estado Certificación";
+const ESTADO_ITEM_COL = "ESTADO ITEM";
 
 let data = [];
 let headers = [];
@@ -47,7 +48,6 @@ function getSelValues(id) {
     return [...sel.selectedOptions].map(o => o.value).filter(v => v !== "__ALL__");
 }
 
-// LÓGICA DE DESCARGA
 function downloadCSV(rows) {
     if (!rows.length) return alert("No hay datos seleccionados para descargar.");
     const headerRow = headers.join(";");
@@ -82,33 +82,44 @@ function applyAll() {
 
     filtered.forEach(r => {
         const tr = document.createElement("tr");
+        
+        // Color de fila (Estado Certificación)
         const estCert = clean(r[ESTADO_CERT_COL]).toLowerCase();
         if (estCert === "verde") tr.classList.add("row-verde");
         else if (estCert === "rojo") tr.classList.add("row-rojo");
 
+        // Color específico para la celda Estado Item
+        const valorItem = clean(r[ESTADO_ITEM_COL]).toUpperCase();
+        let claseCelda = "";
+        
+        const rojos = ["ADJUDICADO", "ADJUDICADO PARCIAL", "RESPONDIDO", "INCOMPLETO"];
+        const verdes = ["CUMPLIDO", "ALMACENADO", "CONSUMIDO PARCIAL"];
+
+        if (rojos.includes(valorItem)) claseCelda = "cell-rojo";
+        else if (verdes.includes(valorItem)) claseCelda = "cell-verde";
+
         tr.innerHTML = `
             <td>${r["CLIENTE"] || ""}</td>
             <td>${r["NRO. VA01/VA21"] || ""}</td>
-            <td>${r["POS VA01/VA21"] || ""}</td>
+            <td>${r["POS VA01/V A21"] || ""}</td>
             <td>${r["CODIGO ITEM"] || ""}</td>
             <td>${r["DESCRIPCION ITEM"] || ""}</td>
             <td>${r["CANTIDAD SOLICITADA"] || ""}</td>
             <td>${r["CANTIDAD TOTAL RECEPCIONADA"] || ""}</td>
             <td>${r["CANTIDAD PENDIENTE DE ADJUDICAR"] || ""}</td>
             <td>${r["CANTIDAD TOTAL PENDIENTE RECEP."] || ""}</td>
-             <td>${r["ESTADO ITEM"] || ""}</td>
             <td>${r["NRO. RECEPCION"] || ""}</td>
             <td>${r["FECHA RECEPCION"] || ""}</td>
+            <td class="${claseCelda}">${r["ESTADO ITEM"] || ""}</td>
             <td>${r["FECHA ENTREGA ESPERADA"] || ""}</td>
             <td>${r["NRO. OC"] || ""}</td>
             <td>${r["GRUPO DE COMPRA OC"] || ""}</td>
             <td>${r["Estado Servicio"] || ""}</td>
-             <td>${r["Período de certificación"] || ""}</td>
         `;
         tbody.appendChild(tr);
     });
     setTimeout(syncScrolls, 150);
-    return filtered; // Retornamos para el botón de descarga
+    return filtered;
 }
 
 window.addEventListener("DOMContentLoaded", () => {
@@ -131,7 +142,6 @@ window.addEventListener("DOMContentLoaded", () => {
             document.getElementById(id)?.addEventListener("change", applyAll);
         });
 
-        // ASIGNAR ACCIÓN AL BOTÓN DE DESCARGA
         document.getElementById("btnDownloadSelection")?.addEventListener("click", () => {
             const currentFiltered = applyAll();
             downloadCSV(currentFiltered);

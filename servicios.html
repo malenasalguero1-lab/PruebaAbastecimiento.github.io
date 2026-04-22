@@ -10,66 +10,40 @@
   <link rel="stylesheet" href="base.css" />
   <link rel="stylesheet" href="cumplimiento.css" />
   <style>
-    /* Estilos para el KPI en la fila de filtros */
     .kpi-mini-box {
-        background: #ffffff; 
-        border: 2px solid #3b82f6; 
-        border-radius: 8px;
-        padding: 10px; 
-        text-align: center; 
-        height: 90px;
-        display: flex; 
-        flex-direction: column; 
-        justify-content: center;
+        background: #ffffff; border: 2px solid #3b82f6; border-radius: 8px;
+        padding: 10px; text-align: center; height: 90px;
+        display: flex; flex-direction: column; justify-content: center;
         box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
     .kpi-mini-value { display: block; font-size: 2rem; font-weight: 800; color: #3b82f6; line-height: 1; }
     .kpi-mini-label { font-size: 0.75rem; color: #64748b; text-transform: uppercase; font-weight: 700; margin-top: 5px; }
-    
-    .filters-5 { 
-        display: grid; 
-        grid-template-columns: repeat(5, 1fr); 
-        gap: 15px; 
-        align-items: end; 
-    }
+    .filters-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; align-items: end; }
 
-    /* Estilos para la Tabla y Colores de Fila */
+    /* BARRA DE DESPLAZAMIENTO ARRIBA */
     .table-container { 
         margin-top: 20px; 
         overflow-x: auto; 
         background: white; 
         border-radius: 8px; 
         border: 1px solid #e2e8f0; 
-        max-height: 600px; /* Altura máxima con scroll vertical */
+        transform: rotateX(180deg); /* Truco para poner la barra arriba */
     }
     
     table { 
         width: 100%; 
         border-collapse: collapse; 
         font-family: 'Source Sans 3', sans-serif; 
-        font-size: 0.85rem; 
-        min-width: 1200px; /* Asegura que no se amontonen las columnas */
+        font-size: 0.82rem; 
+        min-width: 1500px; 
+        transform: rotateX(180deg); /* Volvemos el contenido a la normalidad */
     }
     
-    th { 
-        background: #f8fafc; 
-        color: #1e293b; 
-        font-weight: 700; 
-        padding: 12px; 
-        text-align: left; 
-        border-bottom: 2px solid #e2e8f0; 
-        position: sticky; /* Encabezado siempre visible */
-        top: 0;
-        z-index: 10;
-    }
-    
+    th { background: #f8fafc; color: #1e293b; font-weight: 700; padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0; }
     td { padding: 8px 12px; border-bottom: 1px solid #f1f5f9; white-space: nowrap; }
     
-    /* Colores según Estado Certificación */
     .row-verde { background-color: #dcfce7 !important; color: #166534; }
     .row-rojo { background-color: #fee2e2 !important; color: #991b1b; }
-    
-    tr:hover { background-color: #f8fafc; }
   </style>
 </head>
 
@@ -105,68 +79,41 @@
     <section class="panel">
       <div class="panel-title">FILTROS DE SERVICIOS</div>
       <div class="panel-body filters-5">
-        
-        <div class="filter">
-          <label>CLIENTE</label>
-          <select id="clienteSelect" multiple size="6" class="multi-select">
-            <option value="__ALL__">Todos</option>
-          </select>
-        </div>
-
-        <div class="filter">
-          <label>PERÍODO DE CERTIFICACIÓN</label>
-          <select id="clasif2Select" multiple size="6" class="multi-select">
-            <option value="__ALL__">Todos</option>
-          </select>
-        </div>
-
-        <div class="filter">
-          <label>ESTADO SERVICIO</label>
-          <select id="gcocSelect" multiple size="6" class="multi-select">
-            <option value="__ALL__">Todos</option>
-          </select>
-        </div>
-
-        <div class="filter">
-          <label>TOTAL SELECCIONADO</label>
-          <div class="kpi-mini-box">
-             <span id="kpiTotal" class="kpi-mini-value">0</span>
-             <span class="kpi-mini-label">Servicios</span>
-          </div>
-        </div>
-
-        <div class="filter">
-          <label>&nbsp;</label>
-          <button id="btnDownloadNO" class="btn">⬇ Descargar Selección</button>
-        </div>
+        <div class="filter"><label>CLIENTE</label><select id="clienteSelect" multiple size="6" class="multi-select"><option value="__ALL__">Todos</option></select></div>
+        <div class="filter"><label>PERÍODO</label><select id="clasif2Select" multiple size="6" class="multi-select"><option value="__ALL__">Todos</option></select></div>
+        <div class="filter"><label>ESTADO</label><select id="gcocSelect" multiple size="6" class="multi-select"><option value="__ALL__">Todos</option></select></div>
+        <div class="filter"><label>TOTAL</label><div class="kpi-mini-box"><span id="kpiTotal" class="kpi-mini-value">0</span><span class="kpi-mini-label">Servicios</span></div></div>
+        <div class="filter"><label>&nbsp;</label><button id="btnDownloadNO" class="btn">⬇ Descargar</button></div>
       </div>
     </section>
 
     <section class="panel">
-      <div class="panel-title">ANÁLISIS GESTIÓN DE PEDIDOS</div>
+      <div class="panel-title">ANÁLISIS GESTIÓN SERVICIOS</div>
       <div class="table-container">
         <table id="tablaServicios">
           <thead>
             <tr>
               <th>Cliente</th>
-              <th>Nro. OC</th>
+              <th>Nro. VA01</th>
               <th>Pos</th>
-              <th>Descripción Item</th>
+              <th>Cod. Item</th>
+              <th>Descripción</th>
               <th>Cant. Solicitada</th>
-              <th>Cant. Recepcionada</th>
+              <th>Total Recep.</th>
               <th>Pendiente</th>
               <th>Fecha Entrega</th>
-              <th>Estado Servicio</th>
+              <th>Nro. OC</th>
+              <th>Grupo Compra</th>
+              <th>Estado</th>
             </tr>
           </thead>
-          <tbody id="tablaBody">
-            </tbody>
+          <tbody id="tablaBody"></tbody>
         </table>
       </div>
     </section>
   </main>
 
   <script src="help.js"></script>
-  <script src="servicios.js?v=10"></script>
+  <script src="servicios.js?v=25"></script>
 </body>
 </html>

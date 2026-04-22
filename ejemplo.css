@@ -735,3 +735,18 @@
     margin-top: 1.45rem;
     margin-bottom: 1.45rem;
 }
+/* Esto hace que todas las pestañas se escondan por defecto */
+.ej-tab-content {
+    display: none;
+}
+
+/* Esto hace que solo la pestaña activa sea visible */
+.ej-tab-content.active {
+    display: block;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}

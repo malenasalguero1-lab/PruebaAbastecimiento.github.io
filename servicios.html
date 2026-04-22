@@ -52,45 +52,42 @@
     <div id="msg"></div>
 
     <!-- FILTROS -->
-    <section class="panel">
-      <div class="panel-title">FILTROS
-        <button class="help-btn" onclick="openHelp('Filtros — Cumplimiento', `
-          <h4>Cliente / Obra</h4>
-          <p>Filtrá los pedidos por el nombre de la obra o cliente. Podés seleccionar varios con <strong>Ctrl + clic</strong>.</p>
-          <h4>Clasificación</h4>
-          <p>La clasificacion agrupa los grupos de compra de acuerdo al tipo de pedido solicitado.</p>
-          <h4>GC OC</h4>
-          <p>Filtrá por Grupo de Compra</p>
-          <h4>Mes de Entrega</h4>
-          <p>Seleccioná uno o varios meses (formato <em>MMM-AAAA</em>) para acotar el período analizado.</p>
-          <h4>⬇ Descargar NO entregados</h4>
-          <p>Exporta en CSV el listado de pedidos no entregados según los filtros activos.</p>
-          <div class=&quot;hm-tip&quot;>💡 Si no seleccionás ningún filtro, se muestran todos los datos disponibles.</div>
+   <section class="panel">
+      <div class="panel-title">FILTROS DE SERVICIOS
+        <button class="help-btn" onclick="openHelp('Filtros — Servicios', `
+          <h4>Cliente</h4>
+          <p>Filtrá por el nombre del cliente o proyecto.</p>
+          <h4>Período de certificación</h4>
+          <p>Seleccioná si la certificación es Semanal, Quincenal, Mensual, etc.</p>
+          <h4>Estado Servicio</h4>
+          <p>Filtrá por el estado actual del servicio (En curso, Finalizado, etc.).</p>
+          <div class=&quot;hm-tip&quot;>💡 Podés seleccionar varios elementos con <strong>Ctrl + clic</strong>.</div>
         `)" title="Ayuda sobre los filtros">ℹ</button>
       </div>
       <div class="panel-body filters filters-4">
+        
         <div class="filter">
-          <label>CLIENTE / OBRA</label>
+          <label>CLIENTE</label>
           <select id="clienteSelect" multiple size="6" class="multi-select">
             <option value="">Todos</option>
           </select>
-          <div id="clienteHint" class="hint">Columna: -</div>
+          <div id="clienteHint" class="hint">Columna: CLIENTE</div>
         </div>
 
         <div class="filter">
-          <label>CLASIFICACIÓN</label>
+          <label>PERÍODO DE CERTIFICACIÓN</label>
           <select id="clasif2Select" multiple size="6" class="multi-select">
             <option value="">Todos</option>
           </select>
-          <div id="clasif2Hint" class="hint">Columna: -</div>
+          <div id="clasif2Hint" class="hint">Columna: Período de certificación</div>
         </div>
 
         <div class="filter">
-          <label>GC OC</label>
+          <label>ESTADO SERVICIO</label>
           <select id="gcocSelect" multiple size="6" class="multi-select">
             <option value="">Todos</option>
           </select>
-          <div id="gcocHint" class="hint">Columna: -</div>
+          <div id="gcocHint" class="hint">Columna: Estado Servicio</div>
         </div>
 
         <div class="filter">
@@ -102,9 +99,9 @@
         <div class="filter">
           <label>&nbsp;</label>
           <button id="btnDownloadNO" class="btn">
-            ⬇ Descargar NO entregados
+            ⬇ Descargar Pendientes
           </button>
-          <div class="hint">Exporta CSV con “;”</div>
+          <div class="hint">Exporta CSV filtrado</div>
         </div>
       </div>
     </section>

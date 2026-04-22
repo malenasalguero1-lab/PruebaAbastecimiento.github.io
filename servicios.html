@@ -20,14 +20,17 @@
     .kpi-mini-label { font-size: 0.75rem; color: #64748b; text-transform: uppercase; font-weight: 700; margin-top: 5px; }
     .filters-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; align-items: end; }
 
-    /* CONTENEDOR CON SCROLL ARRIBA Y ABAJO */
+    /* DOBLE BARRA DE DESPLAZAMIENTO */
+    .double-scroll { width: 100%; overflow-x: auto; overflow-y: hidden; margin-top: 20px; border-top-left-radius: 8px; border-top-right-radius: 8px; }
+    .double-scroll-content { height: 1px; } /* Se ajusta por JS al ancho de la tabla */
+
     .table-wrapper {
         width: 100%;
-        overflow-x: auto; /* Habilita el desplazamiento horizontal */
-        margin-top: 20px;
-        border: 1px solid #e2e8f0;
-        border-radius: 8px;
+        overflow-x: auto;
         background: white;
+        border: 1px solid #e2e8f0;
+        border-bottom-left-radius: 8px;
+        border-bottom-right-radius: 8px;
     }
     
     table { 
@@ -35,10 +38,10 @@
         border-collapse: collapse; 
         font-family: 'Source Sans 3', sans-serif; 
         font-size: 0.82rem; 
-        min-width: 1600px; /* Forzamos que sea ancha para que aparezca el scroll */
+        min-width: 1800px; /* Forzamos ancho para que aparezcan las barras */
     }
     
-    th { background: #f8fafc; color: #1e293b; font-weight: 700; padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0; }
+    th { background: #f8fafc; color: #1e293b; font-weight: 700; padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0; white-space: nowrap; }
     td { padding: 8px 12px; border-bottom: 1px solid #f1f5f9; white-space: nowrap; }
     
     .row-verde { background-color: #dcfce7 !important; color: #166534; }
@@ -48,9 +51,7 @@
 
 <body class="page-cumplimiento">
   <div id="loader" class="loader-overlay">
-    <div class="spinner-bars">
-      <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
-    </div>
+    <div class="spinner-bars"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
     <div class="loading-text">Cargando servicios...</div>
   </div>
 
@@ -89,7 +90,12 @@
 
     <section class="panel">
       <div class="panel-title">ANÁLISIS GESTIÓN SERVICIOS</div>
-      <div class="table-wrapper">
+      
+      <div class="double-scroll" id="scroll-top">
+        <div class="double-scroll-content" id="scroll-top-content"></div>
+      </div>
+
+      <div class="table-wrapper" id="scroll-bottom">
         <table id="tablaServicios">
           <thead>
             <tr>
@@ -100,8 +106,8 @@
               <th>Descripción</th>
               <th>Cant. Solicitada</th>
               <th>Total Recep.</th>
-              <th>Pendiente De</th>
-              <th>Total Pendiente</th>
+              <th>Pendiente Adjudicar</th>
+              <th>Pendiente Recep.</th>
               <th>Nro. Recepcion</th>
               <th>Fecha Recepcion</th>
               <th>Estado Item</th>
@@ -118,6 +124,6 @@
   </main>
 
   <script src="help.js"></script>
-  <script src="servicios.js?v=50"></script>
+  <script src="servicios.js?v=95"></script>
 </body>
 </html>

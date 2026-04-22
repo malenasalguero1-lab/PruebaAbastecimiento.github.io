@@ -47,6 +47,7 @@
             <button class="ej-tab-btn active" onclick="showTab('tab-mm')">ANÁLISIS MM</button>
             <button class="ej-tab-btn" onclick="showTab('tab-cumplimiento')">CUMPLIMIENTO</button>
             <button class="ej-tab-btn" onclick="showTab('tab-demoras')">DEMORAS</button>
+            <button class="ej-tab-btn" onclick="showTab('servicios-content')">SERVICIOS</button>
         </div>
 
         <!-- ═══════════════════════════════════════════════════════
@@ -641,7 +642,100 @@
             Ejemplo de Dashboard de Abastecimiento — Valores ilustrativos.
         </div>
     </main>
+    
+    <!-- EXPLICACIÓN SERVICIOS -->
+<section id="tab-servicios" class="ej-tab-content">
+    <section class="ej-scenario">
+        <div class="ej-scenario-header">
+            <span style="font-size:1.4rem">🛠️</span>
+            <div>
+                <div class="ej-sh-title">ANÁLISIS GESTIÓN SERVICIOS</div>
+            </div>
+            <span class="ej-tab-badge" style="background:#d1fae5;color:#065f46;margin-left:auto">SERVICIOS</span>
+        </div>
 
+        <div class="ej-step-card step-col-1">
+            <div class="ej-step-header">
+                <div class="ej-num-badge">1</div>
+                <div class="ej-step-title">Alcance y Filtros de Servicios</div>
+            </div>
+            <div class="ej-step-body">
+                <div class="ej-reading">
+                    <div class="ej-reading-item ej-ri-info">
+                        <span class="ej-ri-icon">📌</span>
+                        <span>Este dashboard mide las VAs de servicios (tipo ZPAN/ZPAI y Subcontratos de obra) cuyos grupos de compra son <strong>C24, C25, C26, C04 y C16</strong>.</span>
+                    </div>
+                </div>
+                <div class="ej-reading">
+                    <div class="ej-reading-item ej-ri-info">
+                        <span class="ej-ri-icon">📌</span>
+                        <span><strong>Período de Certificación:</strong> Agrupa los servicios según su frecuencia (Mensual, Quincenal, Semanal, etc.). Aquellos sin clasificación figuran como "Sin aclaración".</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="ej-step-card step-col-1">
+            <div class="ej-step-header">
+                <div class="ej-num-badge">2</div>
+                <div class="ej-step-title">Lógica de Colores (Semáforo)</div>
+            </div>
+            <div class="ej-step-body">
+                <div class="ej-reading">
+                    <div class="ej-reading-item ej-ri-info">
+                        <span class="ej-ri-icon">🎨</span>
+                        <span><strong>Filas Completas (Estado Certificación):</strong> El color de la fila indica si la certificación está al día o demorada.</span>
+                    </div>
+                    <ul style="margin-left: 2rem; margin-top: 0.5rem; list-style-type: disc;">
+                        <li><strong style="color:#166534;">Verde:</strong> Certificación al día según el período.</li>
+                        <li><strong style="color:#991b1b;">Rojo:</strong> Demora en la última certificación (ej: más de 30 días para servicios mensuales).</li>
+                    </ul>
+                </div>
+
+                <div class="ej-reading" style="margin-top: 1.5rem;">
+                    <div class="ej-reading-item ej-ri-info">
+                        <span class="ej-ri-icon">📍</span>
+                        <span><strong>Estado Item (Color de Celda):</strong> Formato condicional específico para la columna "Estado Item":</span>
+                    </div>
+                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                        <div style="flex: 1; background:#fecaca; color:#991b1b; padding:12px; border-radius:6px; font-weight:600; text-align:center; border: 1px solid #f87171;">
+                            ROJO: ADJUDICADO, RESPONDIDO, INCOMPLETO
+                        </div>
+                        <div style="flex: 1; background:#bbf7d0; color:#166534; padding:12px; border-radius:6px; font-weight:600; text-align:center; border: 1px solid #4ade80;">
+                            VERDE: CUMPLIDO, ALMACENADO, CONSUMIDO PARCIAL
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="ej-step-card step-col-1">
+            <div class="ej-step-header">
+                <div class="ej-num-badge">3</div>
+                <div class="ej-step-title">Estados de Gestión del Servicio</div>
+            </div>
+            <div class="ej-step-body">
+                <div class="ej-reading">
+                    <div class="ej-reading-item ej-ri-info">
+                        <span class="ej-ri-icon">📊</span>
+                        <span>La columna <strong>Estado Servicio</strong> clasifica la situación operativa:</span>
+                    </div>
+                    <ul style="margin-left: 2rem; margin-top: 0.5rem; list-style-type: disc;">
+                        <li><strong>Próximo a vencer:</strong> Fecha de entrega esperada dentro de los próximos 45 días.</li>
+                        <li><strong>Vencido con cant. pendiente:</strong> La fecha de entrega ya pasó, pero aún restan recepciones.</li>
+                        <li><strong>En curso:</strong> Servicio activo dentro de los plazos normales.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+</section>
+
+
+
+
+
+    
     <script src="help.js"></script>
     <script>
         function showTab(tabId) {

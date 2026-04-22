@@ -20,47 +20,41 @@
     .kpi-mini-label { font-size: 0.75rem; color: #64748b; text-transform: uppercase; font-weight: 700; margin-top: 5px; }
     .filters-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; align-items: end; }
 
-    /* DOBLE BARRA DE SCROLL */
     .top-scroll-wrapper {
-        width: 100%;
-        overflow-x: auto;
-        overflow-y: hidden;
-        height: 18px;
-        margin-top: 20px;
-        background: #f1f5f9;
+        width: 100%; overflow-x: auto; overflow-y: hidden;
+        height: 18px; margin-top: 20px; background: #f1f5f9;
         border-radius: 8px 8px 0 0;
     }
     .fake-content { height: 1px; }
 
     .master-wrapper {
-        width: 100%;
-        overflow-x: auto;
-        border: 1px solid #e2e8f0;
-        border-radius: 0 0 8px 8px;
+        width: 100%; overflow-x: auto;
+        border: 1px solid #e2e8f0; border-radius: 0 0 8px 8px;
         background: white;
     }
     
     table { 
-        width: 100%; 
-        border-collapse: collapse; 
+        width: 100%; border-collapse: collapse; 
         font-family: 'Source Sans 3', sans-serif; 
-        font-size: 0.8rem; 
-        min-width: 2200px; 
+        font-size: 0.8rem; min-width: 2200px; 
     }
     
     th { 
         background: #f8fafc; color: #1e293b; font-weight: 700; 
         padding: 8px; text-align: left; border-bottom: 2px solid #e2e8f0;
-        white-space: normal; 
-        line-height: 1.1;
-        vertical-align: bottom;
-        max-width: 130px; 
+        white-space: normal; line-height: 1.1;
+        vertical-align: bottom; max-width: 130px; 
     }
 
     td { padding: 8px; border-bottom: 1px solid #f1f5f9; white-space: nowrap; }
     
+    /* Colores para la fila completa (Estado Certificación) */
     .row-verde { background-color: #dcfce7 !important; color: #166534; }
     .row-rojo { background-color: #fee2e2 !important; color: #991b1b; }
+
+    /* Colores específicos para la celda Estado Item */
+    .cell-rojo { background-color: #fecaca !important; color: #991b1b; font-weight: 600; text-align: center; border-radius: 4px; }
+    .cell-verde { background-color: #bbf7d0 !important; color: #166534; font-weight: 600; text-align: center; border-radius: 4px; }
   </style>
 </head>
 
@@ -108,32 +102,27 @@
 
     <section class="panel">
       <div class="panel-title">ANÁLISIS GESTIÓN SERVICIOS</div>
-      
-      <div class="top-scroll-wrapper" id="top-scroll">
-        <div class="fake-content" id="fake-content"></div>
-      </div>
-
+      <div class="top-scroll-wrapper" id="top-scroll"><div class="fake-content" id="fake-content"></div></div>
       <div class="master-wrapper" id="bottom-scroll">
         <table id="tablaServicios">
           <thead>
             <tr>
               <th>CLIENTE</th>
               <th>NRO. VA01/VA21</th>
-              <th>POS VA01/VA21</th>
+              <th>POS VA01/V A21</th>
               <th>CODIGO ITEM</th>
               <th>DESCRIPCION ITEM</th>
               <th>CANTIDAD SOLICITADA</th>
               <th>CANTIDAD TOTAL RECEPCIONADA</th>
               <th>CANTIDAD PENDIENTE DE ADJUDICAR</th>
               <th>CANTIDAD TOTAL PENDIENTE RECEP.</th>
-              <th>ESTADO ITEM</th>
               <th>NRO. RECEPCION</th>
               <th>FECHA RECEPCION</th>
+              <th>ESTADO ITEM</th>
               <th>FECHA ENTREGA ESPERADA</th>
               <th>NRO. OC</th>
               <th>GRUPO DE COMPRA OC</th>
-              <th>Estado Servicio</th> 
-              <th>Período de certificación</th>
+              <th>Estado Servicio</th>
             </tr>
           </thead>
           <tbody id="tablaBody"></tbody>
@@ -143,6 +132,6 @@
   </main>
 
   <script src="help.js"></script>
-  <script src="servicios.js?v=3000"></script>
+  <script src="servicios.js?v=4000"></script>
 </body>
 </html>

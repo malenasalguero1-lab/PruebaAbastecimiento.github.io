@@ -20,17 +20,13 @@
     .kpi-mini-label { font-size: 0.75rem; color: #64748b; text-transform: uppercase; font-weight: 700; margin-top: 5px; }
     .filters-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; align-items: end; }
 
-    /* DOBLE BARRA DE DESPLAZAMIENTO */
-    .double-scroll { width: 100%; overflow-x: auto; overflow-y: hidden; margin-top: 20px; border-top-left-radius: 8px; border-top-right-radius: 8px; }
-    .double-scroll-content { height: 1px; } /* Se ajusta por JS al ancho de la tabla */
-
-    .table-wrapper {
+    /* DOBLE BARRA - CONTENEDOR MAESTRO */
+    .master-wrapper {
         width: 100%;
-        overflow-x: auto;
-        background: white;
+        overflow-x: auto; /* Esta es la barra que aparecerá arriba */
+        margin-top: 20px;
         border: 1px solid #e2e8f0;
-        border-bottom-left-radius: 8px;
-        border-bottom-right-radius: 8px;
+        border-radius: 8px;
     }
     
     table { 
@@ -38,7 +34,8 @@
         border-collapse: collapse; 
         font-family: 'Source Sans 3', sans-serif; 
         font-size: 0.82rem; 
-        min-width: 1800px; /* Forzamos ancho para que aparezcan las barras */
+        min-width: 2000px; /* Forzamos ancho grande para obligar al scroll */
+        background: white;
     }
     
     th { background: #f8fafc; color: #1e293b; font-weight: 700; padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0; white-space: nowrap; }
@@ -90,30 +87,25 @@
 
     <section class="panel">
       <div class="panel-title">ANÁLISIS GESTIÓN SERVICIOS</div>
-      
-      <div class="double-scroll" id="scroll-top">
-        <div class="double-scroll-content" id="scroll-top-content"></div>
-      </div>
-
-      <div class="table-wrapper" id="scroll-bottom">
+      <div class="master-wrapper">
         <table id="tablaServicios">
           <thead>
             <tr>
-              <th>Cliente</th>
-              <th>Nro. VA01/VA21</th>
-              <th>Pos</th>
-              <th>Cod. Item</th>
-              <th>Descripción</th>
-              <th>Cant. Solicitada</th>
-              <th>Total Recep.</th>
-              <th>Pendiente Adjudicar</th>
-              <th>Pendiente Recep.</th>
-              <th>Nro. Recepcion</th>
-              <th>Fecha Recepcion</th>
-              <th>Estado Item</th>
-              <th>Fecha Entrega Esp.</th>
-              <th>Nro. OC</th>
-              <th>Grupo Compra OC</th>
+              <th>CLIENTE</th>
+              <th>NRO. VA01/VA21</th>
+              <th>POS VA01/V A21</th>
+              <th>CODIGO ITEM</th>
+              <th>DESCRIPCION ITEM</th>
+              <th>CANTIDAD SOLICITADA</th>
+              <th>CANTIDAD TOTAL RECEPCIONAD</th>
+              <th>CANTIDAD PENDIENTE DE ADJUDICAR</th>
+              <th>CANTIDAD TOTAL PENDIENTE RECEP.</th>
+              <th>NRO. RECEPCION</th>
+              <th>FECHA RECEPCION</th>
+              <th>ESTADO ITEM</th>
+              <th>FECHA ENTREGA ESPERADA</th>
+              <th>NRO. OC</th>
+              <th>GRUPO DE COMPRA OC</th>
               <th>Estado Servicio</th>
             </tr>
           </thead>
@@ -124,6 +116,6 @@
   </main>
 
   <script src="help.js"></script>
-  <script src="servicios.js?v=95"></script>
+  <script src="servicios.js?v=999"></script>
 </body>
 </html>

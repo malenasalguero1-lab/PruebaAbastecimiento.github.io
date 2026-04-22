@@ -89,7 +89,7 @@ function applyAll() {
         tr.innerHTML = `
             <td>${r["CLIENTE"] || ""}</td>
             <td>${r["NRO. VA01/VA21"] || ""}</td>
-            <td>${r["POS VA01/V A21"] || ""}</td>
+            <td>${r["POS VA01/VA21"] || ""}</td>
             <td>${r["CODIGO ITEM"] || ""}</td>
             <td>${r["DESCRIPCION ITEM"] || ""}</td>
             <td>${r["CANTIDAD SOLICITADA"] || ""}</td>

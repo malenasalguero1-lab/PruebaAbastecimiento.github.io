@@ -4,7 +4,7 @@ const DELIM = ";";
 const CLIENT_COL_NAME = "CLIENTE";
 const PERIODO_COL_NAME = "Período de certificación";
 const ESTADO_COL_NAME = "Estado Servicio";
-const ESTADO_CERT_COL = "Estado Certificación"; // Columna AS en tu Excel
+const ESTADO_CERT_COL = "Estado Certificación";
 
 let data = [];
 let headers = [];
@@ -49,27 +49,28 @@ function applyAll() {
 
     setText("kpiTotal", fmtInt(filtered.length));
 
-    // LÓGICA DE LA TABLA
     const tbody = document.getElementById("tablaBody");
     tbody.innerHTML = "";
 
     filtered.forEach(r => {
         const tr = document.createElement("tr");
-        
-        // Aplicar color de fila según "Estado Certificación"
         const estCert = clean(r[ESTADO_CERT_COL]).toLowerCase();
         if (estCert === "verde") tr.classList.add("row-verde");
         else if (estCert === "rojo") tr.classList.add("row-rojo");
 
-     tr.innerHTML = `
+        // MAPEO SEGÚN TU FOTO DE EXCEL (Rosa)
+        tr.innerHTML = `
             <td>${r["CLIENTE"] || ""}</td>
-            <td>${r["NRO. OC"] || ""}</td>
+            <td>${r["NRO. VA01/VA21"] || ""}</td>
             <td>${r["POS VA01/VA21"] || ""}</td>
+            <td>${r["CODIGO ITEM"] || ""}</td>
             <td>${r["DESCRIPCION ITEM"] || ""}</td>
             <td>${r["CANTIDAD SOLICITADA"] || ""}</td>
             <td>${r["CANTIDAD TOTAL RECEPCIONAD"] || ""}</td>
             <td>${r["CANTIDAD TOTAL PENDIENTE"] || ""}</td>
             <td>${r["FECHA ENTREGA ESPERADA"] || ""}</td>
+            <td>${r["NRO. OC"] || ""}</td>
+            <td>${r["GRUPO DE COMPRA OC"] || ""}</td>
             <td>${r["Estado Servicio"] || ""}</td>
         `;
         tbody.appendChild(tr);
@@ -82,39 +83,31 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(text => {
         const rows = parseCSV(text);
         if (rows.length < 2) return;
-
         headers = rows[0].map(clean);
         data = rows.slice(1).map(row => {
             let o = {};
             headers.forEach((h, i) => o[h] = clean(row[i]));
             return o;
         });
-
-        const fill = (id, col) => {
-            const values = [...new Set(data.map(r => r[col]).filter(Boolean))].sort();
-            const sel = document.getElementById(id);
-            if (!sel) return;
-            sel.innerHTML = '<option value="__ALL__">Todos</option>';
-            values.forEach(v => {
-                const opt = document.createElement("option");
-                opt.value = v; opt.textContent = v;
-                sel.appendChild(opt);
-            });
-        };
-
         fill("clienteSelect", CLIENT_COL_NAME);
         fill("clasif2Select", PERIODO_COL_NAME);
         fill("gcocSelect", ESTADO_COL_NAME);
-        
         ["clienteSelect", "clasif2Select", "gcocSelect"].forEach(id => {
             document.getElementById(id)?.addEventListener("change", applyAll);
         });
-
         applyAll();
         document.getElementById("loader").style.display = "none";
-    })
-    .catch(err => {
-        console.error(err);
-        document.getElementById("loader").innerHTML = "Error cargando datos";
     });
 });
+
+function fill(id, col) {
+    const values = [...new Set(data.map(r => r[col]).filter(Boolean))].sort();
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    sel.innerHTML = '<option value="__ALL__">Todos</option>';
+    values.forEach(v => {
+        const opt = document.createElement("option");
+        opt.value = v; opt.textContent = v;
+        sel.appendChild(opt);
+    });
+}

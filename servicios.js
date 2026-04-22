@@ -101,20 +101,21 @@ function applyAll() {
         tr.innerHTML = `
             <td>${r["CLIENTE"] || ""}</td>
             <td>${r["NRO. VA01/VA21"] || ""}</td>
-            <td>${r["POS VA01/V A21"] || ""}</td>
+            <td>${r["POS VA01/VA21"] || ""}</td>
             <td>${r["CODIGO ITEM"] || ""}</td>
             <td>${r["DESCRIPCION ITEM"] || ""}</td>
             <td>${r["CANTIDAD SOLICITADA"] || ""}</td>
             <td>${r["CANTIDAD TOTAL RECEPCIONADA"] || ""}</td>
             <td>${r["CANTIDAD PENDIENTE DE ADJUDICAR"] || ""}</td>
             <td>${r["CANTIDAD TOTAL PENDIENTE RECEP."] || ""}</td>
+            <td class="${claseCelda}">${r["ESTADO ITEM"] || ""}</td>
             <td>${r["NRO. RECEPCION"] || ""}</td>
             <td>${r["FECHA RECEPCION"] || ""}</td>
-            <td class="${claseCelda}">${r["ESTADO ITEM"] || ""}</td>
             <td>${r["FECHA ENTREGA ESPERADA"] || ""}</td>
             <td>${r["NRO. OC"] || ""}</td>
             <td>${r["GRUPO DE COMPRA OC"] || ""}</td>
             <td>${r["Estado Servicio"] || ""}</td>
+            <td>${r["Período de certificación"] || ""}</td>
         `;
         tbody.appendChild(tr);
     });

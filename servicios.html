@@ -5,11 +5,9 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>ABASTECIMIENTO - SERVICIOS</title>
-
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
-  
   <link rel="stylesheet" href="base.css" />
   <link rel="stylesheet" href="cumplimiento.css" />
 </head>
@@ -30,80 +28,66 @@
       <div class="title">ABASTECIMIENTO</div>
       <div class="subtitle">Análisis de Servicios y Subcontratos de Obra</div>
     </div>
-<div class="topbar-right">
-  <div class="update-box">
-    <div class="update-label">Última actualización</div>
-    <div id="lastUpdate" class="update-date">22/04/2026</div> </div> <!-- ACTUALIZAR FECHA A MANO -->
-</div>
+    <div class="topbar-right">
+      <div class="update-box">
+        <div class="update-label">Última actualización</div>
+        <div id="lastUpdate" class="update-date">22/04/2026</div> </div>
+    </div>
   </header>
 
-<nav class="tabs">
-  <a class="tab" href="analisis-mm.html">ANÁLISIS MM</a>
-  <a class="tab" href="index.html">CUMPLIMIENTO</a>
-  <a class="tab" href="demoras.html">DEMORAS</a>
-  <a class="tab active" href="servicios.html">SERVICIOS</a>
-  <a class="tab" href="ejemplo.html">📊 EJEMPLO</a>
-</nav>
+  <nav class="tabs">
+    <a class="tab" href="analisis-mm.html">ANÁLISIS MM</a>
+    <a class="tab" href="index.html">CUMPLIMIENTO</a>
+    <a class="tab" href="demoras.html">DEMORAS</a>
+    <a class="tab active" href="servicios.html">SERVICIOS</a>
+    <a class="tab" href="ejemplo.html">📊 EJEMPLO</a>
+  </nav>
 
   <main class="container">
     <div id="msg"></div>
 
     <section class="panel">
-      <div class="panel-title">FILTROS DE SERVICIOS
-        <button class="help-btn" onclick="openHelp('Filtros — Servicios', `
-          <h4>Cliente</h4>
-          <p>Filtrá por el nombre del cliente o proyecto.</p>
-          <h4>Período de certificación</h4>
-          <p>Seleccioná si la certificación es Semanal, Quincenal, Mensual o a Demanda.</p>
-          <h4>Estado Servicio</h4>
-          <p>Filtrá por el estado actual (En curso, Finalizado, etc.).</p>
-          <div class=&quot;hm-tip&quot;>💡 Usá <strong>Ctrl + clic</strong> para seleccionar varios.</div>
-        `)" title="Ayuda sobre los filtros">ℹ</button>
-      </div>
+      <div class="panel-title">FILTROS DE SERVICIOS</div>
       <div class="panel-body filters filters-4">
         
         <div class="filter">
           <label>CLIENTE</label>
           <select id="clienteSelect" multiple size="6" class="multi-select">
-            <option value="">Todos</option>
+            <option value="__ALL__">Todos</option>
           </select>
         </div>
 
         <div class="filter">
           <label>PERÍODO DE CERTIFICACIÓN</label>
           <select id="clasif2Select" multiple size="6" class="multi-select">
-            <option value="">Todos</option>
+            <option value="__ALL__">Todos</option>
           </select>
         </div>
 
         <div class="filter">
           <label>ESTADO SERVICIO</label>
           <select id="gcocSelect" multiple size="6" class="multi-select">
-            <option value="">Todos</option>
+            <option value="__ALL__">Todos</option>
           </select>
         </div>
-
-  
 
         <div class="filter">
           <label>&nbsp;</label>
           <button id="btnDownloadNO" class="btn">⬇ Descargar Selección</button>
-          <div class="hint">Exporta CSV filtrado</div>
         </div>
       </div>
     </section>
 
     <section class="panel">
       <div class="panel-title">ESTADO DE GESTIÓN DE SERVICIOS</div>
-
-      <div class="panel-body kpi-grid kpi-grid-5">
+      <div class="panel-body kpi-grid kpi-grid-3">
         <div class="kpi kpi-blue">
           <div class="kpi-head">
             <div class="kpi-title">TOTAL SERVICIOS</div>
             <div class="kpi-icon">📦</div>
           </div>
           <div id="kpiTotal" class="kpi-value">-</div>
-          <div class="kpi-sub">Según filtros aplicados</div>
+          <div class="kpi-sub">Según filtros</div>
         </div>
 
         <div class="kpi kpi-green">
@@ -121,14 +105,12 @@
             <div class="kpi-icon">⏳</div>
           </div>
           <div id="kpiFTqty" class="kpi-value">-</div>
-          <div class="kpi-sub kpi-sub-strong">Cantidad total</div>
+          <div class="kpi-sub">Cantidad total</div>
         </div>
       </div>
     </section>
-
   </main>
 
-  <script src="last-update.js"></script>
-
-
+  <script src="help.js"></script>
+  <script src="servicios.js?v=3"></script> </body>
 </html>

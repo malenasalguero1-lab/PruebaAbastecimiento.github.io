@@ -166,7 +166,7 @@ window.addEventListener("DOMContentLoaded", () => {
         document.getElementById("loader")?.classList.add("hidden");
 
         // Listeners para interactividad
-        ["clienteSelect", "clasif2Select", "gcocSelect", "mesSelect"].forEach(id => {
+        ["clienteSelect", "clasif2Select", "gcocSelect"].forEach(id => {
             document.getElementById(id)?.addEventListener("change", applyAll);
         });
 

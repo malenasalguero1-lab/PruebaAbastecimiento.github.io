@@ -655,20 +655,43 @@
 
         <div class="ej-step-card step-col-1">
             <div class="ej-step-header">
-                <div class="ej-num-badge">1</div>
-                <div class="ej-step-title">Alcance y Filtros de Servicios</div>
+                <div class="ej-num-badge">!</div>
+                <div class="ej-step-title">Importante: Tener en cuenta</div>
             </div>
             <div class="ej-step-body">
                 <div class="ej-reading">
                     <div class="ej-reading-item ej-ri-info">
                         <span class="ej-ri-icon">📌</span>
-                        <span>Este dashboard mide las VAs de servicios (tipo ZPAN/ZPAI y Subcontratos de obra) cuyos grupos de compra son <strong>C24, C25, C26, C04 y C16</strong>.</span>
+                        <span>¿Qué mide? Las VAs tipo ZPAN/ZPAI cuyo grupo de compra es <strong>C24,C25,C26,C04 y C16</strong> cuyo cliente es una obra de cualquier sociedad</span>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <div class="ej-step-card step-col-1">
+            <div class="ej-step-header">
+                <div class="ej-num-badge">1</div>
+                <div class="ej-step-title">SELECCIÓN DE FILTROS</div>
+            </div>
+            <div class="ej-step-body">
                 <div class="ej-reading">
                     <div class="ej-reading-item ej-ri-info">
-                        <span class="ej-ri-icon">📌</span>
-                        <span><strong>Período de Certificación:</strong> Agrupa los servicios según su frecuencia (Mensual, Quincenal, Semanal, etc.). Aquellos sin clasificación figuran como "Sin aclaración".</span>
+                        <span class="ej-ri-icon">🔍</span>
+                        <span>En el primer filtro <strong>CLIENTE/OBRA</strong> elegí de la lista la obra que desees analizar.</span>
+                    </div>
+                    <div class="ej-reading-item ej-ri-info">
+                        <span class="ej-ri-icon">⏳</span>
+                        <span>En el filtro <strong>PERÍODO</strong> se agrupan los distintos servicios y subcontratos según el tipo de certificación colocada en REF.CLIENTE. Si no se usó ninguna de las clasificaciones estándares, figura como “Sin aclaración”.</span>
+                    </div>
+                    <div class="ej-reading-item ej-ri-info">
+                        <span class="ej-ri-icon">📊</span>
+                        <span><strong>ESTADO</strong> divide en los siguientes grupos:</span>
+                        <ul style="margin-left: 2rem; margin-top: 0.5rem; list-style-type: disc;">
+                            <li>Próximo a vencer → si la fecha de entrega de la VA está dentro de los próximos 45 días</li>
+                            <li>Vencido con cant pendiente a recep → la fecha de entrega de la VA está vencida, sin embargo aún hay cantidad pendiente por recepcionar</li>
+                            <li>En curso - Total recepcionado → La fecha de entrega de la VA aún no está vencida pero ya se ha recepcionado la totalidad del servicio.</li>
+                            <li>En curso → La fecha de la VA no está vencida (ni próxima a vencer) y aún hay cantidades pendientes por recepcionar; o si la VA se encuentra en estado: Sin Tratamiento/ Adjudicado/ Respondido/ Incompleto</li>
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -677,32 +700,13 @@
         <div class="ej-step-card step-col-1">
             <div class="ej-step-header">
                 <div class="ej-num-badge">2</div>
-                <div class="ej-step-title">Lógica de Colores (Semáforo)</div>
+                <div class="ej-step-title">TARJETA: TOTAL SELECCIONADO</div>
             </div>
             <div class="ej-step-body">
                 <div class="ej-reading">
                     <div class="ej-reading-item ej-ri-info">
-                        <span class="ej-ri-icon">🎨</span>
-                        <span><strong>Filas Completas (Estado Certificación):</strong> El color de la fila indica si la certificación está al día o demorada.</span>
-                    </div>
-                    <ul style="margin-left: 2rem; margin-top: 0.5rem; list-style-type: disc;">
-                        <li><strong style="color:#166534;">Verde:</strong> Certificación al día según el período.</li>
-                        <li><strong style="color:#991b1b;">Rojo:</strong> Demora en la última certificación (ej: más de 30 días para servicios mensuales).</li>
-                    </ul>
-                </div>
-
-                <div class="ej-reading" style="margin-top: 1.5rem;">
-                    <div class="ej-reading-item ej-ri-info">
-                        <span class="ej-ri-icon">📍</span>
-                        <span><strong>Estado Item (Color de Celda):</strong> Formato condicional específico para la columna "Estado Item":</span>
-                    </div>
-                    <div style="display: flex; gap: 10px; margin-top: 10px;">
-                        <div style="flex: 1; background:#fecaca; color:#991b1b; padding:12px; border-radius:6px; font-weight:600; text-align:center; border: 1px solid #f87171;">
-                            ROJO: ADJUDICADO, RESPONDIDO, INCOMPLETO
-                        </div>
-                        <div style="flex: 1; background:#bbf7d0; color:#166534; padding:12px; border-radius:6px; font-weight:600; text-align:center; border: 1px solid #4ade80;">
-                            VERDE: CUMPLIDO, ALMACENADO, CONSUMIDO PARCIAL
-                        </div>
+                        <span class="ej-ri-icon">📑</span>
+                        <span>En “TOTAL SELECCIONADO” se ven la cantidad de posiciones/líneas según los filtros seleccionados. Apretando el botón <strong>“Descargar Selección”</strong> se puede descargar un archivo csv que contiene dicha información (con más columnas que las mostradas en la tabla).</span>
                     </div>
                 </div>
             </div>
@@ -711,19 +715,30 @@
         <div class="ej-step-card step-col-1">
             <div class="ej-step-header">
                 <div class="ej-num-badge">3</div>
-                <div class="ej-step-title">Estados de Gestión del Servicio</div>
+                <div class="ej-step-title">ANÁLISIS GESTIÓN DE SERVICIOS</div>
             </div>
             <div class="ej-step-body">
                 <div class="ej-reading">
                     <div class="ej-reading-item ej-ri-info">
-                        <span class="ej-ri-icon">📊</span>
-                        <span>La columna <strong>Estado Servicio</strong> clasifica la situación operativa:</span>
+                        <span class="ej-ri-icon">📋</span>
+                        <span>En la siguiente tabla podemos ver las posiciones/líneas de VAs que responden a los filtros seleccionados.</span>
                     </div>
-                    <ul style="margin-left: 2rem; margin-top: 0.5rem; list-style-type: disc;">
-                        <li><strong>Próximo a vencer:</strong> Fecha de entrega esperada dentro de los próximos 45 días.</li>
-                        <li><strong>Vencido con cant. pendiente:</strong> La fecha de entrega ya pasó, pero aún restan recepciones.</li>
-                        <li><strong>En curso:</strong> Servicio activo dentro de los plazos normales.</li>
-                    </ul>
+                    <div class="ej-reading-item ej-ri-info">
+                        <span class="ej-ri-icon">🎨</span>
+                        <span>Los estados “SIN TRATAMIENTO”/”ADJUDICADO”/”ADJUDICADO PARCIAL”/”RESPONDIDO”/”INCOMPLETO” se remarcan en color rojo sobre el nombre del mismo estado para detonar que aún siguen pendientes de gestión.</span>
+                    </div>
+                    <div class="ej-reading-item ej-ri-info">
+                        <span class="ej-ri-icon">✅</span>
+                        <span>Los estados “CUMPLIDO”/”CONSUMIDO PARCIAL”/”ALMACENADO” se remarcan en color verde sobre el nombre del mismo estado para detonar que están “cumpldios”</span>
+                    </div>
+                    <div class="ej-reading-item ej-ri-info">
+                        <span class="ej-ri-icon">🚩</span>
+                        <span>Por otro lado, si el estado es “en curso” o “próximo a vencer” y el período es diferente a “Sin aclaración” se remarca la línea completa en:</span>
+                        <ul style="margin-left: 2rem; margin-top: 0.5rem; list-style-type: disc;">
+                            <li><strong>Rojo →</strong> Si la última recepción fue realizada hace mas de X días. (Por ejemplo: si hablamos de una certificación Mensual, si la certificación hace más de 30 días que no se realiza, figurará en rojo)</li>
+                            <li><strong>Verde →</strong> Si la última recepción fue realizada hace menos de X días.</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>

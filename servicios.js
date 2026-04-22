@@ -96,9 +96,9 @@ function applyAll() {
             <td>${r["CANTIDAD TOTAL RECEPCIONADA"] || ""}</td>
             <td>${r["CANTIDAD PENDIENTE DE ADJUDICAR"] || ""}</td>
             <td>${r["CANTIDAD TOTAL PENDIENTE RECEP."] || ""}</td>
+             <td>${r["ESTADO ITEM"] || ""}</td>
             <td>${r["NRO. RECEPCION"] || ""}</td>
             <td>${r["FECHA RECEPCION"] || ""}</td>
-            <td>${r["ESTADO ITEM"] || ""}</td>
             <td>${r["FECHA ENTREGA ESPERADA"] || ""}</td>
             <td>${r["NRO. OC"] || ""}</td>
             <td>${r["GRUPO DE COMPRA OC"] || ""}</td>

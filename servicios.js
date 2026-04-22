@@ -29,17 +29,15 @@ function parseCSV(text) {
     return rows;
 }
 
-// Sincroniza la barra superior con la inferior
 function syncScrolls() {
     const top = document.getElementById('top-scroll');
     const bottom = document.getElementById('bottom-scroll');
     const fake = document.getElementById('fake-content');
     const table = document.getElementById('tablaServicios');
-
     if (top && bottom && fake && table) {
         fake.style.width = table.offsetWidth + 'px';
-        top.onscroll = function() { bottom.scrollLeft = top.scrollLeft; };
-        bottom.onscroll = function() { top.scrollLeft = bottom.scrollLeft; };
+        top.onscroll = () => { bottom.scrollLeft = top.scrollLeft; };
+        bottom.onscroll = () => { top.scrollLeft = bottom.scrollLeft; };
     }
 }
 
@@ -47,6 +45,22 @@ function getSelValues(id) {
     const sel = document.getElementById(id);
     if (!sel) return [];
     return [...sel.selectedOptions].map(o => o.value).filter(v => v !== "__ALL__");
+}
+
+// LÓGICA DE DESCARGA
+function downloadCSV(rows) {
+    if (!rows.length) return alert("No hay datos seleccionados para descargar.");
+    const headerRow = headers.join(";");
+    const contentRows = rows.map(r => headers.map(h => (r[h] ?? "").toString().replace(/;/g, ",")).join(";"));
+    const csvContent = "\ufeff" + [headerRow, ...contentRows].join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", "Seleccion_Servicios.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 
 function applyAll() {
@@ -72,11 +86,10 @@ function applyAll() {
         if (estCert === "verde") tr.classList.add("row-verde");
         else if (estCert === "rojo") tr.classList.add("row-rojo");
 
-        // MAPEO CON NOMBRES ORIGINALES DEL CSV
         tr.innerHTML = `
             <td>${r["CLIENTE"] || ""}</td>
             <td>${r["NRO. VA01/VA21"] || ""}</td>
-            <td>${r["POS VA01/VA21"] || ""}</td>
+            <td>${r["POS VA01/V A21"] || ""}</td>
             <td>${r["CODIGO ITEM"] || ""}</td>
             <td>${r["DESCRIPCION ITEM"] || ""}</td>
             <td>${r["CANTIDAD SOLICITADA"] || ""}</td>
@@ -93,13 +106,13 @@ function applyAll() {
         `;
         tbody.appendChild(tr);
     });
-    // Re-ajustar ancho del scroll falso después de cargar datos
-    setTimeout(syncScrolls, 100);
+    setTimeout(syncScrolls, 150);
+    return filtered; // Retornamos para el botón de descarga
 }
 
 window.addEventListener("DOMContentLoaded", () => {
     fetch(csvUrl)
-    .then(r => { if (!r.ok) throw new Error("Error CSV"); return r.text(); })
+    .then(r => r.text())
     .then(text => {
         const rows = parseCSV(text);
         if (rows.length < 2) return;
@@ -112,9 +125,17 @@ window.addEventListener("DOMContentLoaded", () => {
         fill("clienteSelect", CLIENT_COL_NAME);
         fill("clasif2Select", PERIODO_COL_NAME);
         fill("gcocSelect", ESTADO_COL_NAME);
+        
         ["clienteSelect", "clasif2Select", "gcocSelect"].forEach(id => {
             document.getElementById(id)?.addEventListener("change", applyAll);
         });
+
+        // ASIGNAR ACCIÓN AL BOTÓN DE DESCARGA
+        document.getElementById("btnDownloadSelection")?.addEventListener("click", () => {
+            const currentFiltered = applyAll();
+            downloadCSV(currentFiltered);
+        });
+
         applyAll();
         document.getElementById("loader").style.display = "none";
         window.addEventListener('resize', syncScrolls);

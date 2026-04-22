@@ -1,6 +1,7 @@
 const csvUrl = "./SERVICIOS OBRA.csv"; 
 const DELIM = ";";
 
+// Nombres de columnas según tu CSV original
 const CLIENT_COL_NAME = "CLIENTE";
 const PERIODO_COL_NAME = "Período de certificación";
 const ESTADO_COL_NAME = "Estado Servicio";
@@ -58,7 +59,7 @@ function applyAll() {
         if (estCert === "verde") tr.classList.add("row-verde");
         else if (estCert === "rojo") tr.classList.add("row-rojo");
 
-        // MAPEO DE COLUMNAS SEGÚN EXCEL
+        // MAPEO CON NOMBRES EXACTOS DEL CSV
         tr.innerHTML = `
             <td>${r["CLIENTE"] || ""}</td>
             <td>${r["NRO. VA01/VA21"] || ""}</td>
@@ -66,7 +67,7 @@ function applyAll() {
             <td>${r["CODIGO ITEM"] || ""}</td>
             <td>${r["DESCRIPCION ITEM"] || ""}</td>
             <td>${r["CANTIDAD SOLICITADA"] || ""}</td>
-            <td>${r["CANTIDAD TOTAL RECEPCIONAD"] || ""}</td>
+            <td>${r["CANTIDAD TOTAL RECEPCIONADA"] || ""}</td>
             <td>${r["CANTIDAD PENDIENTE DE ADJUDICAR"] || ""}</td>
             <td>${r["CANTIDAD TOTAL PENDIENTE RECEP."] || ""}</td>
             <td>${r["NRO. RECEPCION"] || ""}</td>

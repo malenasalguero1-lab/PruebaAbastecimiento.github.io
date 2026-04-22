@@ -46,11 +46,9 @@
   <main class="container">
     <div id="msg"></div>
 
-    <section class="panel">
+  <section class="panel">
       <div class="panel-title">FILTROS DE SERVICIOS</div>
-      <div class="panel-body filters filters-4">
-        
-        <div class="filter">
+      <div class="panel-body filters filters-5"> <div class="filter">
           <label>CLIENTE</label>
           <select id="clienteSelect" multiple size="6" class="multi-select">
             <option value="__ALL__">Todos</option>
@@ -69,6 +67,14 @@
           <select id="gcocSelect" multiple size="6" class="multi-select">
             <option value="__ALL__">Todos</option>
           </select>
+        </div>
+
+        <div class="filter">
+          <label>TOTAL SELECCIONADO</label>
+          <div class="kpi-mini-box">
+             <span id="kpiTotal" class="kpi-mini-value">0</span>
+             <span class="kpi-mini-label">Servicios</span>
+          </div>
         </div>
 
         <div class="filter">

@@ -103,6 +103,7 @@ function applyAll() {
             <td>${r["NRO. OC"] || ""}</td>
             <td>${r["GRUPO DE COMPRA OC"] || ""}</td>
             <td>${r["Estado Servicio"] || ""}</td>
+             <td>${r["Período de certificación"] || ""}</td>
         `;
         tbody.appendChild(tr);
     });

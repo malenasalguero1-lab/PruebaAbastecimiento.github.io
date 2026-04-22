@@ -1,125 +1,122 @@
-/* ============================
-   CONFIGURACIÓN - SERVICIOS
-============================ */
-const csvUrl = "./SERVICIOS OBRA.csv"; 
-const DELIM = ";";
-
-const FECHA_COL = "FECHA ENTREGA ESPERADA";
-const CLIENT_COL_NAME = "CLIENTE";
-const PERIODO_COL_NAME = "Período de certificación";
-const ESTADO_COL_NAME = "Estado Servicio";
-
-let data = [];
-let headers = [];
-
-/* ============================
-   HELPERS
-============================ */
-const clean = (v) => (v ?? "").toString().trim();
-function setText(id, txt) { const el = document.getElementById(id); if (el) el.textContent = txt ?? ""; }
-function fmtInt(n) { return Number(n || 0).toLocaleString("es-AR"); }
-
-function parseDateAny(s) {
-    const t = clean(s);
-    if (!t) return null;
-    let m = t.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
-    if (m) return new Date(+m[3], +m[2] - 1, +m[1]);
-    return null;
-}
-
-function getMonthKey(r) {
-    const d = parseDateAny(r[FECHA_COL]);
-    return d ? `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}` : null;
-}
-
-// Lector de CSV robusto (Soporta comillas y saltos de línea)
-function parseCSV(text) {
-    const rows = [];
-    let row = [];
-    let cur = "";
-    let inQuotes = false;
-    for (let i = 0; i < text.length; i++) {
-        const ch = text[i];
-        if (ch === '"') inQuotes = !inQuotes;
-        else if (ch === DELIM && !inQuotes) { row.push(cur); cur = ""; }
-        else if (ch === "\n" && !inQuotes) { row.push(cur); rows.push(row); row = []; cur = ""; }
-        else cur += ch;
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ABASTECIMIENTO - SERVICIOS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="base.css" />
+  <link rel="stylesheet" href="cumplimiento.css" />
+  <style>
+    /* Estilo para la cajita del Total Seleccionado */
+    .kpi-mini-box {
+        background: #ffffff;
+        border: 2px solid #3b82f6;
+        border-radius: 8px;
+        padding: 10px;
+        text-align: center;
+        height: 90px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
-    if (cur || row.length) { row.push(cur); rows.push(row); }
-    return rows;
-}
+    .kpi-mini-value {
+        display: block;
+        font-size: 2rem;
+        font-weight: 800;
+        color: #3b82f6;
+        line-height: 1;
+    }
+    .kpi-mini-label {
+        font-size: 0.75rem;
+        color: #64748b;
+        text-transform: uppercase;
+        font-weight: 700;
+        margin-top: 5px;
+    }
+    .filters-5 {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 15px;
+        align-items: end;
+    }
+  </style>
+</head>
 
-function getSelValues(id) {
-    const sel = document.getElementById(id);
-    if (!sel) return [];
-    return [...sel.selectedOptions].map(o => o.value).filter(v => v !== "__ALL__");
-}
+<body class="page-cumplimiento">
+  <div id="loader" class="loader-overlay">
+    <div class="spinner-bars">
+      <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+    </div>
+    <div class="loading-text">Cargando servicios...</div>
+  </div>
 
-/* ============================
-   LÓGICA PRINCIPAL
-============================ */
-function applyAll() {
-    const selClientes = getSelValues("clienteSelect");
-    const selPeriodos = getSelValues("clasif2Select");
-    const selEstados = getSelValues("gcocSelect");
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="title">ABASTECIMIENTO</div>
+      <div class="subtitle">Análisis de Servicios y Subcontratos de Obra</div>
+    </div>
+    <div class="topbar-right">
+      <div class="update-box">
+        <div class="update-label">Última actualización</div>
+        <div id="lastUpdate" class="update-date">22/04/2026</div> </div>
+    </div>
+  </header>
 
-    const filtered = data.filter(r => {
-        const matchClie = !selClientes.length || selClientes.includes(r[CLIENT_COL_NAME]);
-        const matchPeri = !selPeriodos.length || selPeriodos.includes(r[PERIODO_COL_NAME]);
-        const matchEsta = !selEstados.length || selEstados.includes(r[ESTADO_COL_NAME]);
-        return matchClie && matchPeri && matchEsta;
-    });
+  <nav class="tabs">
+    <a class="tab" href="analisis-mm.html">ANÁLISIS MM</a>
+    <a class="tab" href="index.html">CUMPLIMIENTO</a>
+    <a class="tab" href="demoras.html">DEMORAS</a>
+    <a class="tab active" href="servicios.html">SERVICIOS</a>
+    <a class="tab" href="ejemplo.html">📊 EJEMPLO</a>
+  </nav>
 
-    // Actualizamos solo el Total Seleccionado
-    setText("kpiTotal", fmtInt(filtered.length));
-}
-
-/* ============================
-   INIT
-============================ */
-window.addEventListener("DOMContentLoaded", () => {
-    fetch(csvUrl)
-    .then(r => {
-        if (!r.ok) throw new Error("No se pudo cargar el CSV");
-        return r.text();
-    })
-    .then(text => {
-        const rows = parseCSV(text);
-        if (rows.length < 2) return;
-
-        headers = rows[0].map(clean);
-        data = rows.slice(1).map(row => {
-            let o = {};
-            headers.forEach((h, i) => o[h] = clean(row[i]));
-            return o;
-        });
-
-        const fill = (id, col) => {
-            const values = [...new Set(data.map(r => r[col]).filter(Boolean))].sort();
-            const sel = document.getElementById(id);
-            if (!sel) return;
-            sel.innerHTML = '<option value="__ALL__">Todos</option>';
-            values.forEach(v => {
-                const opt = document.createElement("option");
-                opt.value = v; opt.textContent = v;
-                sel.appendChild(opt);
-            });
-        };
-
-        fill("clienteSelect", CLIENT_COL_NAME);
-        fill("clasif2Select", PERIODO_COL_NAME);
-        fill("gcocSelect", ESTADO_COL_NAME);
+  <main class="container">
+    <section class="panel">
+      <div class="panel-title">FILTROS DE SERVICIOS</div>
+      <div class="panel-body filters-5">
         
-        ["clienteSelect", "clasif2Select", "gcocSelect"].forEach(id => {
-            document.getElementById(id)?.addEventListener("change", applyAll);
-        });
+        <div class="filter">
+          <label>CLIENTE</label>
+          <select id="clienteSelect" multiple size="6" class="multi-select">
+            <option value="__ALL__">Todos</option>
+          </select>
+        </div>
 
-        applyAll();
-        // ESTA LÍNEA ES LA QUE QUITA EL LOADER
-        document.getElementById("loader").style.display = "none";
-    })
-    .catch(err => {
-        console.error(err);
-        document.getElementById("loader").innerHTML = "Error cargando datos";
-    });
-});
+        <div class="filter">
+          <label>PERÍODO DE CERTIFICACIÓN</label>
+          <select id="clasif2Select" multiple size="6" class="multi-select">
+            <option value="__ALL__">Todos</option>
+          </select>
+        </div>
+
+        <div class="filter">
+          <label>ESTADO SERVICIO</label>
+          <select id="gcocSelect" multiple size="6" class="multi-select">
+            <option value="__ALL__">Todos</option>
+          </select>
+        </div>
+
+        <div class="filter">
+          <label>TOTAL SELECCIONADO</label>
+          <div class="kpi-mini-box">
+             <span id="kpiTotal" class="kpi-mini-value">0</span>
+             <span class="kpi-mini-label">Servicios</span>
+          </div>
+        </div>
+
+        <div class="filter">
+          <label>&nbsp;</label>
+          <button id="btnDownloadNO" class="btn">⬇ Descargar Selección</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="help.js"></script>
+  <script src="servicios.js?v=4"></script>
+</body>
+</html>

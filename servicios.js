@@ -92,7 +92,7 @@ function applyAll() {
         const valorItem = clean(r[ESTADO_ITEM_COL]).toUpperCase();
         let claseCelda = "";
         
-        const rojos = ["ADJUDICADO", "ADJUDICADO PARCIAL", "RESPONDIDO", "INCOMPLETO"];
+        const rojos = ["ADJUDICADO", "ADJUDICADO PARCIAL", "RESPONDIDO", "INCOMPLETO","SIN TRATAMIENTO"];
         const verdes = ["CUMPLIDO", "ALMACENADO", "CONSUMIDO PARCIAL"];
 
         if (rojos.includes(valorItem)) claseCelda = "cell-rojo";

@@ -1,7 +1,6 @@
 const csvUrl = "./SERVICIOS OBRA.csv"; 
 const DELIM = ";";
 
-// Nombres de columnas según tu CSV original
 const CLIENT_COL_NAME = "CLIENTE";
 const PERIODO_COL_NAME = "Período de certificación";
 const ESTADO_COL_NAME = "Estado Servicio";
@@ -28,6 +27,20 @@ function parseCSV(text) {
     }
     if (cur || row.length) { row.push(cur); rows.push(row); }
     return rows;
+}
+
+// Sincroniza la barra superior con la inferior
+function syncScrolls() {
+    const top = document.getElementById('top-scroll');
+    const bottom = document.getElementById('bottom-scroll');
+    const fake = document.getElementById('fake-content');
+    const table = document.getElementById('tablaServicios');
+
+    if (top && bottom && fake && table) {
+        fake.style.width = table.offsetWidth + 'px';
+        top.onscroll = function() { bottom.scrollLeft = top.scrollLeft; };
+        bottom.onscroll = function() { top.scrollLeft = bottom.scrollLeft; };
+    }
 }
 
 function getSelValues(id) {
@@ -59,7 +72,7 @@ function applyAll() {
         if (estCert === "verde") tr.classList.add("row-verde");
         else if (estCert === "rojo") tr.classList.add("row-rojo");
 
-        // MAPEO CON NOMBRES EXACTOS DEL CSV
+        // MAPEO CON NOMBRES ORIGINALES DEL CSV
         tr.innerHTML = `
             <td>${r["CLIENTE"] || ""}</td>
             <td>${r["NRO. VA01/VA21"] || ""}</td>
@@ -80,6 +93,8 @@ function applyAll() {
         `;
         tbody.appendChild(tr);
     });
+    // Re-ajustar ancho del scroll falso después de cargar datos
+    setTimeout(syncScrolls, 100);
 }
 
 window.addEventListener("DOMContentLoaded", () => {
@@ -102,6 +117,7 @@ window.addEventListener("DOMContentLoaded", () => {
         });
         applyAll();
         document.getElementById("loader").style.display = "none";
+        window.addEventListener('resize', syncScrolls);
     });
 });
 

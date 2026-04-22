@@ -70,16 +70,8 @@ function applyAll() {
         return matchClie && matchPeri && matchEsta;
     });
 
-    const total = filtered.length;
-    const enCurso = filtered.filter(r => clean(r[ESTADO_COL_NAME]).includes("En curso")).length;
-    const finalizado = filtered.filter(r => clean(r[ESTADO_COL_NAME]).includes("Finalizado") || clean(r[ESTADO_COL_NAME]).includes("CUMPLIDO")).length;
-
-    setText("kpiTotal", fmtInt(total));
-    setText("kpiATqty", `En curso: ${fmtInt(enCurso)}`);
-    setText("kpiFTqty", fmtInt(finalizado));
-    
-    const pct = total ? (finalizado / total) : 0;
-    setText("kpiATpct", (pct * 100).toFixed(1).replace(".", ",") + "%");
+    // Actualizamos solo el Total Seleccionado
+    setText("kpiTotal", fmtInt(filtered.length));
 }
 
 /* ============================

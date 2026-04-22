@@ -4,6 +4,7 @@ const DELIM = ";";
 const CLIENT_COL_NAME = "CLIENTE";
 const PERIODO_COL_NAME = "Período de certificación";
 const ESTADO_COL_NAME = "Estado Servicio";
+const ESTADO_CERT_COL = "Estado Certificación"; // Columna AS en tu Excel
 
 let data = [];
 let headers = [];
@@ -47,6 +48,29 @@ function applyAll() {
     });
 
     setText("kpiTotal", fmtInt(filtered.length));
+
+    // LÓGICA DE LA TABLA
+    const tbody = document.getElementById("tablaBody");
+    tbody.innerHTML = "";
+
+    filtered.forEach(r => {
+        const tr = document.createElement("tr");
+        
+        // Aplicar color de fila según "Estado Certificación"
+        const estCert = clean(r[ESTADO_CERT_COL]).toLowerCase();
+        if (estCert === "verde") tr.classList.add("row-verde");
+        else if (estCert === "rojo") tr.classList.add("row-rojo");
+
+        tr.innerHTML = `
+            <td>${r["CLIENTE"] || ""}</td>
+            <td>${r["NRO. OC"] || ""}</td>
+            <td>${r["DESCRIPCION ITEM"] || ""}</td>
+            <td>${r["CANTIDAD SOLICITADA"] || ""}</td>
+            <td>${r["CANTIDAD TOTAL RECEPCIONAD"] || ""}</td>
+            <td>${r["Estado Servicio"] || ""}</td>
+        `;
+        tbody.appendChild(tr);
+    });
 }
 
 window.addEventListener("DOMContentLoaded", () => {

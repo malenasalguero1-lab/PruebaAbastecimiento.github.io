@@ -61,7 +61,7 @@ function applyAll() {
         if (estCert === "verde") tr.classList.add("row-verde");
         else if (estCert === "rojo") tr.classList.add("row-rojo");
 
-       tr.innerHTML = `
+     tr.innerHTML = `
             <td>${r["CLIENTE"] || ""}</td>
             <td>${r["NRO. OC"] || ""}</td>
             <td>${r["POS VA01/VA21"] || ""}</td>

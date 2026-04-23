@@ -99,9 +99,7 @@ function applyAll() {
         else if (verdes.includes(valorItem)) claseCelda = "cell-verde";
 
         tr.innerHTML = `
-            <td>${r["CLIENTE"] || ""}</td>
             <td>${r["NRO. VA01/VA21"] || ""}</td>
-            <td>${r["POS VA01/VA21"] || ""}</td>
             <td>${r["CODIGO ITEM"] || ""}</td>
             <td>${r["DESCRIPCION ITEM"] || ""}</td>
             <td>${r["CANTIDAD SOLICITADA"] || ""}</td>

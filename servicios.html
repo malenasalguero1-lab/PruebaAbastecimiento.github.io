@@ -34,14 +34,16 @@ tbody tr:hover {
 }
 
     /* Estilos de las etiquetas de los filtros */
-    .filter label {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        font-size: 0.75rem;
-        display: block;
-        width: 100%;
-    }
+ .filter label {
+    font-size: 1.1rem !important; /* Un poco más grande que el estándar */
+    font-weight: 700;
+    color: #1e293b;
+}  
+    .filter select {
+    font-size: 1rem !important; /* Letra más grande dentro del desplegable */
+    padding: 8px !important;
+    height: auto !important;
+}
 
     /* Estilos de los selectores múltiples */
     .multi-select option {
@@ -52,7 +54,27 @@ tbody tr:hover {
         width: 100% !important;
         height: 110px; /* Altura estándar inicial */
     }
+/* 2. Botón de descarga cuadrado y minimalista */
+#btnDownloadSelection {
+    width: 60px !important;
+    height: 60px !important;
+    min-width: 60px !important;
+    padding: 0 !important;
+    background-color: #0d9488;
+    color: white;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem !important; /* Solo se verá el icono grande */
+    cursor: pointer;
+    border: none;
+    transition: background 0.2s;
+}
 
+#btnDownloadSelection:hover {
+    background-color: #0f766e;
+}
     /* Configuración de la cuadrícula de 6 columnas para los filtros */
     .filters-6 { 
         display: grid !important; 

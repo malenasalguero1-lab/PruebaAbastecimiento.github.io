@@ -5,6 +5,7 @@ const CLIENT_COL_NAME = "CLIENTE";
 const PERIODO_COL_NAME = "Período de certificación";
 const ESTADO_COL_NAME = "Estado Servicio";
 const ESTADO_CERT_COL = "Estado Certificación";
+const G_COMPRA_COL_NAME = "GRUPO DE COMPRA OC";
 const ESTADO_ITEM_COL = "ESTADO ITEM";
 
 let data = [];
@@ -67,13 +68,16 @@ function applyAll() {
     const selClientes = getSelValues("clienteSelect");
     const selPeriodos = getSelValues("clasif2Select");
     const selEstados = getSelValues("gcocSelect");
+    const selGrupos = getSelValues("grupoCompraSelect"); // Nuevo
 
     const filtered = data.filter(r => {
         const matchClie = !selClientes.length || selClientes.includes(r[CLIENT_COL_NAME]);
         const matchPeri = !selPeriodos.length || selPeriodos.includes(r[PERIODO_COL_NAME]);
         const matchEsta = !selEstados.length || selEstados.includes(r[ESTADO_COL_NAME]);
-        return matchClie && matchPeri && matchEsta;
+        const matchGrup = !selGrupos.length || selGrupos.includes(r[G_COMPRA_COL_NAME]); // Nuevo
+        return matchClie && matchPeri && matchEsta && matchGrup; // Agregado matchGrup
     });
+  
 
     setText("kpiTotal", fmtInt(filtered.length));
 

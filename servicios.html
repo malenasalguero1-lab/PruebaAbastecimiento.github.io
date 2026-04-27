@@ -18,6 +18,20 @@
     }
     .kpi-mini-value { display: block; font-size: 2rem; font-weight: 800; color: #3b82f6; line-height: 1; }
     .kpi-mini-label { font-size: 0.75rem; color: #64748b; text-transform: uppercase; font-weight: 700; margin-top: 5px; }
+    /* Esto va dentro de <style> */
+.filter label {
+    white-space: nowrap;    /* Evita que el título salte de línea */
+    overflow: hidden;       /* Corta el texto si no entra */
+    text-overflow: ellipsis; /* Pone "..." si el título es muy largo */
+    font-size: 0.75rem;      /* Achica un pelín la letra para que entre mejor */
+    display: block;
+    width: 100%;
+}
+
+.multi-select {
+    width: 100% !important;
+    height: 110px;          /* Altura estándar para que no sean tan gigantes */
+}
 .filters-6 { 
     display: grid !important; 
     /* Cliente, Período, ESTADO (muy grande), GRUPO (muy chico), KPI, Botón */

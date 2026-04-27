@@ -34,7 +34,13 @@
 }
 .filters-6 { 
     display: grid !important; 
-    grid-template-columns: 1.3fr 1fr 2fr 1fr 0.9fr 1.2fr;
+    grid-template-columns: 
+        minmax(160px, 1.2fr)   /* Cliente */
+        minmax(140px, 1fr)     /* Período */
+        minmax(220px, 2fr)     /* Estado */
+        minmax(140px, 1fr)     /* Grupo */
+        minmax(120px, 0.8fr)   /* KPI */
+        minmax(160px, 1.2fr);  /* Botón */
     gap: 15px; 
     align-items: end; 
     width: 100%; 

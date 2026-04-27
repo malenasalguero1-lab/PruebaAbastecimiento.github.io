@@ -11,14 +11,14 @@
   <link rel="stylesheet" href="cumplimiento.css" />
   
   <style>
-    /* 1. KPIs: Estética de tarjetas */
+    /* 1. KPIs: Tarjetas de resumen */
     .kpi-mini-box {
         background: #ffffff; 
         border: 2px solid #3b82f6; 
         border-radius: 8px;
         padding: 10px; 
         text-align: center; 
-        height: 100px; /* Altura igualada a los selectores */
+        height: 100px; 
         display: flex; 
         flex-direction: column; 
         justify-content: center;
@@ -27,11 +27,11 @@
     .kpi-mini-value { display: block; font-size: 1.8rem; font-weight: 800; color: #3b82f6; line-height: 1; }
     .kpi-mini-label { font-size: 0.65rem; color: #64748b; text-transform: uppercase; font-weight: 700; margin-top: 5px; }
 
-    /* 2. FILTROS: Distribución de tamaños horizontal */
+    /* 2. FILTROS: Layout Proporcional (Grid) */
     .filters-6 { 
         display: grid !important; 
-        /* CLIENTE(1.5) | PERIODO(1) | ESTADO(1.3) | GRUPO(0.7) | KPI(1) | BOTON(1) */
-        grid-template-columns: 1.5fr 1fr 1.3fr 0.7fr 1fr 1fr !important; 
+        /* Cliente y Estado son más anchos (1.5), Grupo es más chico (0.7) */
+        grid-template-columns: 1.5fr 1fr 1.5fr 0.7fr 1fr 1fr !important; 
         gap: 15px; 
         align-items: flex-end; 
         width: 100%;
@@ -42,15 +42,13 @@
 
     .filter label {
         white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
         font-size: 0.7rem;
         font-weight: 700;
         color: #475569;
         text-transform: uppercase;
     }
 
-    /* 3. SELECTORES: Estética unificada */
+    /* 3. SELECTORES: Altura unificada sin repeticiones */
     .multi-select {
         width: 100% !important;
         height: 100px !important; 
@@ -63,7 +61,7 @@
 
     .multi-select option { padding: 4px; }
 
-    /* 4. BOTÓN: Estética Milicic */
+    /* 4. BOTÓN */
     .btn {
         height: 45px;
         width: 100%;
@@ -79,7 +77,7 @@
     }
     .btn:hover { background-color: #0f766e; }
 
-    /* 5. TABLA Y SCROLLS (Sin cambios en lógica) */
+    /* 5. TABLA Y SCROLLS */
     .top-scroll-wrapper { width: 100%; overflow-x: auto; overflow-y: hidden; height: 18px; margin-top: 20px; background: #f1f5f9; border-radius: 8px 8px 0 0; }
     .fake-content { height: 1px; }
     .master-wrapper { width: 100%; overflow-x: auto; border: 1px solid #e2e8f0; border-radius: 0 0 8px 8px; background: white; }
@@ -88,8 +86,11 @@
     th { background: #f8fafc; color: #1e293b; font-weight: 700; padding: 10px 8px; text-align: left; border-bottom: 2px solid #e2e8f0; }
     td { padding: 8px; border-bottom: 1px solid #f1f5f9; white-space: nowrap; }
     
+    /* Formatos de celda dinámicos */
     .cell-rojo { background-color: #fecaca !important; color: #991b1b; font-weight: 600; text-align: center; border-radius: 4px; }
     .cell-verde { background-color: #bbf7d0 !important; color: #166534; font-weight: 600; text-align: center; border-radius: 4px; }
+    .row-verde { background-color: #dcfce7 !important; color: #166534; }
+    .row-rojo { background-color: #fee2e2 !important; color: #991b1b; }
   </style>
 </head>
 
@@ -99,97 +100,3 @@
   <header class="header">
     <div class="header-container">
       <div class="header-left">
-        <div class="header-title">MILICIC S.A.</div>
-        <div class="header-subtitle">Panel de Abastecimiento - Seguimiento de Servicios</div>
-      </div>
-      <nav class="header-nav">
-        <a href="index.html">VOLVER</a>
-      </nav>
-    </div>
-  </header>
-
-  <main class="container">
-    <section class="panel">
-      <div class="panel-title">FILTROS DE SELECCIÓN</div>
-      <div class="panel-body filters-6">
-        
-        <div class="filter">
-          <label>CLIENTE</label>
-          <select id="clienteSelect" multiple size="6" class="multi-select">
-            <option value="__ALL__">Todos</option>
-          </select>
-        </div>
-
-        <div class="filter">
-          <label>PERÍODO</label>
-          <select id="clasif2Select" multiple size="6" class="multi-select">
-            <option value="__ALL__">Todos</option>
-          </select>
-        </div>
-
-        <div class="filter">
-          <label>ESTADO SERVICIO</label>
-          <select id="gcocSelect" multiple size="6" class="multi-select">
-            <option value="__ALL__">Todos</option>
-          </select>
-        </div>
-
-        <div class="filter">
-          <label>GRUPO COMPRA</label>
-          <select id="grupoCompraSelect" multiple size="6" class="multi-select">
-            <option value="__ALL__">Todos</option>
-          </select>
-        </div>
-
-        <div class="filter">
-          <label>TOTAL SELECCIONADO</label>
-          <div class="kpi-mini-box">
-            <span id="kpiTotal" class="kpi-mini-value">0</span>
-            <span class="kpi-mini-label">Servicios</span>
-          </div>
-        </div>
-
-        <div class="filter">
-          <label>&nbsp;</label>
-          <button id="btnDownloadSelection" class="btn">⬇ Descargar Selección</button>
-        </div>
-
-      </div>
-    </section>
-
-    <section class="panel">
-      <div class="panel-title">ANÁLISIS GESTIÓN SERVICIOS</div>
-      <div class="top-scroll-wrapper" id="top-scroll">
-        <div class="fake-content" id="fake-content"></div>
-      </div>
-      <div class="master-wrapper" id="bottom-scroll">
-        <table id="tablaServicios">
-          <thead>
-            <tr>
-              <th>NRO. VA01/VA21</th>
-              <th>CODIGO ITEM</th>
-              <th>DESCRIPCION ITEM</th>
-              <th>CANTIDAD SOLICITADA</th>
-              <th>CANTIDAD TOTAL RECEPCIONADA</th>
-              <th>CANTIDAD PENDIENTE DE ADJUDICAR</th>
-              <th>CANTIDAD TOTAL PENDIENTE RECEP.</th>
-              <th>ESTADO ITEM</th>
-              <th>NRO. RECEPCION</th>
-              <th>FECHA RECEPCION</th>
-              <th>FECHA ENTREGA ESPERADA</th>
-              <th>NRO. OC</th>
-              <th>GRUPO DE COMPRA OC</th>
-              <th>Estado Servicio</th>
-              <th>Período de certificación</th>
-            </tr>
-          </thead>
-          <tbody id="tablaBody"></tbody>
-        </table>
-      </div>
-    </section>
-  </main>
-
-  <script src="help.js"></script>
-  <script src="servicios (7).js"></script>
-</body>
-</html>

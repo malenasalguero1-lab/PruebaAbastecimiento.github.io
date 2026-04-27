@@ -22,15 +22,16 @@
     .kpi-mini-label { font-size: 0.75rem; color: #64748b; text-transform: uppercase; font-weight: 700; margin-top: 5px; }
 
     /* 2. Filtros: Distribución de anchos y letra más grande */
-    .filters-6 { 
-        display: grid !important; 
-        /* Cliente(2.5) | Período(2) | Estado(1) | Grupo(1) | KPI(1) | Botón(0.6) */
-        grid-template-columns: 2.5fr 2fr 1fr 1fr 1fr 0.6fr !important; 
-        gap: 15px; 
-        align-items: end; 
-        width: 100%; 
-        padding: 15px 0;
-    }
+    /* Nueva distribución para que entre el texto del botón */
+.filters-6 { 
+    display: grid !important; 
+    /* Cliente(2) | Período(1.5) | Estado(1) | G.Compra(1) | KPI(1) | Botón(1.5) */
+    grid-template-columns: 2fr 1.5fr 1fr 1fr 1fr 1.5fr !important; 
+    gap: 15px; 
+    align-items: end; 
+    width: 100%; 
+    padding: 15px 0;
+}
 
     .filter label {
         font-size: 0.95rem !important; /* Letra de filtro más grande */
@@ -49,23 +50,22 @@
         border-radius: 6px;
     }
 
-    /* 3. Botón de descarga cuadrado */
-    #btnDownloadSelection {
-        width: 60px !important;
-        height: 60px !important;
-        min-width: 60px !important;
-        padding: 0 !important;
-        background-color: #0d9488;
-        color: white;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5rem !important; /* Icono grande */
-        cursor: pointer;
-        border: none;
-        transition: background 0.2s;
-    }
+   
+#btnDownloadSelection {
+    width: 100% !important; /* Que ocupe todo el ancho de su columna */
+    height: 45px !important; /* Altura estándar */
+    padding: 0 10px !important;
+    background-color: #0d9488;
+    color: white;
+    border-radius: 8px;
+    font-size: 0.85rem !important; /* Tamaño adecuado para que entre el texto */
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
     #btnDownloadSelection:hover { background-color: #0f766e; }
 
     /* 4. Tabla: Líneas divisorias marcadas y columnas de cantidad compactas */
@@ -148,7 +148,10 @@
         <div class="filter"><label>TOTAL</label><div class="kpi-mini-box"><span id="kpiTotal" class="kpi-mini-value">0</span><span class="kpi-mini-label">Servicios</span></div></div>
         <div class="filter">
           <label>&nbsp;</label>
-         <button id="btnDownloadSelection" title="Descargar Selección">⬇</button>
+        <div class="filter">
+    <label>&nbsp;</label>
+    <button id="btnDownloadSelection" class="btn">⬇ DESCARGAR SELECCIÓN</button>
+</div>
         </div>
       </div>
     </section>

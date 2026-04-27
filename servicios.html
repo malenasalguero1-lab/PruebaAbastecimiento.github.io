@@ -85,7 +85,17 @@
         white-space: normal; line-height: 1.1;
         vertical-align: bottom; max-width: 130px; 
     }
-
+/* Forzamos un ancho más pequeño para las columnas de datos numéricos */
+th:nth-child(4), td:nth-child(4), /* Cant Solicitada */
+th:nth-child(5), td:nth-child(5), /* Cant Tot Recepcionada */
+th:nth-child(6), td:nth-child(6), /* Cant Pendiente de Adj */
+th:nth-child(7), td:nth-child(7)  /* Cant Tot Pendiente Recep */
+{
+    min-width: 80px !important; 
+    max-width: 100px !important;
+    text-align: center; /* Ayuda a que se vea más ordenado si están juntas */
+    white-space: normal; /* Permite que el título se quiebre en dos líneas para no ensanchar la celda */
+}
     td { padding: 8px; border-bottom: 1px solid #f1f5f9; white-space: nowrap; }
     
     /* Colores para estados de certificación y celdas */
@@ -154,9 +164,9 @@
               <th>CANT PENDIENTE DE ADJ</th>
               <th>CANT TOT PENDIENTE RECEP.</th>
               <th>ESTADO ITEM</th>
+              <th>FECHA ENTREGA ESPERADA</th>
               <th>NRO. RECEPCION</th>
               <th>FECHA RECEPCION</th>
-              <th>FECHA ENTREGA ESPERADA</th>
               <th>NRO. OC</th>
               <th>GRUPO DE COMPRA</th>
               <th>Estado Servicio</th>

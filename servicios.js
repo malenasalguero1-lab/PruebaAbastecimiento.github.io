@@ -115,7 +115,7 @@ function applyAll() {
             <td>${r["FECHA RECEPCION"] || ""}</td>
             <td>${r["FECHA ENTREGA ESPERADA"] || ""}</td>
             <td>${r["NRO. OC"] || ""}</td>
-            <td>${r["GRUPO DE COMPRA OC"] || ""}</td>
+            <td>${r["Grupo de Compra Definitivo"] || ""}</td>
             <td>${r["Estado Servicio"] || ""}</td>
             <td>${r["Período de certificación"] || ""}</td>
         `;

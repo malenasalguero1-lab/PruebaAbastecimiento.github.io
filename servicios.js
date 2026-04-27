@@ -5,7 +5,7 @@ const CLIENT_COL_NAME = "CLIENTE";
 const PERIODO_COL_NAME = "Período de certificación";
 const ESTADO_COL_NAME = "Estado Servicio";
 const ESTADO_CERT_COL = "Estado Certificación";
-const G_COMPRA_COL_NAME = "GRUPO DE COMPRA OC";
+const G_COMPRA_COL_NAME = "Grupo de Compra Definitivo";
 const ESTADO_ITEM_COL = "ESTADO ITEM";
 
 let data = [];

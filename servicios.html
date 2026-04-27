@@ -24,7 +24,7 @@
     /* 2. Filtros: Distribución de anchos y letra más grande */
     .filters-6 { 
         display: grid !important; 
-        /* Cliente(2.5) | Período(2) | Estado(1) | G.Compra(1) | KPI(1) | Botón(0.6) */
+        /* Cliente(2.5) | Período(2) | Estado(1) | Grupo(1) | KPI(1) | Botón(0.6) */
         grid-template-columns: 2.5fr 2fr 1fr 1fr 1fr 0.6fr !important; 
         gap: 15px; 
         align-items: end; 
@@ -44,7 +44,7 @@
     .multi-select {
         width: 100% !important;
         height: 110px !important;
-        font-size: 0.9rem !important; /* Letra dentro del combo más grande */
+        font-size: 0.9rem !important; /* Letra interna más grande */
         border: 1px solid #cbd5e1;
         border-radius: 6px;
     }
@@ -68,7 +68,7 @@
     }
     #btnDownloadSelection:hover { background-color: #0f766e; }
 
-    /* 4. Tabla: Líneas divisorias marcadas */
+    /* 4. Tabla: Líneas divisorias marcadas y columnas de cantidad compactas */
     table { width: 100%; border-collapse: collapse; font-family: 'Source Sans 3', sans-serif; font-size: 0.8rem; min-width: 2200px; }
     
     th { 
@@ -94,8 +94,15 @@
         min-width: 85px !important;
         max-width: 100px !important;
         text-align: center;
+        white-space: normal;
     }
 
+    /* Estilos de scroll */
+    .top-scroll-wrapper { width: 100%; overflow-x: auto; overflow-y: hidden; height: 18px; margin-top: 20px; background: #f1f5f9; border-radius: 8px 8px 0 0; }
+    .fake-content { height: 1px; }
+    .master-wrapper { width: 100%; overflow-x: auto; border: 1px solid #e2e8f0; border-radius: 0 0 8px 8px; background: white; }
+
+    /* Colores por estado */
     .row-verde { background-color: #dcfce7 !important; color: #166534; }
     .row-rojo { background-color: #fee2e2 !important; color: #991b1b; }
     .cell-rojo { background-color: #fecaca !important; color: #991b1b; font-weight: 600; text-align: center; border-radius: 4px; }
@@ -104,19 +111,30 @@
 </head>
 
 <body class="page-cumplimiento">
-  <div id="loader" class="loader-overlay">Cargando servicios...</div>
+  <div id="loader" class="loader-overlay">
+    <div class="spinner-bars"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
+    <div class="loading-text">Cargando servicios...</div>
+  </div>
 
   <header class="topbar">
     <div class="topbar-left">
       <div class="title">ABASTECIMIENTO</div>
-      <div class="subtitle">Análisis de Servicios y Subcontratos de Obra - Milicic S.A.</div>
+      <div class="subtitle">Análisis de Servicios y Subcontratos de Obra</div>
+    </div>
+    <div class="topbar-right">
+      <div class="update-box">
+        <div class="update-label">Última actualización</div>
+        <div id="lastUpdate" class="update-date">27/04/2026</div>
+      </div>
     </div>
   </header>
 
   <nav class="tabs">
     <a class="tab" href="analisis-mm.html">ANÁLISIS MM</a>
     <a class="tab" href="index.html">CUMPLIMIENTO</a>
+    <a class="tab" href="demoras.html">DEMORAS</a>
     <a class="tab active" href="servicios.html">SERVICIOS</a>
+    <a class="tab" href="ejemplo.html">📊 EJEMPLO</a>
   </nav>
 
   <main class="container">
@@ -146,17 +164,17 @@
               <th>CODIGO ITEM</th>
               <th>DESCRIPCIÓN ITEM</th>
               <th>SOLICITADO</th>
-              <th>RECEPEPCIONADO</th>
-              <th>PENDIENTE ADJUDICAR</th>
-              <th>PENDIENTE RECEPECIONAR</th>
+              <th>RECEPCIONADO</th>
+              <th>PENDIENTE DE ADJUDICAR</th>
+              <th>PENDIENTE DE RECEPCIONAR</th>
               <th>ESTADO ITEM</th>
-              <th>ENTREGA ESPERADA</th>
-              <th>NRO. RECEPCION</th>
               <th>FECHA RECEPCION</th>
+              <th>NRO. RECEPCION</th>
+              <th>FECHA ENTREGA ESPERADA</th>
               <th>NRO. OC</th>
-              <th>GRUPO COMPRA</th>
+              <th>GRUPO DE COMPRA</th>
               <th>Estado Servicio</th>
-              <th>Período</th>
+              <th>Período de certificación</th>
             </tr>
           </thead>
           <tbody id="tablaBody"></tbody>
@@ -166,6 +184,6 @@
   </main>
 
   <script src="help.js"></script>
-  <script src="servicios.js?v=5002"></script>
+  <script src="servicios.js?v=5003"></script>
 </body>
 </html>

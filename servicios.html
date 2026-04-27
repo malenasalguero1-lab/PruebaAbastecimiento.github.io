@@ -9,7 +9,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="base.css" />
   <link rel="stylesheet" href="cumplimiento.css" />
+  
   <style>
+    /* Estilos para los KPIs de resumen */
     .kpi-mini-box {
         background: #ffffff; border: 2px solid #3b82f6; border-radius: 8px;
         padding: 10px; text-align: center; height: 90px;
@@ -19,37 +21,74 @@
     .kpi-mini-value { display: block; font-size: 2rem; font-weight: 800; color: #3b82f6; line-height: 1; }
     .kpi-mini-label { font-size: 0.75rem; color: #64748b; text-transform: uppercase; font-weight: 700; margin-top: 5px; }
 
-    .filters-6 { display: grid !important; grid-template-columns: repeat(6, 1fr) !important; gap: 10px; align-items: center; width: 100%; }
-    
-    .filter { display: flex; flex-direction: column; gap: 5px; }
-    
+    /* Estilos de las etiquetas de los filtros */
     .filter label {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
         font-size: 0.75rem;
-        font-weight: 700;
-        color: #475569;
+        display: block;
+        width: 100%;
     }
+
+    /* Estilos de los selectores múltiples */
+    .multi-select option {
+        white-space: normal;
+    }
+    
     .multi-select {
         width: 100% !important;
-        height: 110px !important; 
-        font-size: 0.8rem;
-        font-family: 'Source Sans 3', sans-serif;
+        height: 110px; /* Altura estándar inicial */
     }
 
-    .top-scroll-wrapper { width: 100%; overflow-x: auto; overflow-y: hidden; height: 18px; margin-top: 20px; background: #f1f5f9; border-radius: 8px 8px 0 0; }
+    /* Configuración de la cuadrícula de 6 columnas para los filtros */
+    .filters-6 { 
+        display: grid !important; 
+        grid-template-columns: 
+            minmax(160px, 1.2fr)   /* Cliente */
+            minmax(140px, 1fr)     /* Período */
+            minmax(220px, 2fr)     /* Estado */
+            minmax(140px, 1fr)     /* Grupo */
+            minmax(120px, 0.8fr)   /* KPI */
+            minmax(160px, 1.2fr);  /* Botón */
+        gap: 15px; 
+        align-items: end; 
+        width: 100%; 
+    }
+
+    /* Regla repetida (Sobrescribe la anterior) */
+    .multi-select { width: 100%; height: 100px; font-size: 0.75rem; }
+
+    /* Estilos de scroll y tabla */
+    .top-scroll-wrapper {
+        width: 100%; overflow-x: auto; overflow-y: hidden;
+        height: 18px; margin-top: 20px; background: #f1f5f9;
+        border-radius: 8px 8px 0 0;
+    }
     .fake-content { height: 1px; }
-    .master-wrapper { width: 100%; overflow-x: auto; border: 1px solid #e2e8f0; border-radius: 0 0 8px 8px; background: white; }
+
+    .master-wrapper {
+        width: 100%; overflow-x: auto;
+        border: 1px solid #e2e8f0; border-radius: 0 0 8px 8px;
+        background: white;
+    }
     
-    table { width: 100%; border-collapse: collapse; font-family: 'Source Sans 3', sans-serif; font-size: 0.8rem; min-width: 2200px; }
-    th { background: #f8fafc; color: #1e293b; font-weight: 700; padding: 8px; text-align: left; border-bottom: 2px solid #e2e8f0; line-height: 1.1; vertical-align: bottom; }
+    table { 
+        width: 100%; border-collapse: collapse; 
+        font-family: 'Source Sans 3', sans-serif; 
+        font-size: 0.8rem; min-width: 2200px; 
+    }
+    
+    th { 
+        background: #f8fafc; color: #1e293b; font-weight: 700; 
+        padding: 8px; text-align: left; border-bottom: 2px solid #e2e8f0;
+        white-space: normal; line-height: 1.1;
+        vertical-align: bottom; max-width: 130px; 
+    }
+
     td { padding: 8px; border-bottom: 1px solid #f1f5f9; white-space: nowrap; }
     
-    .multi-select { width: 100%; height: 100px; }
-    .filters-6 { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; align-items: start; }
-    .multi-select { height: 100px !important; }
-
+    /* Colores para estados de certificación y celdas */
     .row-verde { background-color: #dcfce7 !important; color: #166534; }
     .row-rojo { background-color: #fee2e2 !important; color: #991b1b; }
     .cell-rojo { background-color: #fecaca !important; color: #991b1b; font-weight: 600; text-align: center; border-radius: 4px; }
@@ -57,73 +96,52 @@
   </style>
 </head>
 
-<body>
-  <div id="loader">Cargando datos...</div>
+<body class="page-cumplimiento">
+  <div id="loader" class="loader-overlay">
+    <div class="spinner-bars"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
+    <div class="loading-text">Cargando servicios...</div>
+  </div>
 
-  <header class="header">
-    <div class="header-container">
-      <div class="header-left">
-        <div class="header-title">MILICIC S.A.</div>
-        <div class="header-subtitle">Panel de Abastecimiento - Seguimiento de Servicios</div>
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="title">ABASTECIMIENTO</div>
+      <div class="subtitle">Análisis de Servicios y Subcontratos de Obra</div>
+    </div>
+    <div class="topbar-right">
+      <div class="update-box">
+        <div class="update-label">Última actualización</div>
+        <div id="lastUpdate" class="update-date">27/04/2026</div>
       </div>
-      <nav class="header-nav">
-        <a href="index.html">VOLVER</a>
-      </nav>
     </div>
   </header>
 
+  <nav class="tabs">
+    <a class="tab" href="analisis-mm.html">ANÁLISIS MM</a>
+    <a class="tab" href="index.html">CUMPLIMIENTO</a>
+    <a class="tab" href="demoras.html">DEMORAS</a>
+    <a class="tab active" href="servicios.html">SERVICIOS</a>
+    <a class="tab" href="ejemplo.html">📊 EJEMPLO</a>
+  </nav>
+
   <main class="container">
     <section class="panel">
-      <div class="panel-title">FILTROS DE SELECCIÓN</div>
-      <div class="panel-body filters-6">
-        
-        <div class="filter">
-          <label>CLIENTE</label>
-          <select id="clienteSelect" multiple size="6" class="multi-select">
-            <option value="__ALL__">Todos</option>
-          </select>
-        </div>
-
-        <div class="filter">
-          <label>PERÍODO</label>
-          <select id="clasif2Select" multiple size="6" class="multi-select">
-            <option value="__ALL__">Todos</option>
-          </select>
-        </div>
-
-        <div class="filter">
-          <label>ESTADO SERVICIO</label>
-          <select id="gcocSelect" multiple size="6" class="multi-select">
-            <option value="__ALL__">Todos</option>
-          </select>
-        </div>
-
-        <div class="filter">
-          <label>GRUPO COMPRA</label>
-          <select id="grupoCompraSelect" multiple size="6" class="multi-select">
-            <option value="__ALL__">Todos</option>
-          </select>
-        </div>
-
-        <div class="filter">
-          <label>TOTAL SELECCIONADO</label>
-          <div class="kpi-mini-box">
-            <span id="kpiTotal" class="kpi-mini-value">0</span>
-            <span class="kpi-mini-label">Servicios</span>
-          </div>
-        </div>
-
+      <div class="panel-title">FILTROS DE SERVICIOS</div>
+      <div class="panel-body filters-6"> 
+        <div class="filter"><label>CLIENTE</label><select id="clienteSelect" multiple size="6" class="multi-select"><option value="__ALL__">Todos</option></select></div>
+        <div class="filter"><label>PERÍODO</label><select id="clasif2Select" multiple size="6" class="multi-select"><option value="__ALL__">Todos</option></select></div>
+        <div class="filter"><label>ESTADO</label><select id="gcocSelect" multiple size="6" class="multi-select"><option value="__ALL__">Todos</option></select></div>  
+        <div class="filter"><label>GRUPO DE COMPRA</label><select id="grupoCompraSelect" multiple size="6" class="multi-select"><option value="__ALL__">Todos</option></select></div> 
+        <div class="filter"><label>TOTAL SELECCIONADO</label><div class="kpi-mini-box"><span id="kpiTotal" class="kpi-mini-value">0</span><span class="kpi-mini-label">Servicios</span></div></div>
         <div class="filter">
           <label>&nbsp;</label>
           <button id="btnDownloadSelection" class="btn">⬇ Descargar Selección</button>
         </div>
-
       </div>
     </section>
 
     <section class="panel">
       <div class="panel-title">ANÁLISIS GESTIÓN SERVICIOS</div>
-      <div class="top-scroll-wrapper" id="top-scroll"><div class=\"fake-content\" id=\"fake-content\"></div></div>
+      <div class="top-scroll-wrapper" id="top-scroll"><div class="fake-content" id="fake-content"></div></div>
       <div class="master-wrapper" id="bottom-scroll">
         <table id="tablaServicios">
           <thead>
@@ -152,6 +170,6 @@
   </main>
 
   <script src="help.js"></script>
-  <script src="servicios (7).js"></script>
+  <script src="servicios.js?v=4000"></script>
 </body>
 </html>

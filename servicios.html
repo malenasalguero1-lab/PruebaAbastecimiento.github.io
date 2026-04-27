@@ -21,6 +21,18 @@
     .kpi-mini-value { display: block; font-size: 2rem; font-weight: 800; color: #3b82f6; line-height: 1; }
     .kpi-mini-label { font-size: 0.75rem; color: #64748b; text-transform: uppercase; font-weight: 700; margin-top: 5px; }
 
+    /* Líneas entre registros más marcadas y coloridas */
+tbody td {
+    border-bottom: 1px solid #cbd5e1 !important; /* Un gris azulado más oscuro y definido */
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+}
+
+/* Efecto de resaltado al pasar el mouse (opcional pero recomendado) */
+tbody tr:hover {
+    background-color: #f1f5f9 !important; /* Resalta la fila completa en un celeste muy suave */
+}
+
     /* Estilos de las etiquetas de los filtros */
     .filter label {
         white-space: nowrap;

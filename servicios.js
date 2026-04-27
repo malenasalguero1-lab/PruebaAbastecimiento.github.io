@@ -140,10 +140,11 @@ window.addEventListener("DOMContentLoaded", () => {
         fill("clienteSelect", CLIENT_COL_NAME);
         fill("clasif2Select", PERIODO_COL_NAME);
         fill("gcocSelect", ESTADO_COL_NAME);
+        fill("grupoCompraSelect", G_COMPRA_COL_NAME);
         
-        ["clienteSelect", "clasif2Select", "gcocSelect"].forEach(id => {
-            document.getElementById(id)?.addEventListener("change", applyAll);
-        });
+       ["clienteSelect", "clasif2Select", "gcocSelect", "grupoCompraSelect"].forEach(id => {
+    document.getElementById(id)?.addEventListener("change", applyAll);
+});
 
         document.getElementById("btnDownloadSelection")?.addEventListener("click", () => {
             const currentFiltered = applyAll();

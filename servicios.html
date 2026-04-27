@@ -9,9 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="base.css" />
   <link rel="stylesheet" href="cumplimiento.css" />
-  
   <style>
-    /* 1. KPIs de resumen */
     .kpi-mini-box {
         background: #ffffff; border: 2px solid #3b82f6; border-radius: 8px;
         padding: 10px; text-align: center; height: 90px;
@@ -19,204 +17,103 @@
         box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
     .kpi-mini-value { display: block; font-size: 2rem; font-weight: 800; color: #3b82f6; line-height: 1; }
-    .kpi-mini-label { font-size: 0.75rem; color: #64748b; text-transform: uppercase; margin-top: 4px; }
+    .kpi-mini-label { font-size: 0.75rem; color: #64748b; text-transform: uppercase; font-weight: 700; margin-top: 5px; }
 
-    /* 2. Distribución de Filtros y Tamaños */
-    .filters-6 { 
-        display: grid !important; 
-        grid-template-columns: 2.5fr 2fr 1fr 1fr 1fr 0.6fr !important; 
-        gap: 20px; 
-        align-items: end; 
-        width: 100%; 
-        padding: 15px 0;
-    }
-
+    .filters-6 { display: grid !important; grid-template-columns: repeat(6, 1fr) !important; gap: 10px; align-items: center; width: 100%; }
+    
+    .filter { display: flex; flex-direction: column; gap: 5px; }
+    
     .filter label {
-        font-size: 0.95rem !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-size: 0.75rem;
         font-weight: 700;
-        color: #1e293b;
-        margin-bottom: 8px;
-        display: block;
+        color: #475569;
     }
-
     .multi-select {
-        font-size: 0.95rem !important;
-        height: 110px !important;
-        border-radius: 6px;
-        border: 1px solid #cbd5e1;
-        padding: 5px;
+        width: 100% !important;
+        height: 110px !important; 
+        font-size: 0.8rem;
+        font-family: 'Source Sans 3', sans-serif;
     }
 
-    /* 3. Botón de descarga cuadrado */
-    #btnDownloadSelection {
-        width: 60px !important;
-        height: 60px !important;
-        min-width: 60px !important;
-        padding: 0 !important;
-        background-color: #0d9488;
-        color: white;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5rem !important;
-        cursor: pointer;
-        border: none;
-        transition: all 0.2s;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    #btnDownloadSelection:hover { background-color: #0f766e; transform: translateY(-1px); }
-
-    /* 4. Tabla: Líneas divisorias y espaciado */
-    #tablaServicios thead th {
-        border-bottom: 3px solid #3b82f6 !important;
-        padding: 12px 8px !important;
-        background-color: #f8fafc;
-        color: #1e40af;
-        white-space: normal; /* Permite que el título baje de línea */
-    }
-
-    #tablaServicios tbody td {
-        border-bottom: 1px solid #cbd5e1 !important; /* Línea divisoria más marcada */
-        padding: 10px 6px !important;
-        font-size: 0.85rem;
-    }
-
-    #tablaServicios tbody tr:hover {
-        background-color: #f1f5f9 !important;
-    }
-
-    /* Ajuste de anchos para columnas de cantidad */
-    th:nth-child(4), td:nth-child(4),
-    th:nth-child(5), td:nth-child(5),
-    th:nth-child(6), td:nth-child(6),
-    th:nth-child(7), td:nth-child(7) {
-        min-width: 90px !important;
-        text-align: center;
-    }
-
-    .loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); display: flex; justify-content: center; align-items: center; z-index: 9999; }
+    .top-scroll-wrapper { width: 100%; overflow-x: auto; overflow-y: hidden; height: 18px; margin-top: 20px; background: #f1f5f9; border-radius: 8px 8px 0 0; }
+    .fake-content { height: 1px; }
+    .master-wrapper { width: 100%; overflow-x: auto; border: 1px solid #e2e8f0; border-radius: 0 0 8px 8px; background: white; }
+    
+    table { width: 100%; border-collapse: collapse; font-family: 'Source Sans 3', sans-serif; font-size: 0.8rem; min-width: 2200px; }
+    th { background: #f8fafc; color: #1e293b; font-weight: 700; padding: 8px; text-align: left; border-bottom: 2px solid #e2e8f0; line-height: 1.1; vertical-align: bottom; }
+    td { padding: 8px; border-bottom: 1px solid #f1f5f9; white-space: nowrap; }
+    
+    .row-verde { background-color: #dcfce7 !important; color: #166534; }
+    .row-rojo { background-color: #fee2e2 !important; color: #991b1b; }
+    .cell-rojo { background-color: #fecaca !important; color: #991b1b; font-weight: 600; text-align: center; border-radius: 4px; }
+    .cell-verde { background-color: #bbf7d0 !important; color: #166534; font-weight: 600; text-align: center; border-radius: 4px; }
   </style>
 </head>
+
 <body>
-  <div id="loader" class="loader">Cargando datos...</div>
+  <div id="loader">Cargando datos...</div>
 
   <header class="header">
-    <div class="header-content">
-      <img src="logo.png" alt="Logo" class="logo" />
-      <div class="header-text">
-        <div class="header-title">SISTEMA DE GESTIÓN DE ABASTECIMIENTO</div>
-        <div class="header-subtitle">Panel de Control de Servicios - Milicic S.A.</div>
+    <div class="header-container">
+      <div class="header-left">
+        <div class="header-title">MILICIC S.A.</div>
+        <div class="header-subtitle">Panel de Abastecimiento - Seguimiento de Servicios</div>
       </div>
+      <nav class="header-nav">
+        <a href="index.html">VOLVER</a>
+      </nav>
     </div>
   </header>
 
-  <nav class="nav-tabs">
-    <a href="index.html" class="nav-tab">MATERIALES</a>
-    <a href="servicios.html" class="nav-tab active">SERVICIOS</a>
-  </nav>
-
   <main class="container">
-    <section id="tab-servicios" class="ej-tab-content">
-        <section class="ej-scenario">
-            <div class="ej-scenario-header">
-                <span style="font-size:1.4rem">🛠️</span>
-                <div>
-                    <div class="ej-sh-title">ANÁLISIS GESTIÓN SERVICIOS</div>
-                </div>
-                <span class="ej-tab-badge" style="background:#d1fae5;color:#065f46;margin-left:auto">SERVICIOS</span>
-            </div>
-
-            <div class="ej-step-card step-col-1">
-                <div class="ej-step-header">
-                    <div class="ej-num-badge">!</div>
-                    <div class="ej-step-title">Importante: Tener en cuenta</div>
-                </div>
-                <div class="ej-step-body">
-                    <div class="ej-reading">
-                        <div class="ej-reading-item ej-ri-info">
-                            <span class="ej-ri-icon">📌</span>
-                            <span>
-                                ¿Qué mide? Las VAs tipo <strong>ZPAN/ZPAI</strong> cuyo grupo de compra de OC es <strong>C24, C25, C26, C04 y C16</strong> y/o Tipo de Item = <strong>Servicios</strong> cuyo cliente es una obra de cualquier sociedad. 
-                                Además se tienen en cuenta las VAs <strong>ZPIN</strong> aún no cumplidas donde Tipo de Item = <strong>Servicios</strong>.
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="ej-step-card step-col-1">
-                <div class="ej-step-header">
-                    <div class="ej-num-badge">1</div>
-                    <div class="ej-step-title">SELECCIÓN DE FILTROS</div>
-                </div>
-                <div class="ej-step-body">
-                    <div class="ej-reading">
-                        <div class="ej-reading-item ej-ri-info">
-                            <span class="ej-ri-icon">🔍</span>
-                            <span>En el primer filtro <strong>CLIENTE</strong> elegí de la lista la obra que desees analizar.</span>
-                        </div>
-                        <div class="ej-reading-item ej-ri-info">
-                            <span class="ej-ri-icon">⏳</span>
-                            <span>En el filtro <strong>PERÍODO</strong> se agrupan los distintos servicios y subcontratos según el tipo de certificación colocada en REF.CLIENTE.</span>
-                        </div>
-                        <div class="ej-reading-item ej-ri-info">
-                            <span class="ej-ri-icon">📊</span>
-                            <span><strong>ESTADO</strong> divide en grupos según vencimiento y recepciones pendientes.</span>
-                        </div>
-                        <div class="ej-reading-item ej-ri-info" style="margin-top: 1rem;">
-                            <span class="ej-ri-icon">🛒</span>
-                            <span>
-                                En el filtro <strong>GRUPO DE COMPRA</strong>: para <strong>ZPAN/ZPAI</strong> usa el valor de <strong>OC</strong>; para las <strong>ZPIN</strong>, usa el original.
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="ej-step-card step-col-1">
-                <div class="ej-step-header"><div class="ej-num-badge">2</div><div class="ej-step-title">TARJETA: TOTAL SELECCIONADO</div></div>
-                <div class="ej-step-body">
-                    <div class="ej-reading">
-                        <div class="ej-reading-item ej-ri-info">
-                            <span class="ej-ri-icon">📑</span>
-                            <span>En “TOTAL” se ven las posiciones filtradas. El botón cuadrado <strong>⬇</strong> descarga el CSV.</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </section>
-
     <section class="panel">
-      <div class="filters-container filters-6">
+      <div class="panel-title">FILTROS DE SELECCIÓN</div>
+      <div class="panel-body filters-6">
+        
         <div class="filter">
-          <label for="clienteSelect">CLIENTE</label>
-          <select id="clienteSelect" class="multi-select" multiple></select>
+          <label>CLIENTE</label>
+          <select id="clienteSelect" multiple size="6" class="multi-select">
+            <option value="__ALL__">Todos</option>
+          </select>
         </div>
+
         <div class="filter">
-          <label for="clasif2Select">PERÍODO</label>
-          <select id="clasif2Select" class="multi-select" multiple></select>
+          <label>PERÍODO</label>
+          <select id="clasif2Select" multiple size="6" class="multi-select">
+            <option value="__ALL__">Todos</option>
+          </select>
         </div>
+
         <div class="filter">
-          <label for="gcocSelect">ESTADO</label>
-          <select id="gcocSelect" class="multi-select" multiple></select>
+          <label>ESTADO SERVICIO</label>
+          <select id="gcocSelect" multiple size="6" class="multi-select">
+            <option value="__ALL__">Todos</option>
+          </select>
         </div>
+
         <div class="filter">
-          <label for="grupoCompraSelect">G. COMPRA</label>
-          <select id="grupoCompraSelect" class="multi-select" multiple></select>
+          <label>GRUPO COMPRA</label>
+          <select id="grupoCompraSelect" multiple size="6" class="multi-select">
+            <option value="__ALL__">Todos</option>
+          </select>
         </div>
+
         <div class="filter">
-          <label>TOTAL</label>
+          <label>TOTAL SELECCIONADO</label>
           <div class="kpi-mini-box">
             <span id="kpiTotal" class="kpi-mini-value">0</span>
             <span class="kpi-mini-label">Servicios</span>
           </div>
         </div>
+
         <div class="filter">
           <label>&nbsp;</label>
-          <button id="btnDownloadSelection" class="btn" title="Descargar Selección">⬇</button>
+          <button id="btnDownloadSelection" class="btn">⬇ Descargar Selección</button>
         </div>
+
       </div>
     </section>
 
@@ -229,19 +126,19 @@
             <tr>
               <th>NRO. VA01/VA21</th>
               <th>CODIGO ITEM</th>
-              <th>DESCRIPCIÓN ITEM</th>
-              <th>SOLICITADO</th>
-              <th>RECEPCIONADO</th>
-              <th>PENDIENTE ADJUDICAR</th>
-              <th>PENDIENTE RECEP</th>
+              <th>DESCRIPCION ITEM</th>
+              <th>CANTIDAD SOLICITADA</th>
+              <th>CANTIDAD TOTAL RECEPCIONADA</th>
+              <th>CANTIDAD PENDIENTE DE ADJUDICAR</th>
+              <th>CANTIDAD TOTAL PENDIENTE RECEP.</th>
               <th>ESTADO ITEM</th>
-              <th>FECHA ENTREGA</th>
               <th>NRO. RECEPCION</th>
               <th>FECHA RECEPCION</th>
+              <th>FECHA ENTREGA ESPERADA</th>
               <th>NRO. OC</th>
-              <th>GRUPO COMPRA</th>
+              <th>GRUPO DE COMPRA OC</th>
               <th>Estado Servicio</th>
-              <th>Período</th>
+              <th>Período de certificación</th>
             </tr>
           </thead>
           <tbody id="tablaBody"></tbody>
@@ -251,6 +148,6 @@
   </main>
 
   <script src="help.js"></script>
-  <script src="servicios.js?v=5001"></script>
+  <script src="servicios (7).js"></script>
 </body>
 </html>

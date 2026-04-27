@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>ABASTECIMIENTO — Ejemplo</title>
+    <title>ABASTECIMIENTO — Explicación</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -636,10 +636,8 @@
             </section>
         </section>
 
-
-    
-    <!-- EXPLICACIÓN SERVICIOS -->
-<section id="tab-servicios" class="ej-tab-content">
+ <!-- EXPLICACION SERVICIOS! -->
+    <section id="tab-servicios" class="ej-tab-content">
     <section class="ej-scenario">
         <div class="ej-scenario-header">
             <span style="font-size:1.4rem">🛠️</span>
@@ -658,7 +656,10 @@
                 <div class="ej-reading">
                     <div class="ej-reading-item ej-ri-info">
                         <span class="ej-ri-icon">📌</span>
-                        <span>¿Qué mide? Las VAs tipo ZPAN/ZPAI cuyo grupo de compra de OC es <strong>C24,C25,C26,C04 y C16</strong> y/o Tipo de Item = <strong> Servicios <strong> cuyo cliente es una obra de cualquier sociedad. Además se tienen en cuenta las VAs </strong>ZPIN</strong> aún no cumplidas donde Tipo de Item = <strong> Servicios <strong> </span>
+                        <span>
+                            ¿Qué mide? Las VAs tipo <strong>ZPAN/ZPAI</strong> cuyo grupo de compra de OC es <strong>C24, C25, C26, C04 y C16</strong> y/o Tipo de Item = <strong>Servicios</strong> cuyo cliente es una obra de cualquier sociedad. 
+                            Además se tienen en cuenta las VAs <strong>ZPIN</strong> aún no cumplidas donde Tipo de Item = <strong>Servicios</strong>.
+                        </span>
                     </div>
                 </div>
             </div>
@@ -685,12 +686,16 @@
                         <ul style="margin-left: 2rem; margin-top: 0.5rem; list-style-type: disc;">
                             <li>En curso - Total recepcionado → La fecha de entrega de la VA aún no está vencida pero ya se ha recepcionado la totalidad del servicio.</li>
                             <li>En curso → La fecha de la VA no está vencida (ni próxima a vencer) y aún hay cantidades pendientes por recepcionar.</li>
-                            <li>En curso - Próximo a vencer → si la fecha de entrega de la VA está dentro de los próximos 45 días</li>
-                            <li>Vencido con cant pendiente a recep → la fecha de entrega de la VA está vencida, sin embargo aún hay cantidad pendiente por recepcionar</li>
-                            <li>Pedido de Info → VA tipo ZPIN </li>
-                
-                    
+                            <li>En curso - Próximo a vencer → si la fecha de entrega de la VA está dentro de los próximos 45 días.</li>
+                            <li>Vencido con cant pendiente a recep → la fecha de entrega de la VA está vencida, sin embargo aún hay cantidad pendiente por recepcionar.</li>
+                            <li>Pedido de Info → VA tipo ZPIN.</li>
                         </ul>
+                    </div>
+                    <div class="ej-reading-item ej-ri-info" style="margin-top: 1rem;">
+                        <span class="ej-ri-icon">🛒</span>
+                        <span>
+                            En el filtro <strong>GRUPO DE COMPRA</strong>: para las VAs <strong>ZPAN/ZPAI</strong> el valor hace referencia al <strong>GRUPO DE COMPRA OC</strong>; para las <strong>ZPIN</strong>, hace referencia al <strong>GRUPO DE COMPRA</strong> original.
+                        </span>
                     </div>
                 </div>
             </div>
@@ -705,7 +710,7 @@
                 <div class="ej-reading">
                     <div class="ej-reading-item ej-ri-info">
                         <span class="ej-ri-icon">📑</span>
-                        <span>En “TOTAL SELECCIONADO” se ven la cantidad de posiciones/líneas según los filtros seleccionados. Apretando el botón <strong>“Descargar Selección”</strong> se puede descargar un archivo csv que contiene dicha información (con más columnas que las mostradas en la tabla).</span>
+                        <span>En “TOTAL” se ven la cantidad de posiciones/líneas según los filtros seleccionados. Apretando el botón <strong>“Descargar Selección”</strong> se puede descargar un archivo csv que contiene dicha información (con más columnas que las mostradas en la tabla).</span>
                     </div>
                 </div>
             </div>
@@ -724,18 +729,18 @@
                     </div>
                     <div class="ej-reading-item ej-ri-info">
                         <span class="ej-ri-icon">🎨</span>
-                        <span>Los estados “SIN TRATAMIENTO”/”ADJUDICADO”/”ADJUDICADO PARCIAL”/”RESPONDIDO”/”INCOMPLETO” se remarcan en color rojo sobre el nombre del mismo estado para detonar que aún siguen pendientes de gestión.</span>
+                        <span>Los estados “SIN TRATAMIENTO”, “ADJUDICADO”, “ADJUDICADO PARCIAL”, “RESPONDIDO” e “INCOMPLETO” se remarcan en color rojo sobre el nombre del mismo estado para denotar que aún siguen pendientes de gestión.</span>
                     </div>
                     <div class="ej-reading-item ej-ri-info">
                         <span class="ej-ri-icon">✅</span>
-                        <span>Los estados “CUMPLIDO”/”CONSUMIDO PARCIAL”/”ALMACENADO” se remarcan en color verde sobre el nombre del mismo estado para detonar que están “cumpldios”</span>
+                        <span>Los estados “CUMPLIDO”, “CONSUMIDO PARCIAL” y “ALMACENADO” se remarcan en color verde sobre el nombre del mismo estado para denotar que están cumplidos.</span>
                     </div>
                     <div class="ej-reading-item ej-ri-info">
                         <span class="ej-ri-icon">🚩</span>
-                        <span>Por otro lado, si el estado es “en curso” o “próximo a vencer” y el período es diferente a “Sin aclaración” se remarca la línea completa en:</span>
+                        <span>Por otro lado, si el estado es “en curso” o “próximo a vencer” y el período es diferente a “Sin aclaración”, se remarca la línea completa en:</span>
                         <ul style="margin-left: 2rem; margin-top: 0.5rem; list-style-type: disc;">
-                            <li><strong>Rojo →</strong> Si la última recepción fue realizada hace mas de X días. (Por ejemplo: si hablamos de una certificación Mensual, si la certificación hace más de 30 días que no se realiza, figurará en rojo)</li>
-                            <li><strong>Verde →</strong> Si la última recepción fue realizada hace menos de X días.</li>
+                            <li><strong>Rojo →</strong> Si la última recepción fue realizada hace más de X días según la frecuencia del período (ej. más de 30 días para certificados mensuales).</li>
+                            <li><strong>Verde →</strong> Si la última recepción fue realizada dentro del rango esperado.</li>
                         </ul>
                     </div>
                 </div>

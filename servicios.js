@@ -111,9 +111,9 @@ function applyAll() {
             <td>${r["CANTIDAD PENDIENTE DE ADJUDICAR"] || ""}</td>
             <td>${r["CANTIDAD TOTAL PENDIENTE RECEP."] || ""}</td>
             <td class="${claseCelda}">${r["ESTADO ITEM"] || ""}</td>
+            <td>${r["FECHA ENTREGA ESPERADA"] || ""}</td>
             <td>${r["NRO. RECEPCION"] || ""}</td>
             <td>${r["FECHA RECEPCION"] || ""}</td>
-            <td>${r["FECHA ENTREGA ESPERADA"] || ""}</td>
             <td>${r["NRO. OC"] || ""}</td>
             <td>${r["Grupo de Compra Definitivo"] || ""}</td>
             <td>${r["Estado Servicio"] || ""}</td>

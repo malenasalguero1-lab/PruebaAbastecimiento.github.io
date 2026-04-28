@@ -65,17 +65,19 @@ function downloadCSV(rows) {
 }
 
 function applyAll() {
-    const selClientes = getSelValues("clienteSelect");
+ const selClientes = getSelValues("clienteSelect");
     const selPeriodos = getSelValues("clasif2Select");
     const selEstados = getSelValues("gcocSelect");
     const selGrupos = getSelValues("grupoCompraSelect");
-
+    const selItemEst = getSelValues("estadoItemSelect"); 
+    
     const filtered = data.filter(r => {
         const matchClie = !selClientes.length || selClientes.includes(r[CLIENT_COL_NAME]);
         const matchPeri = !selPeriodos.length || selPeriodos.includes(r[PERIODO_COL_NAME]);
         const matchEsta = !selEstados.length || selEstados.includes(r[ESTADO_COL_NAME]);
         const matchGrup = !selGrupos.length || selGrupos.includes(r[G_COMPRA_COL_NAME]);
-        return matchClie && matchPeri && matchEsta && matchGrup;
+        const matchItem = !selItemEst.length || selItemEst.includes(r[ESTADO_ITEM_COL]); // Nuevo
+        return matchClie && matchPeri && matchEsta && matchGrup && matchItem;
     });
 
     setText("kpiTotal", fmtInt(filtered.length));
@@ -136,17 +138,19 @@ window.addEventListener("DOMContentLoaded", () => {
             return o;
         });
 
-        fill("clienteSelect", CLIENT_COL_NAME);
-        fill("clasif2Select", PERIODO_COL_NAME);
-        fill("gcocSelect", ESTADO_COL_NAME);
-        fill("grupoCompraSelect", G_COMPRA_COL_NAME);
-        
-        ["clienteSelect", "clasif2Select", "gcocSelect", "grupoCompraSelect"].forEach(id => {
-            document.getElementById(id)?.addEventListener("change", () => {
-                applyAll();
-                actualizarGraficoConDatos();
-            });
-        });
+      fill("clienteSelect", CLIENT_COL_NAME);
+fill("clasif2Select", PERIODO_COL_NAME);
+fill("gcocSelect", ESTADO_COL_NAME);
+fill("grupoCompraSelect", G_COMPRA_COL_NAME);
+fill("estadoItemSelect", ESTADO_ITEM_COL); // Nuevo
+
+// Agregar el listener para el cambio
+["clienteSelect", "clasif2Select", "gcocSelect", "grupoCompraSelect", "estadoItemSelect"].forEach(id => {
+    document.getElementById(id)?.addEventListener("change", () => {
+        applyAll();
+        actualizarGraficoConDatos();
+    });
+});
 
         document.getElementById("btnDownloadSelection")?.addEventListener("click", () => {
             const currentFiltered = applyAll();

@@ -75,12 +75,19 @@
     /* 4. Tabla: Líneas divisorias marcadas y columnas de cantidad compactas */
     table { width: 100%; border-collapse: collapse; font-family: 'Source Sans 3', sans-serif; font-size: 0.8rem; min-width: 2200px; }
     
-    th { 
-        background: #f8fafc; color: #1e293b; font-weight: 700; 
-        padding: 10px 8px; text-align: left; 
-        border-bottom: 3px solid #3b82f6 !important; /* Línea de cabecera azul */
-        vertical-align: bottom;
-    }
+th { 
+    background: #f8fafc; 
+    color: #1e293b; 
+    font-weight: 700; 
+    padding: 10px 8px; 
+    text-align: left; 
+    border-bottom: 3px solid #3b82f6 !important; 
+    vertical-align: bottom;
+    /* Nuevas propiedades para títulos largos */
+    white-space: normal !important; 
+    line-height: 1.2;
+    min-width: 100px; /* Evita que se compriman demasiado */
+}
 
     td { 
         padding: 10px 8px; 

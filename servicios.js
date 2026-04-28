@@ -151,9 +151,30 @@ window.addEventListener("DOMContentLoaded", () => {
             downloadCSV(currentFiltered);
         });
 
-        applyAll();
+       applyAll();
+        
+        // --- AGREGAR DESDE AQUÍ ---
+        const ctx = document.getElementById('chartEstados').getContext('2d');
+        window.miGrafico = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['En curso', 'Vencidos', 'Próximos a vencer', 'Total recepcionado'],
+                datasets: [{
+                    data: [0, 0, 0, 0],
+                    backgroundColor: ['#3b82f6', '#ef4444', '#f59e0b', '#10b981'],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { position: 'bottom' } },
+                cutout: '65%'
+            }
+        });
+        actualizarGraficoConDatos(); // Llamada inicial
+        // --- HASTA AQUÍ ---
+
         document.getElementById("loader").style.display = "none";
-        window.addEventListener('resize', syncScrolls);
     });
 });
 
@@ -167,4 +188,28 @@ function fill(id, col) {
         opt.value = v; opt.textContent = v;
         sel.appendChild(opt);
     });
+
+    function actualizarGraficoConDatos() {
+    if (!window.miGrafico) return;
+
+    // Obtenemos los datos que están visibles actualmente (después de filtrar)
+    const actuales = applyAll(); 
+
+    // Contamos según la columna "Estado Servicio" (ESTADO_COL_NAME)
+    const enCurso = actuales.filter(r => r[ESTADO_COL_NAME] === "En curso").length;
+    const vencidos = actuales.filter(r => r[ESTADO_COL_NAME] === "Vencidos").length;
+    const proximos = actuales.filter(r => r[ESTADO_COL_NAME] === "Próximos a vencer").length;
+    const totalRec = actuales.filter(r => r[ESTADO_COL_NAME] === "Total recepcionado").length;
+
+    // Le pasamos los nuevos números al gráfico
+    window.miGrafico.data.datasets[0].data = [enCurso, vencidos, proximos, totalRec];
+    window.miGrafico.update();
+}
+    // Busca esta parte y modifícala:
+["clienteSelect", "clasif2Select", "gcocSelect", "grupoCompraSelect"].forEach(id => {
+    document.getElementById(id)?.addEventListener("change", () => {
+        applyAll();
+        actualizarGraficoConDatos(); // <--- Agrega esto para que el gráfico reaccione al filtro
+    });
+});
 }

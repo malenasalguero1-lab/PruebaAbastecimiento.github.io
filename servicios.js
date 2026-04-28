@@ -68,16 +68,15 @@ function applyAll() {
     const selClientes = getSelValues("clienteSelect");
     const selPeriodos = getSelValues("clasif2Select");
     const selEstados = getSelValues("gcocSelect");
-    const selGrupos = getSelValues("grupoCompraSelect"); // Nuevo
+    const selGrupos = getSelValues("grupoCompraSelect");
 
     const filtered = data.filter(r => {
         const matchClie = !selClientes.length || selClientes.includes(r[CLIENT_COL_NAME]);
         const matchPeri = !selPeriodos.length || selPeriodos.includes(r[PERIODO_COL_NAME]);
         const matchEsta = !selEstados.length || selEstados.includes(r[ESTADO_COL_NAME]);
-        const matchGrup = !selGrupos.length || selGrupos.includes(r[G_COMPRA_COL_NAME]); // Nuevo
-        return matchClie && matchPeri && matchEsta && matchGrup; // Agregado matchGrup
+        const matchGrup = !selGrupos.length || selGrupos.includes(r[G_COMPRA_COL_NAME]);
+        return matchClie && matchPeri && matchEsta && matchGrup;
     });
-  
 
     setText("kpiTotal", fmtInt(filtered.length));
 
@@ -86,16 +85,12 @@ function applyAll() {
 
     filtered.forEach(r => {
         const tr = document.createElement("tr");
-        
-        // Color de fila (Estado Certificación)
         const estCert = clean(r[ESTADO_CERT_COL]).toLowerCase();
         if (estCert === "verde") tr.classList.add("row-verde");
         else if (estCert === "rojo") tr.classList.add("row-rojo");
 
-        // Color específico para la celda Estado Item
         const valorItem = clean(r[ESTADO_ITEM_COL]).toUpperCase();
         let claseCelda = "";
-        
         const rojos = ["ADJUDICADO", "ADJUDICADO PARCIAL", "RESPONDIDO", "INCOMPLETO","SIN TRATAMIENTO"];
         const verdes = ["CUMPLIDO", "ALMACENADO", "CONSUMIDO PARCIAL"];
 
@@ -137,27 +132,28 @@ window.addEventListener("DOMContentLoaded", () => {
             headers.forEach((h, i) => o[h] = clean(row[i]));
             return o;
         });
+
         fill("clienteSelect", CLIENT_COL_NAME);
         fill("clasif2Select", PERIODO_COL_NAME);
         fill("gcocSelect", ESTADO_COL_NAME);
         fill("grupoCompraSelect", G_COMPRA_COL_NAME);
         
-      // Busca esta parte en el medio del archivo y déjala así:
-["clienteSelect", "clasif2Select", "gcocSelect", "grupoCompraSelect"].forEach(id => {
-    document.getElementById(id)?.addEventListener("change", () => {
-        applyAll();
-        actualizarGraficoConDatos(); 
-    });
-});
+        // Listeners para filtros
+        ["clienteSelect", "clasif2Select", "gcocSelect", "grupoCompraSelect"].forEach(id => {
+            document.getElementById(id)?.addEventListener("change", () => {
+                applyAll();
+                actualizarGraficoConDatos();
+            });
+        });
 
         document.getElementById("btnDownloadSelection")?.addEventListener("click", () => {
             const currentFiltered = applyAll();
             downloadCSV(currentFiltered);
         });
 
-       applyAll();
+        applyAll();
         
-        // --- AGREGAR DESDE AQUÍ ---
+        // Inicialización del gráfico
         const ctx = document.getElementById('chartEstados').getContext('2d');
         window.miGrafico = new Chart(ctx, {
             type: 'doughnut',
@@ -175,10 +171,10 @@ window.addEventListener("DOMContentLoaded", () => {
                 cutout: '65%'
             }
         });
-        actualizarGraficoConDatos(); // Llamada inicial
-        // --- HASTA AQUÍ ---
+        actualizarGraficoConDatos();
 
         document.getElementById("loader").style.display = "none";
+        window.addEventListener('resize', syncScrolls);
     });
 });
 
@@ -192,21 +188,16 @@ function fill(id, col) {
         opt.value = v; opt.textContent = v;
         sel.appendChild(opt);
     });
-} // Cerramos fill correctamente aquí
+}
 
 function actualizarGraficoConDatos() {
     if (!window.miGrafico) return;
-
-    // Obtenemos los datos filtrados
     const actuales = applyAll(); 
-
-    // Contamos por estado
     const enCurso = actuales.filter(r => r[ESTADO_COL_NAME] === "En curso").length;
     const vencidos = actuales.filter(r => r[ESTADO_COL_NAME] === "Vencidos").length;
     const proximos = actuales.filter(r => r[ESTADO_COL_NAME] === "Próximos a vencer").length;
     const totalRec = actuales.filter(r => r[ESTADO_COL_NAME] === "Total recepcionado").length;
 
-    // Actualizamos el gráfico
     window.miGrafico.data.datasets[0].data = [enCurso, vencidos, proximos, totalRec];
     window.miGrafico.update();
 }

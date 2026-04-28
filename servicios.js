@@ -142,8 +142,12 @@ window.addEventListener("DOMContentLoaded", () => {
         fill("gcocSelect", ESTADO_COL_NAME);
         fill("grupoCompraSelect", G_COMPRA_COL_NAME);
         
-       ["clienteSelect", "clasif2Select", "gcocSelect", "grupoCompraSelect"].forEach(id => {
-    document.getElementById(id)?.addEventListener("change", applyAll);
+      // Busca esta parte en el medio del archivo y déjala así:
+["clienteSelect", "clasif2Select", "gcocSelect", "grupoCompraSelect"].forEach(id => {
+    document.getElementById(id)?.addEventListener("change", () => {
+        applyAll();
+        actualizarGraficoConDatos(); 
+    });
 });
 
         document.getElementById("btnDownloadSelection")?.addEventListener("click", () => {
@@ -188,28 +192,21 @@ function fill(id, col) {
         opt.value = v; opt.textContent = v;
         sel.appendChild(opt);
     });
+} // Cerramos fill correctamente aquí
 
-    function actualizarGraficoConDatos() {
+function actualizarGraficoConDatos() {
     if (!window.miGrafico) return;
 
-    // Obtenemos los datos que están visibles actualmente (después de filtrar)
+    // Obtenemos los datos filtrados
     const actuales = applyAll(); 
 
-    // Contamos según la columna "Estado Servicio" (ESTADO_COL_NAME)
+    // Contamos por estado
     const enCurso = actuales.filter(r => r[ESTADO_COL_NAME] === "En curso").length;
     const vencidos = actuales.filter(r => r[ESTADO_COL_NAME] === "Vencidos").length;
     const proximos = actuales.filter(r => r[ESTADO_COL_NAME] === "Próximos a vencer").length;
     const totalRec = actuales.filter(r => r[ESTADO_COL_NAME] === "Total recepcionado").length;
 
-    // Le pasamos los nuevos números al gráfico
+    // Actualizamos el gráfico
     window.miGrafico.data.datasets[0].data = [enCurso, vencidos, proximos, totalRec];
     window.miGrafico.update();
-}
-    // Busca esta parte y modifícala:
-["clienteSelect", "clasif2Select", "gcocSelect", "grupoCompraSelect"].forEach(id => {
-    document.getElementById(id)?.addEventListener("change", () => {
-        applyAll();
-        actualizarGraficoConDatos(); // <--- Agrega esto para que el gráfico reaccione al filtro
-    });
-});
 }

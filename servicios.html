@@ -16,12 +16,16 @@
   
   <style>
     /* 1. KPIs de resumen */
-    .kpi-mini-box {
-        background: #ffffff; border: 2px solid #3b82f6; border-radius: 8px;
-        padding: 10px; text-align: center; height: 90px;
-        display: flex; flex-direction: column; justify-content: center;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
+  .kpi-mini-box {
+    height: 70px !important;
+    background: #ffffff;
+    border: 2px solid #3b82f6;
+    border-radius: 8px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
     .kpi-mini-value { display: block; font-size: 2rem; font-weight: 800; color: #3b82f6; line-height: 1; }
     .kpi-mini-label { font-size: 0.75rem; color: #64748b; text-transform: uppercase; font-weight: 700; margin-top: 5px; }
 
@@ -29,8 +33,7 @@
 
 .filters-6 { 
     display: grid !important; 
-    /* El primer valor es CLIENTE, el segundo PERIODO, el tercero ESTADO (grande), 
-       el cuarto G. COMPRA (pequeño), el quinto ESTADO ITEM (grande) y el sexto TOTAL */
+    /* Orden: Cliente(1.2) | Periodo(0.8) | Estado(2.2) | G.Compra(0.7) | Estado Item(2.2) | Total(1) */
     grid-template-columns: 1.2fr 0.8fr 2.2fr 0.7fr 2.2fr 1fr !important; 
     gap: 12px; 
     padding: 15px !important; 
@@ -43,6 +46,9 @@
     height: 110px !important;
     font-size: 0.85rem !important;
     width: 100%;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    padding: 4px;
 }
 
 .filter label {
@@ -154,12 +160,16 @@ th {
   <main class="container">
     <section class="panel">
       <div class="panel-title">FILTROS DE SERVICIOS</div>
-  <div class="panel-body filters-6"> 
+<div class="panel-body filters-6"> 
     <div class="filter"><label>CLIENTE</label><select id="clienteSelect" multiple class="multi-select"></select></div>
+    
     <div class="filter"><label>PERÍODO</label><select id="clasif2Select" multiple class="multi-select"></select></div>
-    <div class="filter-wide"><label>ESTADO</label><select id="gcocSelect" multiple class="multi-select"></select></div>  
-    <div class="filter-narrow"><label>G. COMPRA</label><select id="grupoCompraSelect" multiple class="multi-select"></select></div> 
-    <div class="filter-wide"><label>ESTADO ITEM</label><select id="estadoItemSelect" multiple class="multi-select"></select></div>
+    
+    <div class="filter"><label>ESTADO</label><select id="gcocSelect" multiple class="multi-select"></select></div>  
+    
+    <div class="filter"><label>G. COMPRA</label><select id="grupoCompraSelect" multiple class="multi-select"></select></div> 
+    
+    <div class="filter"><label>ESTADO ITEM</label><select id="estadoItemSelect" multiple class="multi-select"></select></div>
     
     <div class="filter-kpi">
         <label>TOTAL</label>

@@ -25,23 +25,23 @@
 
 .filters-6 { 
     display: grid !important; 
-    /* Cambiamos el tercer valor (Estado) de 1fr a 1.5fr */
-    grid-template-columns: 2fr 1.5fr 1.5fr 1fr 1fr 1.5fr !important; 
-    gap: 15px; 
-    align-items: end; 
+    /* Proporciones: Cliente(2.5), Período(1.8), Estado(2), G.Compra(1.2), KPI(1.2), Botón(1.5) */
+    grid-template-columns: 2.5fr 1.8fr 2fr 1.2fr 1.2fr 1.5fr !important; 
+    gap: 20px; 
+    align-items: start; /* Alineación superior */
     width: 100%; 
     padding: 15px 0;
 }
 
-  .filter label {
-    display: inline-block; /* Para que el fondo solo ocupe el ancho del texto */
-    background-color: #0d9488; /* El verde esmeralda de tu diseño */
+.filter label {
+    display: inline-block;
+    background-color: #0d9488; /* Verde esmeralda */
     color: white;
-    padding: 4px 12px;
+    padding: 2px 8px; /* Más compacto */
     border-radius: 4px;
-    font-size: 0.85rem;
+    font-size: 0.75rem; /* Tamaño reducido */
     font-weight: 700;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
     text-transform: uppercase;
 }
     .multi-select {
@@ -52,23 +52,25 @@
         border-radius: 6px;
     }
 
-   
 #btnDownloadSelection {
-    width: 100% !important; /* Que ocupe todo el ancho de su columna */
-    height: 45px !important; /* Altura estándar */
-    padding: 0 10px !important;
-    background-color: #0d9488;
-    color: white;
-    border-radius: 8px;
-    font-size: 0.85rem !important; /* Tamaño adecuado para que entre el texto */
-    font-weight: 700;
+    width: 100% !important;
+    height: 40px !important;
+    background-color: #ffffff; /* Fondo blanco */
+    color: #1e293b; /* Texto oscuro */
+    border: 1px solid #cbd5e1; /* Borde gris suave */
+    border-radius: 6px;
+    font-size: 0.85rem !important;
+    font-weight: 600;
     cursor: pointer;
-    border: none;
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: background-color 0.2s;
 }
-    #btnDownloadSelection:hover { background-color: #0f766e; }
+
+#btnDownloadSelection:hover {
+    background-color: #f8fafc;
+}
 
     /* 4. Tabla: Líneas divisorias marcadas y columnas de cantidad compactas */
     table { width: 100%; border-collapse: collapse; font-family: 'Source Sans 3', sans-serif; font-size: 0.8rem; min-width: 2200px; }

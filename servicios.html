@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <title>ABASTECIMIENTO - SERVICIOS</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -196,6 +197,14 @@ th {
         </table>
       </div>
     </section>
+    <section class="panel">
+    <div class="panel-title">GRÁFICO RESUMEN</div>
+    <div class="panel-body" style="display: flex; justify-content: center; align-items: center; padding: 20px;">
+        <div style="width: 100%; max-width: 450px;">
+            <canvas id="chartEstados"></canvas>
+        </div>
+    </div>
+</section>
   </main>
 
   <script src="help.js"></script>

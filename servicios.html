@@ -22,11 +22,11 @@
     .kpi-mini-label { font-size: 0.75rem; color: #64748b; text-transform: uppercase; font-weight: 700; margin-top: 5px; }
 
     /* 2. Filtros: Distribución de anchos y letra más grande */
-    /* Nueva distribución para que entre el texto del botón */
+
 .filters-6 { 
     display: grid !important; 
-    /* Cliente(2) | Período(1.5) | Estado(1) | G.Compra(1) | KPI(1) | Botón(1.5) */
-    grid-template-columns: 2fr 1.5fr 1fr 1fr 1fr 1.5fr !important; 
+    /* Cambiamos el tercer valor (Estado) de 1fr a 1.5fr */
+    grid-template-columns: 2fr 1.5fr 1.5fr 1fr 1fr 1.5fr !important; 
     gap: 15px; 
     align-items: end; 
     width: 100%; 
@@ -146,11 +146,9 @@
         <div class="filter"><label>ESTADO</label><select id="gcocSelect" multiple class="multi-select"></select></div>  
         <div class="filter"><label>G. COMPRA</label><select id="grupoCompraSelect" multiple class="multi-select"></select></div> 
         <div class="filter"><label>TOTAL</label><div class="kpi-mini-box"><span id="kpiTotal" class="kpi-mini-value">0</span><span class="kpi-mini-label">Servicios</span></div></div>
-        <div class="filter">
-          <label>&nbsp;</label>
-        <div class="filter">
+      <div class="filter">
     <label>&nbsp;</label>
-    <button id="btnDownloadSelection" class="btn">⬇ DESCARGAR SELECCIÓN</button>
+    <button id="btnDownloadSelection" class="btn">⬇ Descargar selección</button>
 </div>
         </div>
       </div>

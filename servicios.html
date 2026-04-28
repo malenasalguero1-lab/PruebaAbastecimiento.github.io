@@ -29,12 +29,9 @@
 
 .filters-6 { 
     display: grid !important; 
-    grid-template-columns: 2.5fr 1.8fr 2fr 1.2fr 1.2fr 1.5fr !important; 
-    gap: 20px; 
-    align-items: start; 
-    width: 100%; 
-    /* Cambia el segundo valor (0) por 15px para dar espacio a los lados */
-    padding: 15px 15px !important; 
+    grid-template-columns: repeat(5, 1fr) 1.2fr !important; 
+    gap: 15px; 
+    padding: 15px !important; 
 }
 
 .filter label {
@@ -58,18 +55,9 @@
 
 #btnDownloadSelection {
     width: 100% !important;
-    height: 40px !important;
-    background-color: #ffffff; /* Fondo blanco */
-    color: #1e293b; /* Texto oscuro */
-    border: 1px solid #cbd5e1; /* Borde gris suave */
-    border-radius: 6px;
-    font-size: 0.85rem !important;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.2s;
+    height: 32px !important; /* Más bajo */
+    font-size: 0.75rem !important; /* Letra más chica */
+    margin-top: 0 !important;
 }
 
 #btnDownloadSelection:hover {
@@ -155,14 +143,21 @@ th {
   <main class="container">
     <section class="panel">
       <div class="panel-title">FILTROS DE SERVICIOS</div>
-      <div class="panel-body filters-6"> 
-        <div class="filter"><label>CLIENTE</label><select id="clienteSelect" multiple class="multi-select"></select></div>
-        <div class="filter"><label>PERÍODO</label><select id="clasif2Select" multiple class="multi-select"></select></div>
-        <div class="filter"><label>ESTADO</label><select id="gcocSelect" multiple class="multi-select"></select></div>  
-        <div class="filter"><label>G. COMPRA</label><select id="grupoCompraSelect" multiple class="multi-select"></select></div> 
-        <div class="filter"><label>TOTAL</label><div class="kpi-mini-box"><span id="kpiTotal" class="kpi-mini-value">0</span><span class="kpi-mini-label">Servicios</span></div></div>
-   <div class="filter">
-    <button id="btnDownloadSelection" class="btn" style="margin-top: 32px;">⬇ Descargar selección</button>
+  <div class="panel-body filters-6"> 
+    <div class="filter"><label>CLIENTE</label><select id="clienteSelect" multiple class="multi-select"></select></div>
+    <div class="filter"><label>PERÍODO</label><select id="clasif2Select" multiple class="multi-select"></select></div>
+    <div class="filter"><label>ESTADO</label><select id="gcocSelect" multiple class="multi-select"></select></div>  
+    <div class="filter"><label>G. COMPRA</label><select id="grupoCompraSelect" multiple class="multi-select"></select></div> 
+    <div class="filter"><label>ESTADO ITEM</label><select id="estadoItemSelect" multiple class="multi-select"></select></div>
+    
+    <div class="filter">
+        <label>TOTAL</label>
+        <div class="kpi-mini-box" style="margin-bottom: 10px;">
+            <span id="kpiTotal" class="kpi-mini-value">0</span>
+            <span class="kpi-mini-label">Servicios</span>
+        </div>
+        <button id="btnDownloadSelection" class="btn">⬇ Descargar</button>
+    </div>
 </div>
         </div>
       </div>

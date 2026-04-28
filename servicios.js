@@ -197,6 +197,7 @@ function fill(id, col) {
 
 function actualizarGraficoConDatos() {
     if (!window.miGrafico) return;
+
     const actuales = applyAll(); 
     const conteo = {};
     actuales.forEach(r => {
@@ -207,19 +208,24 @@ function actualizarGraficoConDatos() {
     const labels = Object.keys(conteo);
     const valores = Object.values(conteo);
 
-    // 3. Colores específicos mapeados exactamente al CSV
-    const coloresPorEstado = {
-        'En curso - Próximo a vencer': '#fbbf24', 
-        'En curso': '#10b981',                  
-        'En curso - Total recepcionado': '#f97316', 
-        'Pedido de Info': '#a855f7',            
-        'Vencido con cant pendiente a rece': '#ef4444' 
+    // 1. Mapa de colores exactos según tu pedido
+    const mapaColores = {
+        'En curso - Próximo a vencer': '#fbbf24', // Amarillo
+        'En curso': '#10b981',                  // Verde
+        'En curso - Total recepcionado': '#f97316', // Naranja
+        'Pedido de Info': '#a855f7',            // Violeta
+        'Vencido con cant pendiente a recep': '#ef4444' // Rojo
     };
 
-    const coloresAsignados = labels.map(l => coloresPorEstado[l] || '#64748b');
+    // 2. Esta es la clave: asignamos el color buscando el nombre de la etiqueta
+    const coloresAsignados = labels.map(label => {
+        return mapaColores[label] || '#64748b'; // Gris si no encuentra el nombre exacto
+    });
     
+    // 3. Aplicar al gráfico
     window.miGrafico.data.labels = labels;
     window.miGrafico.data.datasets[0].data = valores;
     window.miGrafico.data.datasets[0].backgroundColor = coloresAsignados;
+    
     window.miGrafico.update();
 }

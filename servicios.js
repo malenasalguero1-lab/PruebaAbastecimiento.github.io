@@ -120,6 +120,9 @@ function applyAll() {
     return filtered;
 }
 
+// Registrar el plugin globalmente una sola vez
+Chart.register(ChartDataLabels);
+
 window.addEventListener("DOMContentLoaded", () => {
     fetch(csvUrl)
     .then(r => r.text())
@@ -138,7 +141,6 @@ window.addEventListener("DOMContentLoaded", () => {
         fill("gcocSelect", ESTADO_COL_NAME);
         fill("grupoCompraSelect", G_COMPRA_COL_NAME);
         
-        // Listeners para filtros
         ["clienteSelect", "clasif2Select", "gcocSelect", "grupoCompraSelect"].forEach(id => {
             document.getElementById(id)?.addEventListener("change", () => {
                 applyAll();
@@ -153,21 +155,31 @@ window.addEventListener("DOMContentLoaded", () => {
 
         applyAll();
         
-        // Inicialización del gráfico
         const ctx = document.getElementById('chartEstados').getContext('2d');
         window.miGrafico = new Chart(ctx, {
             type: 'doughnut',
             data: {
-                labels: ['En curso', 'Vencidos', 'Próximos a vencer', 'Total recepcionado'],
+                labels: [],
                 datasets: [{
-                    data: [0, 0, 0, 0],
-                    backgroundColor: ['#3b82f6', '#ef4444', '#f59e0b', '#10b981'],
+                    data: [],
+                    backgroundColor: [],
                     borderWidth: 2
                 }]
             },
             options: {
                 responsive: true,
-                plugins: { legend: { position: 'bottom' } },
+                plugins: { 
+                    legend: { position: 'bottom' },
+                    datalabels: {
+                        color: '#fff',
+                        font: { weight: 'bold', size: 12 },
+                        formatter: (value, ctx) => {
+                            let sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                            let percentage = (value * 100 / sum).toFixed(1) + "%";
+                            return value + "\n(" + percentage + ")";
+                        }
+                    }
+                },
                 cutout: '65%'
             }
         });
@@ -204,35 +216,17 @@ function actualizarGraficoConDatos() {
     const valores = Object.values(conteo);
 
     const coloresPorEstado = {
-        'En curso - Próximo a vencer': '#fbbf24', // Amarillo
-        'En curso': '#10b981',                  // Verde
-        'En curso - Total recepcionado': '#f97316', // Naranja
-        'Pedido de Info': '#a855f7',            // Violeta
-        'Vencido con cant pendiente de recep': '#ef4444' // Rojo
+        'En curso - Próximo a vencer': '#fbbf24', 
+        'En curso': '#10b981',                  
+        'En curso - Total recepcionado': '#f97316', 
+        'Pedido de Info': '#a855f7',            
+        'Vencido con cant pendiente a rece': '#ef4444' 
     };
 
     const coloresAsignados = labels.map(l => coloresPorEstado[l] || '#64748b');
     
-    // Actualización de datos
     window.miGrafico.data.labels = labels;
     window.miGrafico.data.datasets[0].data = valores;
     window.miGrafico.data.datasets[0].backgroundColor = coloresAsignados;
-    
-    // CONFIGURACIÓN DE ETIQUETAS PERMANENTES
-    window.miGrafico.options.plugins.datalabels = {
-        color: '#fff',
-        font: { weight: 'bold', size: 12 },
-        formatter: (value, ctx) => {
-            let sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-            let percentage = (value * 100 / sum).toFixed(1) + "%";
-            return value + "\n(" + percentage + ")"; // Muestra: 51 (15%)
-        },
-        anchor: 'center',
-        align: 'center'
-    };
-
-    // Registrar el plugin para que se active
-    Chart.register(ChartDataLabels);
-    
     window.miGrafico.update();
 }

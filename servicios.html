@@ -25,12 +25,12 @@
 
 .filters-6 { 
     display: grid !important; 
-    /* Proporciones: Cliente(2.5), Período(1.8), Estado(2), G.Compra(1.2), KPI(1.2), Botón(1.5) */
     grid-template-columns: 2.5fr 1.8fr 2fr 1.2fr 1.2fr 1.5fr !important; 
     gap: 20px; 
-    align-items: start; /* Alineación superior */
+    align-items: start; 
     width: 100%; 
-    padding: 15px 0;
+    /* Cambia el segundo valor (0) por 15px para dar espacio a los lados */
+    padding: 15px 15px !important; 
 }
 
 .filter label {
@@ -150,8 +150,11 @@
         <div class="filter"><label>ESTADO</label><select id="gcocSelect" multiple class="multi-select"></select></div>  
         <div class="filter"><label>G. COMPRA</label><select id="grupoCompraSelect" multiple class="multi-select"></select></div> 
         <div class="filter"><label>TOTAL</label><div class="kpi-mini-box"><span id="kpiTotal" class="kpi-mini-value">0</span><span class="kpi-mini-label">Servicios</span></div></div>
-      <div class="filter">
-    <label>&nbsp;</label>
+    <div class="filter">
+    <label>&nbsp;</label> <button id="btnDownloadSelection" class="btn">⬇ Descargar selección</button>
+</div>
+
+<div class="filter">
     <button id="btnDownloadSelection" class="btn">⬇ Descargar selección</button>
 </div>
         </div>

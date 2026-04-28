@@ -192,12 +192,28 @@ function fill(id, col) {
 
 function actualizarGraficoConDatos() {
     if (!window.miGrafico) return;
-    const actuales = applyAll(); 
-    const enCurso = actuales.filter(r => r[ESTADO_COL_NAME] === "En curso").length;
-    const vencidos = actuales.filter(r => r[ESTADO_COL_NAME] === "Vencidos").length;
-    const proximos = actuales.filter(r => r[ESTADO_COL_NAME] === "Próximos a vencer").length;
-    const totalRec = actuales.filter(r => r[ESTADO_COL_NAME] === "Total recepcionado").length;
 
-    window.miGrafico.data.datasets[0].data = [enCurso, vencidos, proximos, totalRec];
+    // 1. Obtenemos los datos filtrados actualmente
+    const actuales = applyAll(); 
+
+    // 2. Contamos cuántas veces aparece cada estado real
+    const conteo = {};
+    actuales.forEach(r => {
+        const estado = r[ESTADO_COL_NAME] || "Sin Estado";
+        conteo[estado] = (conteo[estado] || 0) + 1;
+    });
+
+    // 3. Extraemos las etiquetas (nombres) y los valores (cantidades)
+    const labels = Object.keys(conteo);
+    const valores = Object.values(conteo);
+
+    // 4. Generamos colores automáticos para que no falten si hay muchos estados
+    const coloresBase = ['#3b82f6', '#ef4444', '#f59e0b', '#10b981', '#64748b', '#8b5cf6', '#ec4899'];
+    
+    // 5. Actualizamos el gráfico con los datos reales del CSV
+    window.miGrafico.data.labels = labels;
+    window.miGrafico.data.datasets[0].data = valores;
+    window.miGrafico.data.datasets[0].backgroundColor = coloresBase.slice(0, labels.length);
+    
     window.miGrafico.update();
 }

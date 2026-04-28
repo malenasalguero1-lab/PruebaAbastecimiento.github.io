@@ -120,7 +120,7 @@ function applyAll() {
     return filtered;
 }
 
-// Registrar el plugin globalmente una sola vez
+// 1. Registro del plugin corregido
 Chart.register(ChartDataLabels);
 
 window.addEventListener("DOMContentLoaded", () => {
@@ -158,19 +158,12 @@ window.addEventListener("DOMContentLoaded", () => {
         const ctx = document.getElementById('chartEstados').getContext('2d');
         window.miGrafico = new Chart(ctx, {
             type: 'doughnut',
-            data: {
-                labels: [],
-                datasets: [{
-                    data: [],
-                    backgroundColor: [],
-                    borderWidth: 2
-                }]
-            },
+            data: { labels: [], datasets: [{ data: [], backgroundColor: [], borderWidth: 2 }] },
             options: {
                 responsive: true,
                 plugins: { 
                     legend: { position: 'bottom' },
-                    datalabels: {
+                    datalabels: { // 2. Configuración de etiquetas permanente
                         color: '#fff',
                         font: { weight: 'bold', size: 12 },
                         formatter: (value, ctx) => {
@@ -204,7 +197,6 @@ function fill(id, col) {
 
 function actualizarGraficoConDatos() {
     if (!window.miGrafico) return;
-
     const actuales = applyAll(); 
     const conteo = {};
     actuales.forEach(r => {
@@ -215,6 +207,7 @@ function actualizarGraficoConDatos() {
     const labels = Object.keys(conteo);
     const valores = Object.values(conteo);
 
+    // 3. Colores específicos mapeados exactamente al CSV
     const coloresPorEstado = {
         'En curso - Próximo a vencer': '#fbbf24', 
         'En curso': '#10b981',                  

@@ -208,24 +208,39 @@ function actualizarGraficoConDatos() {
     const labels = Object.keys(conteo);
     const valores = Object.values(conteo);
 
-    // 1. Mapa de colores exactos según tu pedido
     const mapaColores = {
-        'En curso - Próximo a vencer': '#fbbf24', // Amarillo
-        'En curso': '#10b981',                  // Verde
-        'En curso - Total recepcionado': '#f97316', // Naranja
-        'Pedido de Info': '#a855f7',            // Violeta
-        'Vencido con cant pendiente a recep': '#ef4444' // Rojo
+        'En curso - Próximo a vencer': '#fbbf24', 
+        'En curso': '#10b981',                  
+        'En curso - Total recepcionado': '#f97316', 
+        'Pedido de Info': '#a855f7',            
+        'Vencido con cant pendiente a recep': '#ef4444' 
     };
 
-    // 2. Esta es la clave: asignamos el color buscando el nombre de la etiqueta
     const coloresAsignados = labels.map(label => {
-        return mapaColores[label] || '#64748b'; // Gris si no encuentra el nombre exacto
+        return mapaColores[label] || '#64748b'; 
     });
     
-    // 3. Aplicar al gráfico
+    // --- ACTUALIZACIÓN DE DATOS ---
     window.miGrafico.data.labels = labels;
     window.miGrafico.data.datasets[0].data = valores;
     window.miGrafico.data.datasets[0].backgroundColor = coloresAsignados;
+
+    // --- CONFIGURACIÓN PARA LEYENDA LATERAL ---
+    window.miGrafico.options.plugins.legend = {
+        display: true,
+        position: 'right',     // La mueve al costado derecho
+        align: 'center',       // Centra la lista verticalmente
+        labels: {
+            boxWidth: 15,      // Cuadradito más pequeño para que no ocupe tanto espacio
+            padding: 20,       // Espaciado entre etiquetas para que se vean "apiladas"
+            font: {
+                size: 12       // Tamaño de fuente legible
+            }
+        }
+    };
+
+    // Si quieres que el gráfico se ajuste al espacio, asegúrate de que esto esté en true
+    window.miGrafico.options.maintainAspectRatio = false;
     
     window.miGrafico.update();
 }

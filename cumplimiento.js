@@ -731,277 +731,100 @@ function buildChartMes(rows) {
   for (const r of rows) {
     const d = parseDateAny(r[FECHA_COL]);
     if (!d) continue;
-
     const mk = monthKey(d);
     monthsSet.add(mk);
 
-    if (!agg.has(mk)) agg.set(mk, { at: 0, ft: 0, no: 0, demSum: 0, demCnt: 0 });
+    if (!agg.has(mk)) agg.set(mk, { at: 0, ft: 0, no: 0, comp: 0 });
     const c = agg.get(mk);
-
     c.at += toNumber(r[AT_COL]);
     c.ft += toNumber(r[FT_COL]);
     c.no += toNumber(r[NO_COL]);
-
-    const dem = toNumAny(r[DEMORA_COL]);
-    if (!isNaN(dem)) { c.demSum += dem; c.demCnt += 1; }
+    c.comp += toNumber(r["COMPROMETIDOS"]) || (toNumber(r[AT_COL]) + toNumber(r[FT_COL]) + toNumber(r[NO_COL]));
   }
 
   const months = [...monthsSet].sort();
-  const qAT = months.map(m => agg.get(m)?.at ?? 0);
-  const qFT = months.map(m => agg.get(m)?.ft ?? 0);
-  const qNO = months.map(m => agg.get(m)?.no ?? 0);
 
-  const pAT = qAT.map((v, i) => { const t = qAT[i] + qFT[i] + qNO[i]; return t ? (v / t) * 100 : 0; });
-  const pFT = qFT.map((v, i) => { const t = qAT[i] + qFT[i] + qNO[i]; return t ? (v / t) * 100 : 0; });
-  const pNO = qNO.map((v, i) => { const t = qAT[i] + qFT[i] + qNO[i]; return t ? (v / t) * 100 : 0; });
-
-  const avgDem = months.map(m => {
-    const c = agg.get(m);
-    return (c && c.demCnt) ? (c.demSum / c.demCnt) : null;
+  const pAT = months.map(m => {
+    const c = agg.get(m); const t = (c?.at ?? 0) + (c?.ft ?? 0) + (c?.no ?? 0);
+    return t ? ((c.at ?? 0) / t) * 100 : 0;
   });
+  const pFT = months.map(m => {
+    const c = agg.get(m); const t = (c?.at ?? 0) + (c?.ft ?? 0) + (c?.no ?? 0);
+    return t ? ((c.ft ?? 0) / t) * 100 : 0;
+  });
+  const pNO = months.map(m => {
+    const c = agg.get(m); const t = (c?.at ?? 0) + (c?.ft ?? 0) + (c?.no ?? 0);
+    return t ? ((c.no ?? 0) / t) * 100 : 0;
+  });
+
+  // --- CÁLCULO DEL ACUMULADO PARA EL GRÁFICO SUPERIOR ---
+  const pAT_acum = [];
+  let sumaEntregadosATAcum = 0;
+  let sumaComprometidosAcum = 0;
+
+  for (let i = 0; i < months.length; i++) {
+    const c = agg.get(months[i]);
+    sumaEntregadosATAcum += (c?.at ?? 0);
+    sumaComprometidosAcum += (c?.comp ?? 0);
+    const pctAcum = sumaComprometidosAcum ? (sumaEntregadosATAcum / sumaComprometidosAcum) * 100 : 0;
+    pAT_acum.push(pctAcum);
+  }
 
   const el = document.getElementById("chartMes");
   if (!el || !window.echarts) return;
-
   if (!chartMes) chartMes = echarts.init(el, null, { renderer: "canvas" });
 
   const option = {
-    grid: { left: 56, right: 70, top: 40, bottom: 62 },
+    grid: { left: 45, right: 15, top: 15, bottom: 25 },
     tooltip: {
       trigger: "axis",
-      axisPointer: { type: "shadow" },
       confine: true,
       formatter: (params) => {
-        const axis = params?.[0]?.axisValue ?? "";
-        let html = `<b>${axis}</b><br/>`;
-        const byName = Object.fromEntries(params.map(p => [p.seriesName, p]));
-        const at = byName["Entregados AT"];
-        const ft = byName["Entregados FT"];
-        const ne = byName["No entregados"];
-        const dem = byName["Promedio días de demora"];
-
-        if (at) html += `🟩 AT: <b>${fmtInt(qAT[at.dataIndex])}</b> (${_fmtNum1(at.value)}%)<br/>`;
-        if (ft) html += `🟧 FT: <b>${fmtInt(qFT[ft.dataIndex])}</b> (${_fmtNum1(ft.value)}%)<br/>`;
-        if (ne) html += `🟥 NE: <b>${fmtInt(qNO[ne.dataIndex])}</b> (${_fmtNum1(ne.value)}%)<br/>`;
-        if (dem && dem.value != null) html += `🔵 Demora prom.: <b>${Math.round(dem.value)}</b> días<br/>`;
+        let html = `<b>${params[0].axisValue}</b><br/>`;
+        params.forEach(p => {
+          html += `${p.marker} ${p.seriesName}: <b>${_fmtNum1(p.data)}%</b><br/>`;
+        });
         return html;
       }
     },
-    legend: {
-      bottom: 12,
-      left: "center",
-      itemWidth: 14,
-      itemHeight: 10,
-      textStyle: { fontWeight: 800 }
-    },
-    xAxis: {
-      type: "category",
-      data: months,
-      axisTick: { alignWithLabel: true },
-      axisLabel: { fontWeight: 700 }
-    },
-    yAxis: [
-      {
-        type: "value",
-        min: 0,
-        max: 100,
-        axisLabel: { formatter: "{value}%" },
-        splitLine: { lineStyle: { color: "rgba(15,23,42,0.10)" } }
-      },
-      {
-        type: "value",
-        name: "Días de demora",
-        position: "right",
-        axisLabel: { fontWeight: 700 },
-        splitLine: { show: false },
-        boundaryGap: [0, '25%']
-      }
-    ],
+    xAxis: { type: "category", data: months, axisLabel: { fontWeight: 700 } },
+    yAxis: { type: "value", min: 0, max: 100, axisLabel: { formatter: "{value}%" } },
     series: [
       {
-        name: "Entregados AT",
+        name: "A Tiempo %",
         type: "bar",
-        stack: "pct",
-        // ✅ Si el valor es < 78%, agregamos borde rojo (estilo de alerta)
-        data: pAT.map(v => {
-          const val = +(+v).toFixed(4);
-          if (val < 78) {
-            return {
-              value: val,
-              itemStyle: {
-                borderColor: '#dc2626', // Rojo sólido oscuro (contrastante)
-                borderWidth: 2,
-                borderType: 'solid',
-                borderRadius: [6, 6, 0, 0]
-              }
-            };
-          }
-          return val;
-        }),
-        barMaxWidth: 52,
-        itemStyle: { color: COLORS.green, borderRadius: [6, 6, 0, 0] },
-        label: {
-          show: true,
-          position: "inside",
-          fontWeight: 900,
-          fontSize: 11,
-          lineHeight: 12,
-          formatter: (p) => {
-            const i = p.dataIndex;
-            const pct = +p.value || 0;
-            const q = (qAT)[i] || 0;
-            if (!q) return "";
-            if (pct < 6) return ""; // no mostramos etiquetas si es muy chico
-            const pctRound = Math.round(pct);
-
-            // Si es menor a 78%, usamos estilo de alerta (ico peligro + rojo)
-            if (pct < 78) {
-              return `{warn|${fmtInt(q)}\n⚠ (${pctRound}%)}`;
-            }
-            return `${fmtInt(q)}\n(${pctRound}%)`;
-          },
-          rich: {
-            warn: {
-              fontWeight: 950,
-              color: "#7f1d1d", // rojo oscuro texto
-              backgroundColor: "rgba(254, 202, 202, 0.9)", // rojo claro fondo (casi opaco para tapar barra)
-              borderColor: "#b91c1c", // borde rojo fuerte
-              borderWidth: 1.5,
-              borderRadius: 4,
-              padding: [2, 4],
-              fontSize: 11,
-              lineHeight: 14,
-              align: 'center'
-            }
-          },
-          color: "#ffffff",
-          backgroundColor: "rgba(0,0,0,0.15)",
-          borderRadius: 4,
-          padding: [2, 4]
-        },
-        labelLayout: { hideOverlap: true },
-
-        emphasis: { disabled: true },
-        markLine: {
-          silent: true,
-          symbol: ["none", "none"],
-          label: {
-            show: true,
-            formatter: "Obj 78%",
-            fontWeight: 800,
-            fontSize: 11,
-            position: "end",
-            backgroundColor: '#374151',
-            color: '#fff',
-            padding: [4, 6],
-            borderRadius: 4
-          },
-          lineStyle: { type: "dashed", width: 2, color: "#374151" }, // Gris oscuro fuerte
-          data: [{ yAxis: 78 }]
-        },
-
-        z: 1,
-        zlevel: 0
+        stack: "cumplimiento",
+        data: pAT.map(v => +(+v).toFixed(1)),
+        itemStyle: { color: COLORS.green }
       },
       {
-        name: "Entregados FT",
+        name: "Fuera Tiempo %",
         type: "bar",
-        stack: "pct",
-        data: pFT.map(v => +(+v).toFixed(4)),
-        barMaxWidth: 52,
-        itemStyle: { color: COLORS.amber },
-        label: {
-          show: true,
-          position: "inside",
-          color: "#111",
-          fontWeight: 950,
-          fontSize: 11,
-          lineHeight: 12,
-          formatter: (p) => {
-            const i = p.dataIndex;
-            const pct = +p.data || 0;
-            const q = (qFT)[i] || 0;
-            if (!q) return "";
-            if (pct < 6) return "";
-            return `${fmtInt(q)}\n(${Math.round(pct)}%)`;
-          }
-        },
-        labelLayout: { hideOverlap: true },
-
-        emphasis: { disabled: true },
-        z: 1,
-        zlevel: 0
+        stack: "cumplimiento",
+        data: pFT.map(v => +(+v).toFixed(1)),
+        itemStyle: { color: COLORS.amber }
       },
       {
-        name: "No entregados",
+        name: "No Entregados %",
         type: "bar",
-        stack: "pct",
-        data: pNO.map(v => +(+v).toFixed(4)),
-        barMaxWidth: 52,
-        itemStyle: { color: COLORS.red },
-        label: {
-          show: true,
-          position: "inside",
-          color: "#fff",
-          fontWeight: 900,
-          fontSize: 11,
-          lineHeight: 12,
-          formatter: (p) => {
-            const i = p.dataIndex;
-            const pct = +p.data || 0;
-            const q = (qNO)[i] || 0;
-            if (!q) return "";
-            if (pct < 6) return "";
-            return `${fmtInt(q)}\n(${Math.round(pct)}%)`;
-          }
-        },
-        labelLayout: { hideOverlap: true },
-
-        emphasis: { disabled: true },
-        z: 1,
-        zlevel: 0
+        stack: "cumplimiento",
+        data: pNO.map(v => +(+v).toFixed(1)),
+        itemStyle: { color: COLORS.red }
       },
       {
-        name: "Promedio días de demora",
+        name: "%AT Acumulado",
         type: "line",
-        yAxisIndex: 1,
-        data: avgDem,
-        symbol: "circle",
-        symbolSize: 7,
-        showSymbol: true,
-        connectNulls: true,
-        lineStyle: { width: 3, color: COLORS.blue },
-        itemStyle: { color: COLORS.blue, borderColor: "#fff", borderWidth: 2 },
+        data: pAT_acum.map(v => +(+v).toFixed(1)),
+        symbolSize: 6,
+        lineStyle: { width: 2.5, type: "dashed", color: "#8b5cf6" }, // Violeta
+        itemStyle: { color: "#8b5cf6", borderColor: "#fff", borderWidth: 1.5 },
         label: {
           show: true,
           position: "top",
-          backgroundColor: "rgba(255,255,255,0.75)",
-          padding: [2, 4],
-          borderRadius: 4,
-          fontWeight: 950,
-          color: "#0b1220",
-          formatter: (p) => (p.data == null || isNaN(p.data)) ? "" : `${Math.round(p.data)} d`
+          formatter: (p) => _fmtPct(p.data),
+          textStyle: { fontWeight: 800, color: "#6d28d9" }
         },
-        markLine: {
-          silent: true,
-          symbol: ["none", "none"],
-          label: {
-            show: true,
-            formatter: "Lím 7 d",
-            fontWeight: 800,
-            fontSize: 11,
-            position: "end",
-            backgroundColor: '#374151',
-            color: '#fff',
-            padding: [4, 6],
-            borderRadius: 4
-          },
-          lineStyle: { type: "dashed", width: 2, color: "#374151" },
-          data: [{ yAxis: 7 }]
-        },
-
-        zlevel: 10,
-        z: 10
+        zlevel: 5, z: 5
       }
     ]
   };

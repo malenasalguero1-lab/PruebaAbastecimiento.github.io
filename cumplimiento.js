@@ -779,57 +779,33 @@ function buildChartMes(rows) {
 
   if (!chartMes) chartMes = echarts.init(el, null, { renderer: "canvas" });
 
-  // =====================================================================
-  // --- GENERACIÓN DEL ESCALÓN CONTINUO PARA EL OBJETIVO DINÁMICO ---
-  // =====================================================================
+  // --- LÓGICA DE ESCALÓN LIMPIO PARA MARKLINE ---
   const lineSegments = [];
+  let ultimoIndice2025 = -1;
 
-  for (let i = 0; i < months.length; i++) {
-    const anoActual = parseInt(months[i].substring(0, 4), 10);
-    const hActual = (anoActual >= 2026) ? 78 : 75;
-
-    // 1. Tramo horizontal del mes actual
-    lineSegments.push([
-      { xAxis: i, yAxis: hActual },
-      { xAxis: i + 1, yAxis: hActual }
-    ]);
-
-    // 2. Unión vertical si el mes siguiente cambia de año
-    if (i < months.length - 1) {
-      const anoSig = parseInt(months[i + 1].substring(0, 4), 10);
-      const hSig = (anoSig >= 2026) ? 78 : 75;
-
-      if (hActual !== hSig) {
-        lineSegments.push([
-          { xAxis: i + 1, yAxis: hActual },
-          { xAxis: i + 1, yAxis: hSig }
-        ]);
-      }
+  // Detectamos dónde termina físicamente el año 2025 en tu listado visible
+  months.forEach((m, idx) => {
+    if (m.startsWith("2025")) {
+      ultimoIndice2025 = idx;
     }
+  });
+
+  if (ultimoIndice2025 === -1) {
+    // Si solo hay meses de 2026 en pantalla, va una línea recta en 78
+    lineSegments.push([{ xAxis: 0, yAxis: 78 }, { xAxis: months.length, yAxis: 78 }]);
+  } else if (ultimoIndice2025 === months.length - 1) {
+    // Si solo hay meses de 2025 o anterior en pantalla, va una línea recta en 75
+    lineSegments.push([{ xAxis: 0, yAxis: 75 }, { xAxis: months.length, yAxis: 75 }]);
+  } else {
+    // Escenario mixto (Tu caso real): Trazamos tramo 2025, conector vertical y tramo 2026
+    lineSegments.push([{ xAxis: 0, yAxis: 75 }, { xAxis: ultimoIndice2025 + 0.5, yAxis: 75 }]);
+    lineSegments.push([{ xAxis: ultimoIndice2025 + 0.5, yAxis: 75 }, { xAxis: ultimoIndice2025 + 0.5, yAxis: 78 }]);
+    lineSegments.push([{ xAxis: ultimoIndice2025 + 0.5, yAxis: 78 }, { xAxis: months.length, yAxis: 78 }]);
   }
 
-  // 3. Agregamos un tramo final plano que se extiende de forma absoluta para activar el cartel fijo
-  lineSegments.push([
-    { yAxis: 78, xAxis: months.length - 1 },
-    { 
-      yAxis: 78, 
-      type: 'max', 
-      label: {
-        show: true,
-        formatter: "Obj 78%",
-        fontWeight: 800,
-        fontSize: 11,
-        position: "end",
-        backgroundColor: '#374151',
-        color: '#fff',
-        padding: [4, 6],
-        borderRadius: 4
-      }
-    }
-  ]);
-
   const option = {
-    grid: { left: 56, right: 70, top: 40, bottom: 62 },
+    // ◄ CAMBIO AQUÍ: Subimos el top de 40 a 65 para dar un colchón superior masivo para las demoras
+    grid: { left: 56, right: 70, top: 65, bottom: 62 },
     tooltip: {
       trigger: "axis",
       axisPointer: { type: "shadow" },
@@ -879,7 +855,7 @@ function buildChartMes(rows) {
         position: "right",
         axisLabel: { fontWeight: 700 },
         splitLine: { show: false },
-        boundaryGap: [0, '35%'] // Mantiene el colchón del 35% que agregamos para las demoras
+        boundaryGap: [0, '35%'] // Mantiene la escala holgada para que la línea baje
       }
     ],
     series: [
@@ -941,10 +917,21 @@ function buildChartMes(rows) {
         },
         labelLayout: { hideOverlap: true },
         emphasis: { disabled: true },
-        // RESTRUCTURACIÓN DEL MARKLINE COMPLETO
+        // --- EL NUEVO MARKLINE CON EL CARTEL RIGIDO CONTRA EL EJE ---
         markLine: {
           silent: true,
           symbol: ["none", "none"],
+          label: {
+            show: true,
+            formatter: "Obj 78%", 
+            fontWeight: 800,
+            fontSize: 11,
+            position: "end",
+            backgroundColor: '#374151',
+            color: '#fff',
+            padding: [4, 6],
+            borderRadius: 4
+          },
           lineStyle: { type: "dashed", width: 2, color: "#374151" },
           data: lineSegments
         },

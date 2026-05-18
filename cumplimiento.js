@@ -779,51 +779,13 @@ function buildChartMes(rows) {
 
   if (!chartMes) chartMes = echarts.init(el, null, { renderer: "canvas" });
 
-  // =====================================================================
-  // --- ESTRUCTURA LIMPIA DEL ESCALÓN SIN DUPLICACIONES ---
-  // =====================================================================
-  const markLineData = [];
-  let ultimo2025Idx = -1;
-
-  months.forEach((m, idx) => {
-    if (m.startsWith("2025")) {
-      ultimo2025Idx = idx;
-    }
+  // ◄ NUEVA ESTRATEGIA: Mapeamos los valores exactos del objetivo mes a mes para la nueva serie
+  const datasetObjetivo = months.map(m => {
+    return m.startsWith("2025") ? 75 : 78;
   });
 
-  if (ultimo2025Idx === -1) {
-    // Si solo hay meses de 2026 visibles, va una recta horizontal limpia en 78
-    markLineData.push([
-      { xAxis: 0, yAxis: 78, label: { show: false } },
-      { xAxis: months.length - 1, yAxis: 78 }
-    ]);
-  } else if (ultimo2025Idx === months.length - 1) {
-    // Si solo hay meses de 2025 visibles, va una recta horizontal limpia en 75
-    markLineData.push([
-      { xAxis: 0, yAxis: 75, label: { show: false } },
-      { xAxis: months.length - 1, yAxis: 75 }
-    ]);
-  } else {
-    // Rango mixto real: Tramos continuos acoplados eslabón por eslabón
-    // Tramo 1: Horizontal del 75% sobre el bloque 2025
-    markLineData.push([
-      { xAxis: 0, yAxis: 75, label: { show: false } },
-      { xAxis: ultimo2025Idx, yAxis: 75, label: { show: false } }
-    ]);
-    // Tramo 2: Hilo vertical de unión entre Diciembre y Enero
-    markLineData.push([
-      { xAxis: ultimo2025Idx, yAxis: 75, label: { show: false } },
-      { xAxis: ultimo2025Idx + 1, yAxis: 78, label: { show: false } }
-    ]);
-    // Tramo 3: Horizontal del 78% sobre el bloque 2026 que remata en el extremo derecho
-    markLineData.push([
-      { xAxis: ultimo2025Idx + 1, yAxis: 78, label: { show: false } },
-      { xAxis: months.length - 1, yAxis: 78 } // El extremo derecho activa por defecto el cartel principal
-    ]);
-  }
-
   const option = {
-    // Proporciones estables de la grilla para aprovechar el alto de la caja sin aplastarse
+    // Proporciones estables y originales de tu grilla base
     grid: { left: 56, right: 70, top: 40, bottom: 62 },
     tooltip: {
       trigger: "axis",
@@ -852,7 +814,10 @@ function buildChartMes(rows) {
       left: "center",
       itemWidth: 14,
       itemHeight: 10,
-      textStyle: { fontWeight: 800 }
+      textStyle: { fontWeight: 800 },
+      // Ocultamos la palabra "Objetivo" de las leyendas inferiores para no ensuciar la botonera
+      selectedMode: true,
+      data: ["Entregados AT", "Entregados FT", "No entregados", "%AT Acumulado", "Promedio días de demora"]
     },
     xAxis: {
       type: "category",
@@ -874,7 +839,7 @@ function buildChartMes(rows) {
         position: "right",
         axisLabel: { fontWeight: 700 },
         splitLine: { show: false },
-        boundaryGap: [0, '15%'] // 15% mantiene el equilibrio de escala de demoras perfecto
+        boundaryGap: [0, '25%'] // Retorna al 25% original para que las barras no se achaten
       }
     ],
     series: [
@@ -936,24 +901,7 @@ function buildChartMes(rows) {
         },
         labelLayout: { hideOverlap: true },
         emphasis: { disabled: true },
-        // --- MARKLINE UNIFICADO IMPECABLE ---
-        markLine: {
-          silent: true,
-          symbol: ["none", "none"],
-          label: {
-            show: true,
-            formatter: "Obj 78%", // Sigue forzando de forma fija el cartel que necesitás
-            fontWeight: 800,
-            fontSize: 11,
-            position: "end",
-            backgroundColor: '#374151',
-            color: '#fff',
-            padding: [4, 6],
-            borderRadius: 4
-          },
-          lineStyle: { type: "dashed", width: 2, color: "#374151" },
-          data: markLineData // ◄ Usa el array limpio sin loops duplicados
-        },
+        // ◄ BORRADO QUIRÚRGICO: Se eliminó el markLine problemático de acá adentro
         z: 1,
         zlevel: 0
       },
@@ -1099,6 +1047,39 @@ function buildChartMes(rows) {
         },
         zlevel: 10,
         z: 10
+      },
+      
+      // ◄ NUEVA SERIE DEFECTO-CERO: Línea de meta continua con escalón recto y un solo cartel
+      {
+        name: "Objetivo Dinámico",
+        type: "line",
+        data: datasetObjetivo,
+        step: "end",          // Hace el saltito vertical perfecto de forma nativa en el cambio de año
+        showSymbol: false,
+        silent: true,
+        lineStyle: {
+          width: 2,
+          type: "dashed",     // Tu línea original gris discontinua
+          color: "#374151"    
+        },
+        markLine: {
+          silent: true,
+          symbol: ["none", "none"],
+          label: {
+            show: true,
+            formatter: "Obj 78%", // Clava el cartel gris inamovible en el extremo derecho
+            fontWeight: 800,
+            fontSize: 11,
+            position: "end",
+            backgroundColor: '#374151',
+            color: '#fff',
+            padding: [4, 6],
+            borderRadius: 4
+          },
+          lineStyle: { opacity: 0 }, // Ocultamos las directivas duplicadas del markLine viejo
+          data: [{ yAxis: 78 }]
+        },
+        zlevel: 2, z: 2
       }
     ]
   };

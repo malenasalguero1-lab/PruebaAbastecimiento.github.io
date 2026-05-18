@@ -735,13 +735,12 @@ function buildChartMes(rows) {
     const mk = monthKey(d);
     monthsSet.add(mk);
 
-    if (!agg.has(mk)) agg.set(mk, { at: 0, ft: 0, no: 0, comp: 0, demSum: 0, demCnt: 0 });
+    if (!agg.has(mk)) agg.set(mk, { at: 0, ft: 0, no: 0, demSum: 0, demCnt: 0 });
     const c = agg.get(mk);
 
     c.at += toNumber(r[AT_COL]);
     c.ft += toNumber(r[FT_COL]);
     c.no += toNumber(r[NO_COL]);
-    c.comp += toNumber(r["COMPROMETIDOS"]) || (toNumber(r[AT_COL]) + toNumber(r[FT_COL]) + toNumber(r[NO_COL]));
 
     const dem = toNumAny(r[DEMORA_COL]);
     if (!isNaN(dem)) { c.demSum += dem; c.demCnt += 1; }
@@ -761,32 +760,74 @@ function buildChartMes(rows) {
     return (c && c.demCnt) ? (c.demSum / c.demCnt) : null;
   });
 
-  // Cálculo del %AT Acumulado Histórico
-  const pAT_acum = [];
-  let sumaEntregadosATAcum = 0;
-  let sumaComprometidosAcum = 0;
-
-  for (let i = 0; i < months.length; i++) {
-    const c = agg.get(months[i]);
-    sumaEntregadosATAcum += (c?.at ?? 0);
-    sumaComprometidosAcum += (c?.comp ?? 0);
-    const pctAcum = sumaComprometidosAcum ? (sumaEntregadosATAcum / sumaComprometidosAcum) * 100 : 0;
-    pAT_acum.push(pctAcum);
-  }
-
   const el = document.getElementById("chartMes");
   if (!el || !window.echarts) return;
 
   if (!chartMes) chartMes = echarts.init(el, null, { renderer: "canvas" });
 
-  // ◄ NUEVA ESTRATEGIA: Mapeamos los valores exactos del objetivo mes a mes para la nueva serie
-  const datasetObjetivo = months.map(m => {
-    return m.startsWith("2025") ? 75 : 78;
+  // =====================================================================
+  // --- CONSTRUCCIÓN DEL ESCALÓN CONTINUO PARA EL OBJETIVO DINÁMICO ---
+  // =====================================================================
+  const markLineData = [];
+  let ultimo2025Idx = -1;
+
+  months.forEach((m, idx) => {
+    if (m.startsWith("2025")) ultimo2025Idx = idx;
+  });
+
+  if (ultimo2025Idx === -1) {
+    // Caso A: Solo hay meses de 2026 visibles -> Recta horizontal limpia en 78
+    markLineData.push([
+      { xAxis: 0, yAxis: 78, label: { show: false } },
+      { xAxis: months.length - 1, yAxis: 78, label: { show: false } }
+    ]);
+  } else if (ultimo2025Idx === months.length - 1) {
+    // Caso B: Solo hay meses de 2025 visibles -> Recta horizontal limpia en 75
+    markLineData.push([
+      { xAxis: 0, yAxis: 75, label: { show: false } },
+      { xAxis: months.length - 1, yAxis: 75, label: { show: false } }
+    ]);
+  } else {
+    // Caso C: Rango mixto (2025 y 2026 juntos en pantalla)
+    // Tramo 1: Horizontal del 75% sobre el bloque de meses de 2025
+    markLineData.push([
+      { xAxis: 0, yAxis: 75, label: { show: false } },
+      { xAxis: ultimo2025Idx, yAxis: 75, label: { show: false } }
+    ]);
+    // Tramo 2: Hilo de conexión vertical recto entre Diciembre y Enero
+    markLineData.push([
+      { xAxis: ultimo2025Idx, yAxis: 75, label: { show: false } },
+      { xAxis: ultimo2025Idx + 1, yAxis: 78, label: { show: false } }
+    ]);
+    // Tramo 3: Horizontal del 78% sobre el bloque de meses de 2026
+    markLineData.push([
+      { xAxis: ultimo2025Idx + 1, yAxis: 78, label: { show: false } },
+      { xAxis: months.length - 1, yAxis: 78, label: { show: false } }
+    ]);
+  }
+
+  // ◄ AQUÍ ESTÁ EL TRUCO: Agregamos un indicador plano al final del array.
+  // Al no tener xAxis definido, ECharts lo proyecta de punta a punta contra el eje derecho 
+  // y renderiza su etiqueta una única vez de forma limpia e inamovible.
+  markLineData.push({
+    yAxis: 78,
+    label: {
+      show: true,
+      formatter: "Obj 78%",
+      fontWeight: 800,
+      fontSize: 11,
+      position: "end",
+      backgroundColor: '#374151',
+      color: '#fff',
+      padding: [4, 6],
+      borderRadius: 4
+    },
+    lineStyle: { opacity: 0 } // Opacidad cero para que no dibuje una línea doble encima del escalón
   });
 
   const option = {
-    // Proporciones estables y originales de tu grilla base
-    grid: { left: 56, right: 70, top: 40, bottom: 62 },
+    // Proporciones originales exactas de tu grilla base para que no se achate el cuadro
+    grid: { left: 56, right: 75, top: 40, bottom: 62 },
     tooltip: {
       trigger: "axis",
       axisPointer: { type: "shadow" },
@@ -798,13 +839,11 @@ function buildChartMes(rows) {
         const at = byName["Entregados AT"];
         const ft = byName["Entregados FT"];
         const ne = byName["No entregados"];
-        const acum = byName["%AT Acumulado"];
         const dem = byName["Promedio días de demora"];
 
         if (at) html += `🟩 AT: <b>${fmtInt(qAT[at.dataIndex])}</b> (${_fmtNum1(at.value)}%)<br/>`;
         if (ft) html += `🟧 FT: <b>${fmtInt(qFT[ft.dataIndex])}</b> (${_fmtNum1(ft.value)}%)<br/>`;
         if (ne) html += `🟥 NE: <b>${fmtInt(qNO[ne.dataIndex])}</b> (${_fmtNum1(ne.value)}%)<br/>`;
-        if (acum) html += `🟪 %AT Acumulado: <b>${_fmtNum1(acum.value)}%</b><br/>`;
         if (dem && dem.value != null) html += `🔵 Demora prom.: <b>${Math.round(dem.value)}</b> días<br/>`;
         return html;
       }
@@ -814,10 +853,7 @@ function buildChartMes(rows) {
       left: "center",
       itemWidth: 14,
       itemHeight: 10,
-      textStyle: { fontWeight: 800 },
-      // Ocultamos la palabra "Objetivo" de las leyendas inferiores para no ensuciar la botonera
-      selectedMode: true,
-      data: ["Entregados AT", "Entregados FT", "No entregados", "%AT Acumulado", "Promedio días de demora"]
+      textStyle: { fontWeight: 800 }
     },
     xAxis: {
       type: "category",
@@ -839,7 +875,7 @@ function buildChartMes(rows) {
         position: "right",
         axisLabel: { fontWeight: 700 },
         splitLine: { show: false },
-        boundaryGap: [0, '25%'] // Retorna al 25% original para que las barras no se achaten
+        boundaryGap: [0, '25%'] // Mantiene tu escala original del 25% para no aplastar el gráfico
       }
     ],
     series: [
@@ -875,9 +911,12 @@ function buildChartMes(rows) {
             const pct = +p.value || 0;
             const q = (qAT)[i] || 0;
             if (!q) return "";
-            if (pct < 6) return "";
+            if (pct < 6) return ""; 
             const pctRound = Math.round(pct);
-            if (pct < 78) return `{warn|${fmtInt(q)}\n⚠ (${pctRound}%)}`;
+
+            if (pct < 78) {
+              return `{warn|${fmtInt(q)}\n⚠ (${pctRound}%)}`;
+            }
             return `${fmtInt(q)}\n(${pctRound}%)`;
           },
           rich: {
@@ -901,7 +940,15 @@ function buildChartMes(rows) {
         },
         labelLayout: { hideOverlap: true },
         emphasis: { disabled: true },
-        // ◄ BORRADO QUIRÚRGICO: Se eliminó el markLine problemático de acá adentro
+        
+        // --- EL NUEVO MARKLINE DINÁMICO REPARADO ---
+        markLine: {
+          silent: true,
+          symbol: ["none", "none"],
+          lineStyle: { type: "dashed", width: 2, color: "#374151" },
+          data: markLineData // Incorpora los tramos silenciosos y el cartel rígido final
+        },
+
         z: 1,
         zlevel: 0
       },
@@ -962,52 +1009,6 @@ function buildChartMes(rows) {
         zlevel: 0
       },
       {
-        name: "%AT Acumulado",
-        type: "line",
-        data: pAT_acum.map(v => +(+v).toFixed(2)),
-        showSymbol: true,         
-        symbol: "circle",         
-        symbolSize: 1,            
-        showAllSymbol: true,      
-        lineStyle: { 
-          width: 3.5,         
-          type: "solid",      
-          color: "#7c3aed"    
-        },
-        itemStyle: { color: "#7c3aed" },
-        label: {
-          show: true,             
-          position: "bottom",     
-          distance: 10,           
-          formatter: (p) => {
-            const val = +p.data;
-            if (val == null || isNaN(val)) return "";
-            return val.toFixed(2).replace(".", ",") + "%";
-          },
-          backgroundColor: "rgba(245, 243, 255, 0.85)", 
-          padding: [2, 4],                             
-          borderRadius: 3,                             
-          borderColor: "rgba(124, 58, 237, 0.25)",      
-          borderWidth: 1,
-          textStyle: { fontWeight: 700, color: "#6d28d9", fontSize: 10 }
-        },
-        emphasis: {
-          disabled: false,
-          scale: false, 
-          label: {
-            show: true, 
-            position: "bottom",
-            formatter: (p) => {
-              const val = +p.data;
-              if (val == null || isNaN(val)) return "";
-              return val.toFixed(2).replace(".", ",") + "%";
-            },
-            textStyle: { fontWeight: 700, color: "#6d28d9", fontSize: 10 }
-          }
-        },
-        zlevel: 6, z: 6       
-      },
-      {
         name: "Promedio días de demora",
         type: "line",
         yAxisIndex: 1,
@@ -1047,39 +1048,6 @@ function buildChartMes(rows) {
         },
         zlevel: 10,
         z: 10
-      },
-      
-      // ◄ NUEVA SERIE DEFECTO-CERO: Línea de meta continua con escalón recto y un solo cartel
-      {
-        name: "Objetivo Dinámico",
-        type: "line",
-        data: datasetObjetivo,
-        step: "end",          // Hace el saltito vertical perfecto de forma nativa en el cambio de año
-        showSymbol: false,
-        silent: true,
-        lineStyle: {
-          width: 2,
-          type: "dashed",     // Tu línea original gris discontinua
-          color: "#374151"    
-        },
-        markLine: {
-          silent: true,
-          symbol: ["none", "none"],
-          label: {
-            show: true,
-            formatter: "Obj 78%", // Clava el cartel gris inamovible en el extremo derecho
-            fontWeight: 800,
-            fontSize: 11,
-            position: "end",
-            backgroundColor: '#374151',
-            color: '#fff',
-            padding: [4, 6],
-            borderRadius: 4
-          },
-          lineStyle: { opacity: 0 }, // Ocultamos las directivas duplicadas del markLine viejo
-          data: [{ yAxis: 78 }]
-        },
-        zlevel: 2, z: 2
       }
     ]
   };

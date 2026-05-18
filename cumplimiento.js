@@ -974,20 +974,20 @@ function buildChartMes(rows) {
         name: "%AT Acumulado",
         type: "line",
         data: pAT_acum.map(v => +(+v).toFixed(2)),
-        showSymbol: false,    // Mantiene la línea continua y limpia sin círculos
+        showSymbol: false,    // Línea continua y limpia sin círculos intermedios
         lineStyle: { 
-          width: 3.5,         // Grosor marcado
-          type: "solid",      // Línea sólida tipo Excel
-          color: "#7c3aed"    // Violeta vibrante
+          width: 3.5,         // Grosor marcado institucional
+          type: "solid",      // Línea sólida continua como en tu Excel
+          color: "#7c3aed"    // Violeta corporativo
         },
         itemStyle: { color: "#7c3aed" },
         label: {
-          show: true,         // Se muestra en cada mes para los usuarios pasivos
-          position: "top",    // ◄ CAMBIO: El número vuelve a posicionarse ARRIBA de la línea
-          distance: 8,        // Separación justa para que se lea cómodo por encima del trazo
+          show: true,         // ◄ SÍ se muestra fijo en cada mes (no requiere selección)
+          position: "bottom", // ◄ Posición fija: justo por debajo del trazo violeta
+          distance: 8,        // Distancia justa para no encimarse con las barras de fondo
           formatter: (p) => _fmtPct(p.data),
           
-          // Fondo lavanda sutil para que el texto resalte frente a las barras de fondo
+          // Cápsula lavanda ultra sutil para garantizar lectura sobre cualquier color de barra
           backgroundColor: "rgba(245, 243, 255, 0.85)", 
           padding: [2, 4],                             
           borderRadius: 3,                             
@@ -997,10 +997,10 @@ function buildChartMes(rows) {
           textStyle: { 
             fontWeight: 700, 
             color: "#6d28d9",                          
-            fontSize: 10                               // Letra chica y delicada (10px)
+            fontSize: 10                               // Letra chica y delicada (10px) para no saturar
           }
         },
-        zlevel: 6, z: 6       // Pasa por encima de las barras apiladas
+        zlevel: 6, z: 6       // Pasa por encima de las barras apiladas y las etiquetas internas
       },
       {
         name: "Promedio días de demora",

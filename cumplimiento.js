@@ -1033,13 +1033,12 @@ function buildChartTendencia(rows) {
     c.at += toNumber(r[AT_COL]);
     c.ft += toNumber(r[FT_COL]);
     c.no += toNumber(r[NO_COL]);
-    // Aseguramos sumar el total de comprometidos físicos del mes
     c.comp += toNumber(r["COMPROMETIDOS"]) || (toNumber(r[AT_COL]) + toNumber(r[FT_COL]) + toNumber(r[NO_COL]));
   }
 
   const months = [...monthsSet].sort();
 
-  // 1. Porcentajes mensuales individuales (ya los tenías)
+  // 1. Porcentajes mensuales individuales
   const pAT = months.map(m => {
     const c = agg.get(m); const t = (c?.at ?? 0) + (c?.ft ?? 0) + (c?.no ?? 0);
     return t ? ((c.at ?? 0) / t) * 100 : 0;
@@ -1049,37 +1048,21 @@ function buildChartTendencia(rows) {
     const c = agg.get(m); const t = (c?.at ?? 0) + (c?.ft ?? 0) + (c?.no ?? 0);
     return t ? ((c.ft ?? 0) / t) * 100 : 0;
   });
-  // --- CÁLCULO DEL ACUMULADO INTERACTIVO ---
-  const pAT_acum = [];
-  let sumaEntregadosATAcum = 0;
-  let sumaComprometidosAcum = 0;
-
-  for (let i = 0; i < months.length; i++) {
-    const c = agg.get(months[i]);
-    sumaEntregadosATAcum += (c?.at ?? 0);
-    sumaComprometidosAcum += (c?.comp ?? 0) || ((c?.at ?? 0) + (c?.ft ?? 0) + (c?.no ?? 0));
-    const pctAcum = sumaComprometidosAcum ? (sumaEntregadosATAcum / sumaComprometidosAcum) * 100 : 0;
-    pAT_acum.push(pctAcum);
-  }
 
   const pNO = months.map(m => {
     const c = agg.get(m); const t = (c?.at ?? 0) + (c?.ft ?? 0) + (c?.no ?? 0);
     return t ? ((c.no ?? 0) / t) * 100 : 0;
   });
 
-  // 2. NUEVO CÁLCULO: %AT Acumulado Físico e Interactivo
+  // 2. Cálculo limpio del %AT Acumulado Físico Interactivo
   const pAT_acum = [];
   let sumaEntregadosATAcum = 0;
   let sumaComprometidosAcum = 0;
 
   for (let i = 0; i < months.length; i++) {
     const c = agg.get(months[i]);
-    
-    // Vamos sumando el histórico acumulado mes a mes
     sumaEntregadosATAcum += (c?.at ?? 0);
     sumaComprometidosAcum += (c?.comp ?? 0);
-
-    // El % acumulado real del período actual
     const pctAcum = sumaComprometidosAcum ? (sumaEntregadosATAcum / sumaComprometidosAcum) * 100 : 0;
     pAT_acum.push(pctAcum);
   }

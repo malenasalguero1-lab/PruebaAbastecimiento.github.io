@@ -779,32 +779,18 @@ function buildChartMes(rows) {
 
   if (!chartMes) chartMes = echarts.init(el, null, { renderer: "canvas" });
 
-  // ◄ LÓGICA DE ESCALÓN ROBUSTA: Construimos los segmentos continuos para 2025 y 2026
-  const lineSegments = [];
-  let ultimoIndice2025 = -1;
-
-  months.forEach((m, idx) => {
-    if (m.startsWith("2025")) {
-      ultimoIndice2025 = idx;
+  // ◄ LÓGICA DE DETECCIÓN DE CAMBIO DE AÑO MÁS PRECISA PARA EL ESCALÓN
+  let cambioDeAnoIdx = -1;
+  for (let i = 0; i < months.length - 1; i++) {
+    if (months[i].startsWith("2025") && months[i + 1].startsWith("2026")) {
+      cambioDeAnoIdx = i;
+      break;
     }
-  });
-
-  if (ultimoIndice2025 === -1) {
-    // Caso solo 2026 en pantalla
-    lineSegments.push([{ xAxis: 0, yAxis: 78 }, { xAxis: months.length - 1, yAxis: 78 }]);
-  } else if (ultimoIndice2025 === months.length - 1) {
-    // Caso solo 2025 en pantalla
-    lineSegments.push([{ xAxis: 0, yAxis: 75 }, { xAxis: months.length - 1, yAxis: 75 }]);
-  } else {
-    // Rango mixto: Tramo 2025, unión vertical perfecta y tramo 2026
-    lineSegments.push([{ xAxis: 0, yAxis: 75 }, { xAxis: ultimoIndice2025 + 0.5, yAxis: 75 }]);
-    lineSegments.push([{ xAxis: ultimoIndice2025 + 0.5, yAxis: 75 }, { xAxis: ultimoIndice2025 + 0.5, yAxis: 78 }]);
-    lineSegments.push([{ xAxis: ultimoIndice2025 + 0.5, yAxis: 78 }, { xAxis: months.length - 1, yAxis: 78 }]);
   }
 
   const option = {
-    // ◄ AJUSTE CLAVE DE MÁRGENES INTERNOS: Damos aire masivo arriba y abajo del gráfico
-    grid: { left: 56, right: 75, top: 65, bottom: 75 },
+    // ◄ AJUSTE DE MÁRGENES INTERNOS: Volvemos al top: 40 para recuperar el tamaño original y no achatar las barras
+    grid: { left: 56, right: 75, top: 40, bottom: 62 },
     tooltip: {
       trigger: "axis",
       axisPointer: { type: "shadow" },
@@ -854,7 +840,7 @@ function buildChartMes(rows) {
         position: "right",
         axisLabel: { fontWeight: 700 },
         splitLine: { show: false },
-        boundaryGap: [0, '35%'] // Mantiene la escala holgada para que la línea baje del techo
+        boundaryGap: [0, '15%'] // ◄ REDUCIDO A 15%: Esto recupera la escala normal del gráfico de inmediato para que no se vea achatado
       }
     ],
     series: [
@@ -916,7 +902,8 @@ function buildChartMes(rows) {
         },
         labelLayout: { hideOverlap: true },
         emphasis: { disabled: true },
-        // ◄ MARKLINE NATIVO CORREGIDO: Clava el cartel a la derecha y dibuja el escalón
+        
+        // ◄ COMPORTAMIENTO CORREGIDO: Usamos un markLine tradicional y nativo acotado a los índices reales para armar el saltito perfecto
         markLine: {
           silent: true,
           symbol: ["none", "none"],
@@ -932,7 +919,17 @@ function buildChartMes(rows) {
             borderRadius: 4
           },
           lineStyle: { type: "dashed", width: 2, color: "#374151" },
-          data: lineSegments
+          data: (cambioDeAnoIdx !== -1) ? [
+            // Línea del 2025 (desde la primera barra hasta el quiebre)
+            [ { xAxis: 0, yAxis: 75, label: { show: false } }, { xAxis: cambioDeAnoIdx + 0.5, yAxis: 75, label: { show: false } } ],
+            // Conector vertical
+            [ { xAxis: cambioDeAnoIdx + 0.5, yAxis: 75, label: { show: false } }, { xAxis: cambioDeAnoIdx + 0.5, yAxis: 78, label: { show: false } } ],
+            // Línea del 2026 (continúa hasta el final y es la ÚNICA que renderiza el cartel a la derecha)
+            [ { xAxis: cambioDeAnoIdx + 0.5, yAxis: 78, label: { show: false } }, { xAxis: months.length - 1, yAxis: 78 } ]
+          ] : [
+            // Si solo se visualiza un año, se traza la línea directa de punta a punta
+            [ { xAxis: 0, yAxis: months[0].startsWith("2025") ? 75 : 78, label: { show: false } }, { xAxis: months.length - 1, yAxis: months[0].startsWith("2025") ? 75 : 78 } ]
+          ]
         },
         z: 1,
         zlevel: 0
@@ -1086,7 +1083,6 @@ function buildChartMes(rows) {
   chartMes.setOption(option, true);
   window.addEventListener("resize", () => chartMes && chartMes.resize(), { passive: true });
 }
-
 /* ============================
    CHART 2: Trend lines (ECharts)
 ============================ */

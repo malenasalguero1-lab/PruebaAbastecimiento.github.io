@@ -780,68 +780,51 @@ function buildChartMes(rows) {
   if (!chartMes) chartMes = echarts.init(el, null, { renderer: "canvas" });
 
   // =====================================================================
-  // --- CONSTRUCCIÓN DEL CONJUNTO DE DATOS PARA EL MARKLINE DEFECTO-CERO ---
+  // --- ESTRUCTURA LIMPIA DEL ESCALÓN SIN DUPLICACIONES ---
   // =====================================================================
   const markLineData = [];
   let ultimo2025Idx = -1;
 
   months.forEach((m, idx) => {
-    if (m.startsWith("2025")) ultimo2025Idx = idx;
+    if (m.startsWith("2025")) {
+      ultimo2025Idx = idx;
+    }
   });
 
-  // 1. Inyectamos los tramos continuos de la línea de puntos (con etiquetas ocultas)
   if (ultimo2025Idx === -1) {
-    // Caso A: Solo hay meses de 2026 visibles
+    // Si solo hay meses de 2026 visibles, va una recta horizontal limpia en 78
     markLineData.push([
       { xAxis: 0, yAxis: 78, label: { show: false } },
-      { xAxis: months.length - 1, yAxis: 78, label: { show: false } }
+      { xAxis: months.length - 1, yAxis: 78 }
     ]);
   } else if (ultimo2025Idx === months.length - 1) {
-    // Caso B: Solo hay meses de 2025 visibles
+    // Si solo hay meses de 2025 visibles, va una recta horizontal limpia en 75
     markLineData.push([
       { xAxis: 0, yAxis: 75, label: { show: false } },
-      { xAxis: months.length - 1, yAxis: 75, label: { show: false } }
+      { xAxis: months.length - 1, yAxis: 75 }
     ]);
   } else {
-    // Caso C: Rango mixto (2025 y 2026 juntos en pantalla)
-    // Tramo horizontal del 75% durante todo el 2025
+    // Rango mixto real: Tramos continuos acoplados eslabón por eslabón
+    // Tramo 1: Horizontal del 75% sobre el bloque 2025
     markLineData.push([
       { xAxis: 0, yAxis: 75, label: { show: false } },
       { xAxis: ultimo2025Idx, yAxis: 75, label: { show: false } }
     ]);
-    // El quiebre/saltito vertical recto entre diciembre y enero
+    // Tramo 2: Hilo vertical de unión entre Diciembre y Enero
     markLineData.push([
       { xAxis: ultimo2025Idx, yAxis: 75, label: { show: false } },
       { xAxis: ultimo2025Idx + 1, yAxis: 78, label: { show: false } }
     ]);
-    // Tramo horizontal del 78% durante todo el 2026
+    // Tramo 3: Horizontal del 78% sobre el bloque 2026 que remata en el extremo derecho
     markLineData.push([
       { xAxis: ultimo2025Idx + 1, yAxis: 78, label: { show: false } },
-      { xAxis: months.length - 1, yAxis: 78, label: { show: false } }
+      { xAxis: months.length - 1, yAxis: 78 } // El extremo derecho activa por defecto el cartel principal
     ]);
   }
 
-  // 2. INYECTAMOS UN PUNTO HORIZONTAL ESTÁTICO DE REFRESH EXCLUSIVO PARA EL CARTEL DERECHO
-  // Al usar un yAxis plano combinado con tipo 'max' o referencias de pantalla, 
-  // forzamos el renderizado del cartel en el extremo derecho sin importar qué pase con las columnas del medio.
-  markLineData.push({
-    yAxis: 78,
-    label: {
-      show: true,
-      formatter: "Obj 78%",
-      fontWeight: 800,
-      fontSize: 11,
-      position: "end",
-      backgroundColor: '#374151',
-      color: '#fff',
-      padding: [4, 6],
-      borderRadius: 4
-    }
-  });
-
   const option = {
-    // Proporciones originales equilibradas para aprovechar el height del contenedor sin deformar
-    grid: { left: 56, right: 75, top: 40, bottom: 62 },
+    // Proporciones estables de la grilla para aprovechar el alto de la caja sin aplastarse
+    grid: { left: 56, right: 70, top: 40, bottom: 62 },
     tooltip: {
       trigger: "axis",
       axisPointer: { type: "shadow" },
@@ -891,7 +874,7 @@ function buildChartMes(rows) {
         position: "right",
         axisLabel: { fontWeight: 700 },
         splitLine: { show: false },
-        boundaryGap: [0, '15%'] // 15% ideal para balancear la escala de demora y no achatar el gráfico
+        boundaryGap: [0, '15%'] // 15% mantiene el equilibrio de escala de demoras perfecto
       }
     ],
     series: [
@@ -953,12 +936,23 @@ function buildChartMes(rows) {
         },
         labelLayout: { hideOverlap: true },
         emphasis: { disabled: true },
-        // --- EL MARKLINE UNIFICADO DEFINITIVO ---
+        // --- MARKLINE UNIFICADO IMPECABLE ---
         markLine: {
           silent: true,
           symbol: ["none", "none"],
+          label: {
+            show: true,
+            formatter: "Obj 78%", // Sigue forzando de forma fija el cartel que necesitás
+            fontWeight: 800,
+            fontSize: 11,
+            position: "end",
+            backgroundColor: '#374151',
+            color: '#fff',
+            padding: [4, 6],
+            borderRadius: 4
+          },
           lineStyle: { type: "dashed", width: 2, color: "#374151" },
-          data: markLineData
+          data: markLineData // ◄ Usa el array limpio sin loops duplicados
         },
         z: 1,
         zlevel: 0

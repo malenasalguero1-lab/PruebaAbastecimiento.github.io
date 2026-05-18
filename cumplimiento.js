@@ -779,11 +779,10 @@ function buildChartMes(rows) {
 
   if (!chartMes) chartMes = echarts.init(el, null, { renderer: "canvas" });
 
-  // --- LÓGICA DE ESCALÓN LIMPIO PARA MARKLINE ---
+  // ◄ LÓGICA DE ESCALÓN ROBUSTA: Construimos los segmentos continuos para 2025 y 2026
   const lineSegments = [];
   let ultimoIndice2025 = -1;
 
-  // Detectamos dónde termina físicamente el año 2025 en tu listado visible
   months.forEach((m, idx) => {
     if (m.startsWith("2025")) {
       ultimoIndice2025 = idx;
@@ -791,21 +790,21 @@ function buildChartMes(rows) {
   });
 
   if (ultimoIndice2025 === -1) {
-    // Si solo hay meses de 2026 en pantalla, va una línea recta en 78
-    lineSegments.push([{ xAxis: 0, yAxis: 78 }, { xAxis: months.length, yAxis: 78 }]);
+    // Caso solo 2026 en pantalla
+    lineSegments.push([{ xAxis: 0, yAxis: 78 }, { xAxis: months.length - 1, yAxis: 78 }]);
   } else if (ultimoIndice2025 === months.length - 1) {
-    // Si solo hay meses de 2025 o anterior en pantalla, va una línea recta en 75
-    lineSegments.push([{ xAxis: 0, yAxis: 75 }, { xAxis: months.length, yAxis: 75 }]);
+    // Caso solo 2025 en pantalla
+    lineSegments.push([{ xAxis: 0, yAxis: 75 }, { xAxis: months.length - 1, yAxis: 75 }]);
   } else {
-    // Escenario mixto (Tu caso real): Trazamos tramo 2025, conector vertical y tramo 2026
+    // Rango mixto: Tramo 2025, unión vertical perfecta y tramo 2026
     lineSegments.push([{ xAxis: 0, yAxis: 75 }, { xAxis: ultimoIndice2025 + 0.5, yAxis: 75 }]);
     lineSegments.push([{ xAxis: ultimoIndice2025 + 0.5, yAxis: 75 }, { xAxis: ultimoIndice2025 + 0.5, yAxis: 78 }]);
-    lineSegments.push([{ xAxis: ultimoIndice2025 + 0.5, yAxis: 78 }, { xAxis: months.length, yAxis: 78 }]);
+    lineSegments.push([{ xAxis: ultimoIndice2025 + 0.5, yAxis: 78 }, { xAxis: months.length - 1, yAxis: 78 }]);
   }
 
   const option = {
-    // ◄ CAMBIO AQUÍ: Subimos el top de 40 a 65 para dar un colchón superior masivo para las demoras
-    grid: { left: 56, right: 70, top: 65, bottom: 62 },
+    // ◄ AJUSTE CLAVE DE MÁRGENES INTERNOS: Damos aire masivo arriba y abajo del gráfico
+    grid: { left: 56, right: 75, top: 65, bottom: 75 },
     tooltip: {
       trigger: "axis",
       axisPointer: { type: "shadow" },
@@ -855,7 +854,7 @@ function buildChartMes(rows) {
         position: "right",
         axisLabel: { fontWeight: 700 },
         splitLine: { show: false },
-        boundaryGap: [0, '35%'] // Mantiene la escala holgada para que la línea baje
+        boundaryGap: [0, '35%'] // Mantiene la escala holgada para que la línea baje del techo
       }
     ],
     series: [
@@ -917,7 +916,7 @@ function buildChartMes(rows) {
         },
         labelLayout: { hideOverlap: true },
         emphasis: { disabled: true },
-        // --- EL NUEVO MARKLINE CON EL CARTEL RIGIDO CONTRA EL EJE ---
+        // ◄ MARKLINE NATIVO CORREGIDO: Clava el cartel a la derecha y dibuja el escalón
         markLine: {
           silent: true,
           symbol: ["none", "none"],
@@ -1087,6 +1086,7 @@ function buildChartMes(rows) {
   chartMes.setOption(option, true);
   window.addEventListener("resize", () => chartMes && chartMes.resize(), { passive: true });
 }
+
 /* ============================
    CHART 2: Trend lines (ECharts)
 ============================ */
@@ -1380,6 +1380,11 @@ window.addEventListener("DOMContentLoaded", () => {
       if (loader && !loader.classList.contains("hidden")) loader.classList.add("hidden");
     });
 });
+
+
+
+
+
 
 
 

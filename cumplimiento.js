@@ -779,7 +779,9 @@ function buildChartMes(rows) {
 
   if (!chartMes) chartMes = echarts.init(el, null, { renderer: "canvas" });
 
-  // ◄ LÓGICA DE ESCALÓN DEFECTO-CERO: Unimos los tramos usando coordenadas mixtas
+  // =====================================================================
+  // --- CONSTRUCCIÓN DEL CONJUNTO DE DATOS PARA EL MARKLINE DEFECTO-CERO ---
+  // =====================================================================
   const markLineData = [];
   let ultimo2025Idx = -1;
 
@@ -787,39 +789,58 @@ function buildChartMes(rows) {
     if (m.startsWith("2025")) ultimo2025Idx = idx;
   });
 
+  // 1. Inyectamos los tramos continuos de la línea de puntos (con etiquetas ocultas)
   if (ultimo2025Idx === -1) {
-    // Caso 1: Solo hay meses de 2026 visibles -> Línea recta en 78 hasta el fondo
+    // Caso A: Solo hay meses de 2026 visibles
     markLineData.push([
       { xAxis: 0, yAxis: 78, label: { show: false } },
-      { x: "100%", yAxis: 78 } // Clava el cartel a la derecha
+      { xAxis: months.length - 1, yAxis: 78, label: { show: false } }
     ]);
   } else if (ultimo2025Idx === months.length - 1) {
-    // Caso 2: Solo hay meses de 2025 visibles -> Línea recta en 75 hasta el fondo
+    // Caso B: Solo hay meses de 2025 visibles
     markLineData.push([
       { xAxis: 0, yAxis: 75, label: { show: false } },
-      { x: "100%", yAxis: 75, label: { formatter: "Obj 75%" } }
+      { xAxis: months.length - 1, yAxis: 75, label: { show: false } }
     ]);
   } else {
-    // Caso 3: Escenario mixto real (2025 y 2026 combinados)
-    // Tramo 1: Horizontal del 75% durante el 2025
+    // Caso C: Rango mixto (2025 y 2026 juntos en pantalla)
+    // Tramo horizontal del 75% durante todo el 2025
     markLineData.push([
       { xAxis: 0, yAxis: 75, label: { show: false } },
       { xAxis: ultimo2025Idx, yAxis: 75, label: { show: false } }
     ]);
-    // Tramo 2: El "Saltito" vertical de unión justo entre diciembre y enero
+    // El quiebre/saltito vertical recto entre diciembre y enero
     markLineData.push([
       { xAxis: ultimo2025Idx, yAxis: 75, label: { show: false } },
       { xAxis: ultimo2025Idx + 1, yAxis: 78, label: { show: false } }
     ]);
-    // Tramo 3: Horizontal del 78% que continúa en 2026 y remata contra la pared derecha con el cartel
+    // Tramo horizontal del 78% durante todo el 2026
     markLineData.push([
       { xAxis: ultimo2025Idx + 1, yAxis: 78, label: { show: false } },
-      { x: "100%", yAxis: 78 } // ◄ CLAVE: x: "100%" fuerza a ECharts a terminar en el borde y pintar el cartel ahí
+      { xAxis: months.length - 1, yAxis: 78, label: { show: false } }
     ]);
   }
 
+  // 2. INYECTAMOS UN PUNTO HORIZONTAL ESTÁTICO DE REFRESH EXCLUSIVO PARA EL CARTEL DERECHO
+  // Al usar un yAxis plano combinado con tipo 'max' o referencias de pantalla, 
+  // forzamos el renderizado del cartel en el extremo derecho sin importar qué pase con las columnas del medio.
+  markLineData.push({
+    yAxis: 78,
+    label: {
+      show: true,
+      formatter: "Obj 78%",
+      fontWeight: 800,
+      fontSize: 11,
+      position: "end",
+      backgroundColor: '#374151',
+      color: '#fff',
+      padding: [4, 6],
+      borderRadius: 4
+    }
+  });
+
   const option = {
-    // ◄ AJUSTE DE MÁRGENES ORIGINALES: Volvemos a las proporciones perfectas de tu plantilla base
+    // Proporciones originales equilibradas para aprovechar el height del contenedor sin deformar
     grid: { left: 56, right: 75, top: 40, bottom: 62 },
     tooltip: {
       trigger: "axis",
@@ -870,7 +891,7 @@ function buildChartMes(rows) {
         position: "right",
         axisLabel: { fontWeight: 700 },
         splitLine: { show: false },
-        boundaryGap: [0, '15%'] // Reducido a 15% para recuperar la escala natural y que las barras se luzcan altas
+        boundaryGap: [0, '15%'] // 15% ideal para balancear la escala de demora y no achatar el gráfico
       }
     ],
     series: [
@@ -932,21 +953,10 @@ function buildChartMes(rows) {
         },
         labelLayout: { hideOverlap: true },
         emphasis: { disabled: true },
-        // ◄ CONFIGURACIÓN DE MARKLINE ULTRA LIMPIA Y REPARADA
+        // --- EL MARKLINE UNIFICADO DEFINITIVO ---
         markLine: {
           silent: true,
           symbol: ["none", "none"],
-          label: {
-            show: true,
-            formatter: "Obj 78%", // Cartel rígido e inamovible
-            fontWeight: 800,
-            fontSize: 11,
-            position: "end",
-            backgroundColor: '#374151',
-            color: '#fff',
-            padding: [4, 6],
-            borderRadius: 4
-          },
           lineStyle: { type: "dashed", width: 2, color: "#374151" },
           data: markLineData
         },
@@ -1101,125 +1111,6 @@ function buildChartMes(rows) {
 
   chartMes.setOption(option, true);
   window.addEventListener("resize", () => chartMes && chartMes.resize(), { passive: true });
-}
-
-/* ============================
-   CHART 2: Trend lines (ECharts)
-============================ */
-/* ============================
-   CHART 2: Trend lines (ECharts)
-============================ */
-function buildChartTendencia(rows) {
-  const agg = new Map();
-  const monthsSet = new Set();
-
-  for (const r of rows) {
-    const d = parseDateAny(r[FECHA_COL]);
-    if (!d) continue;
-    const mk = monthKey(d);
-    monthsSet.add(mk);
-
-    if (!agg.has(mk)) agg.set(mk, { at: 0, ft: 0, no: 0 });
-    const c = agg.get(mk);
-    c.at += toNumber(r[AT_COL]);
-    c.ft += toNumber(r[FT_COL]);
-    c.no += toNumber(r[NO_COL]);
-  }
-
-  const months = [...monthsSet].sort();
-
-  const pAT = months.map(m => {
-    const c = agg.get(m); const t = (c?.at ?? 0) + (c?.ft ?? 0) + (c?.no ?? 0);
-    return t ? ((c.at ?? 0) / t) * 100 : 0;
-  });
-  const pFT = months.map(m => {
-    const c = agg.get(m); const t = (c?.at ?? 0) + (c?.ft ?? 0) + (c?.no ?? 0);
-    return t ? ((c.ft ?? 0) / t) * 100 : 0;
-  });
-  const pNO = months.map(m => {
-    const c = agg.get(m); const t = (c?.at ?? 0) + (c?.ft ?? 0) + (c?.no ?? 0);
-    return t ? ((c.no ?? 0) / t) * 100 : 0;
-  });
-
-  const el = document.getElementById("chartTendencia");
-  if (!el || !window.echarts) return;
-  if (!chartTendencia) chartTendencia = echarts.init(el, null, { renderer: "canvas" });
-
-  const option = {
-    grid: { left: 56, right: 18, top: 16, bottom: 62 },
-    tooltip: {
-      trigger: "axis",
-      confine: true,
-      formatter: (params) => {
-        const axis = params?.[0]?.axisValue ?? "";
-        let html = `<b>${axis}</b><br/>`;
-        for (const p of params) {
-          html += `${p.marker} ${p.seriesName}: <b>${_fmtNum1(p.data)}</b>%<br/>`;
-        }
-        return html;
-      }
-    },
-    legend: {
-      bottom: 12,
-      left: "center",
-      itemWidth: 14,
-      itemHeight: 10,
-      textStyle: { fontWeight: 800 }
-    },
-    xAxis: { type: "category", data: months, axisLabel: { fontWeight: 700 } },
-    yAxis: {
-      type: "value",
-      min: 0,max: 100,
-      axisLabel: { formatter: "{value}%" },
-      splitLine: { lineStyle: { color: "rgba(15,23,42,0.10)" } }
-    },
-    series: [
-      {
-        name: "A Tiempo %",
-        type: "line",
-        data: pAT.map(v => +(+v).toFixed(2)),
-        symbolSize: 7,
-        lineStyle: { width: 3, color: COLORS.green },
-        itemStyle: { color: COLORS.green, borderColor: "#fff", borderWidth: 2 },
-        label: {
-          show: true,
-          position: "top",
-          formatter: (p) => {
-            const v = +p.data || 0;
-            return (v < 78) ? `{warn|⚠ ${_fmtPct(v)}}` : `{ok|${_fmtPct(v)}}`;
-          },
-          rich: {
-            ok: { fontWeight: 900, color: COLORS.green },
-            warn: { fontWeight: 950, color: "#7f1d1d", backgroundColor: "rgba(239,68,68,0.18)", borderColor: "#ef4444", borderWidth: 1, borderRadius: 4, padding: [2, 4] }
-          }
-        },
-        zlevel: 5, z: 5
-      },
-      {
-        name: "Fuera Tiempo %",
-        type: "line",
-        data: pFT.map(v => +(+v).toFixed(2)),
-        symbolSize: 7,
-        lineStyle: { width: 3, color: COLORS.amber },
-        itemStyle: { color: COLORS.amber, borderColor: "#fff", borderWidth: 2 },
-        label: { show: true, position: "top", fontWeight: 900, formatter: (p) => _fmtPct(p.data) },
-        zlevel: 5, z: 5
-      },
-      {
-        name: "No Entregados %",
-        type: "line",
-        data: pNO.map(v => +(+v).toFixed(2)),
-        symbolSize: 7,
-        lineStyle: { width: 3, color: COLORS.red },
-        itemStyle: { color: COLORS.red, borderColor: "#fff", borderWidth: 2 },
-        label: { show: true, position: "top", fontWeight: 900, formatter: (p) => _fmtPct(p.data) },
-        zlevel: 5, z: 5
-      }
-    ]
-  };
-
-  chartTendencia.setOption(option, true);
-  window.addEventListener("resize", () => chartTendencia && chartTendencia.resize(), { passive: true });
 }
 /* ============================
    DOWNLOAD: NO ENTREGADOS

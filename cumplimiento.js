@@ -727,14 +727,10 @@ function applyChartDefaults() {
 function buildChartMes(rows) {
   const agg = new Map();
   const monthsSet = new Set();
-  
-  // ◄ ACÁ ESTÁ EL CAMBIO: Captura correctamente los checkboxes activos de Clasificación
-  const c2s = getCheckedClasif2(); 
 
+  // El filtrado por checkboxes ya se resolvió en filteredRowsNoMes(),
+  // así que acá procesamos de forma directa y limpia todas las filas recibidas.
   for (const r of rows) {
-    // Filtrado dinámico por Clasificación 2 para este gráfico
-    if (c2s.length && CLASIF2_COL && !c2s.includes(clean(r[CLASIF2_COL]))) continue;
-
     const d = parseDateAny(r[FECHA_COL]);
     if (!d) continue;
 
@@ -979,7 +975,7 @@ function buildChartMes(rows) {
         type: "line",
         data: pAT_acum.map(v => +(+v).toFixed(2)),
         symbolSize: 7,
-        lineStyle: { width: 3, type: "dashed", color: "#8b5cf6" }, // Violeta
+        lineStyle: { width: 3, type: "dashed", color: "#8b5cf6" },
         itemStyle: { color: "#8b5cf6", borderColor: "#fff", borderWidth: 2, opacity: 0.9 },
         label: {
           show: true,

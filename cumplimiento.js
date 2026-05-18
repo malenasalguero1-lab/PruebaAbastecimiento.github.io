@@ -727,8 +727,14 @@ function applyChartDefaults() {
 function buildChartMes(rows) {
   const agg = new Map();
   const monthsSet = new Set();
+  
+  // ◄ ACÁ ESTÁ EL CAMBIO: Captura correctamente los checkboxes activos de Clasificación
+  const c2s = getCheckedClasif2(); 
 
   for (const r of rows) {
+    // Filtrado dinámico por Clasificación 2 para este gráfico
+    if (c2s.length && CLASIF2_COL && !c2s.includes(clean(r[CLASIF2_COL]))) continue;
+
     const d = parseDateAny(r[FECHA_COL]);
     if (!d) continue;
 
@@ -822,7 +828,7 @@ function buildChartMes(rows) {
         min: 0,
         max: 100,
         axisLabel: { formatter: "{value}%" },
-        splitLine: { lineStyle: { color: "rgba(15, 23, 42, 0.10)" } }
+        splitLine: { lineStyle: { color: "rgba(15,23,42,0.10)" } }
       },
       {
         type: "value",
@@ -973,7 +979,7 @@ function buildChartMes(rows) {
         type: "line",
         data: pAT_acum.map(v => +(+v).toFixed(2)),
         symbolSize: 7,
-        lineStyle: { width: 3, type: "dashed", color: "#8b5cf6" },
+        lineStyle: { width: 3, type: "dashed", color: "#8b5cf6" }, // Violeta
         itemStyle: { color: "#8b5cf6", borderColor: "#fff", borderWidth: 2, opacity: 0.9 },
         label: {
           show: true,

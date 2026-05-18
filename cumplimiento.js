@@ -761,7 +761,7 @@ function buildChartMes(rows) {
     return (c && c.demCnt) ? (c.demSum / c.demCnt) : null;
   });
 
-  // 1. Cálculo del %AT Acumulado Histórico
+  // Cálculo del %AT Acumulado Histórico
   const pAT_acum = [];
   let sumaEntregadosATAcum = 0;
   let sumaComprometidosAcum = 0;
@@ -773,12 +773,6 @@ function buildChartMes(rows) {
     const pctAcum = sumaComprometidosAcum ? (sumaEntregadosATAcum / sumaComprometidosAcum) * 100 : 0;
     pAT_acum.push(pctAcum);
   }
-
-  // 2. NUEVA LÓGICA: Arreglo del Objetivo con "Saltito" según el año de cada mes
-  const dataObjetivo = months.map(m => {
-    const ano = parseInt(m.substring(0, 4), 10);
-    return (ano >= 2026) ? 78 : 75;
-  });
 
   const el = document.getElementById("chartMes");
   if (!el || !window.echarts) return;
@@ -898,7 +892,31 @@ function buildChartMes(rows) {
         },
         labelLayout: { hideOverlap: true },
         emphasis: { disabled: true },
-        // ◄ NOTA: El markLine estático viejo que estaba acá se eliminó por completo
+        // ◄ MARKLINE INTELIGENTE CON EL SALTITO Y EL CARTEL DE OBJ 78% FIJO:
+        markLine: {
+          silent: true,
+          symbol: ["none", "none"],
+          label: {
+            show: true,
+            formatter: "Obj 78%", 
+            fontWeight: 800,
+            fontSize: 11,
+            position: "end",
+            backgroundColor: '#374151',
+            color: '#fff',
+            padding: [4, 6],
+            borderRadius: 4
+          },
+          lineStyle: { type: "dashed", width: 2, color: "#374151" },
+          data: months.map((m, idx) => {
+            const ano = parseInt(m.substring(0, 4), 10);
+            const valorObjetivo = (ano >= 2026) ? 78 : 75;
+            return [
+              { xAxis: idx, yAxis: valorObjetivo },
+              { xAxis: idx + 1, yAxis: valorObjetivo }
+            ];
+          })
+        },
         z: 1,
         zlevel: 0
       },
@@ -1043,38 +1061,6 @@ function buildChartMes(rows) {
           data: [{ yAxis: 7 }]
         },
         zlevel: 10, z: 10
-      },
-      // ◄ NUEVA SERIE INYECTADA: Línea de meta escalonada gris con el "saltito" vertical
-      {
-        name: "Objetivo",
-        type: "line",
-        data: dataObjetivo,
-        step: "end",          // Dibuja el quiebre/escalón recto perfecto en el cambio de año
-        showSymbol: false,
-        silent: true,
-        lineStyle: {
-          width: 2,
-          type: "dashed",     // Línea punteada como la que tenías antes
-          color: "#475569"    // Gris oscuro descriptivo
-        },
-        label: {
-          show: true,
-          formatter: (p) => {
-            // Muestra el indicador al inicio, al final, o en el mes donde pega el salto de valor
-            if (p.dataIndex === 0 || p.dataIndex === dataObjetivo.length - 1 || dataObjetivo[p.dataIndex] !== dataObjetivo[p.dataIndex - 1]) {
-              return "Obj " + p.data + "%";
-            }
-            return "";
-          },
-          position: "end",
-          backgroundColor: "#475569",
-          color: "#fff",
-          padding: [3, 5],
-          borderRadius: 4,
-          fontSize: 10,
-          fontWeight: 800
-        },
-        zlevel: 2, z: 2
       }
     ]
   };

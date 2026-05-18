@@ -1087,6 +1087,125 @@ function buildChartMes(rows) {
   chartMes.setOption(option, true);
   window.addEventListener("resize", () => chartMes && chartMes.resize(), { passive: true });
 }
+
+/* ============================
+   CHART 2: Trend lines (ECharts)
+============================ */
+/* ============================
+   CHART 2: Trend lines (ECharts)
+============================ */
+function buildChartTendencia(rows) {
+  const agg = new Map();
+  const monthsSet = new Set();
+
+  for (const r of rows) {
+    const d = parseDateAny(r[FECHA_COL]);
+    if (!d) continue;
+    const mk = monthKey(d);
+    monthsSet.add(mk);
+
+    if (!agg.has(mk)) agg.set(mk, { at: 0, ft: 0, no: 0 });
+    const c = agg.get(mk);
+    c.at += toNumber(r[AT_COL]);
+    c.ft += toNumber(r[FT_COL]);
+    c.no += toNumber(r[NO_COL]);
+  }
+
+  const months = [...monthsSet].sort();
+
+  const pAT = months.map(m => {
+    const c = agg.get(m); const t = (c?.at ?? 0) + (c?.ft ?? 0) + (c?.no ?? 0);
+    return t ? ((c.at ?? 0) / t) * 100 : 0;
+  });
+  const pFT = months.map(m => {
+    const c = agg.get(m); const t = (c?.at ?? 0) + (c?.ft ?? 0) + (c?.no ?? 0);
+    return t ? ((c.ft ?? 0) / t) * 100 : 0;
+  });
+  const pNO = months.map(m => {
+    const c = agg.get(m); const t = (c?.at ?? 0) + (c?.ft ?? 0) + (c?.no ?? 0);
+    return t ? ((c.no ?? 0) / t) * 100 : 0;
+  });
+
+  const el = document.getElementById("chartTendencia");
+  if (!el || !window.echarts) return;
+  if (!chartTendencia) chartTendencia = echarts.init(el, null, { renderer: "canvas" });
+
+  const option = {
+    grid: { left: 56, right: 18, top: 16, bottom: 62 },
+    tooltip: {
+      trigger: "axis",
+      confine: true,
+      formatter: (params) => {
+        const axis = params?.[0]?.axisValue ?? "";
+        let html = `<b>${axis}</b><br/>`;
+        for (const p of params) {
+          html += `${p.marker} ${p.seriesName}: <b>${_fmtNum1(p.data)}</b>%<br/>`;
+        }
+        return html;
+      }
+    },
+    legend: {
+      bottom: 12,
+      left: "center",
+      itemWidth: 14,
+      itemHeight: 10,
+      textStyle: { fontWeight: 800 }
+    },
+    xAxis: { type: "category", data: months, axisLabel: { fontWeight: 700 } },
+    yAxis: {
+      type: "value",
+      min: 0,max: 100,
+      axisLabel: { formatter: "{value}%" },
+      splitLine: { lineStyle: { color: "rgba(15,23,42,0.10)" } }
+    },
+    series: [
+      {
+        name: "A Tiempo %",
+        type: "line",
+        data: pAT.map(v => +(+v).toFixed(2)),
+        symbolSize: 7,
+        lineStyle: { width: 3, color: COLORS.green },
+        itemStyle: { color: COLORS.green, borderColor: "#fff", borderWidth: 2 },
+        label: {
+          show: true,
+          position: "top",
+          formatter: (p) => {
+            const v = +p.data || 0;
+            return (v < 78) ? `{warn|⚠ ${_fmtPct(v)}}` : `{ok|${_fmtPct(v)}}`;
+          },
+          rich: {
+            ok: { fontWeight: 900, color: COLORS.green },
+            warn: { fontWeight: 950, color: "#7f1d1d", backgroundColor: "rgba(239,68,68,0.18)", borderColor: "#ef4444", borderWidth: 1, borderRadius: 4, padding: [2, 4] }
+          }
+        },
+        zlevel: 5, z: 5
+      },
+      {
+        name: "Fuera Tiempo %",
+        type: "line",
+        data: pFT.map(v => +(+v).toFixed(2)),
+        symbolSize: 7,
+        lineStyle: { width: 3, color: COLORS.amber },
+        itemStyle: { color: COLORS.amber, borderColor: "#fff", borderWidth: 2 },
+        label: { show: true, position: "top", fontWeight: 900, formatter: (p) => _fmtPct(p.data) },
+        zlevel: 5, z: 5
+      },
+      {
+        name: "No Entregados %",
+        type: "line",
+        data: pNO.map(v => +(+v).toFixed(2)),
+        symbolSize: 7,
+        lineStyle: { width: 3, color: COLORS.red },
+        itemStyle: { color: COLORS.red, borderColor: "#fff", borderWidth: 2 },
+        label: { show: true, position: "top", fontWeight: 900, formatter: (p) => _fmtPct(p.data) },
+        zlevel: 5, z: 5
+      }
+    ]
+  };
+
+  chartTendencia.setOption(option, true);
+  window.addEventListener("resize", () => chartTendencia && chartTendencia.resize(), { passive: true });
+}
 /* ============================
    DOWNLOAD: NO ENTREGADOS
 ============================ */
@@ -1262,13 +1381,6 @@ window.addEventListener("DOMContentLoaded", () => {
       if (loader && !loader.classList.contains("hidden")) loader.classList.add("hidden");
     });
 });
-
-
-
-
-
-
-
 
 
 

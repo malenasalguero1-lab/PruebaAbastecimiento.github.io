@@ -368,7 +368,7 @@ function rowsByClienteBase() {
 function filteredRowsNoMes() {
   let rows = rowsByClienteBase();
 
-  const c2s = getSelValues("clasif2Select");
+  const c2s = getCheckedClasif2();
   if (c2s.length && CLASIF2_COL) rows = rows.filter(r => c2s.includes(clean(r[CLASIF2_COL])));
   const gcs = getSelValues("gcocSelect");
   if (gcs.length && GCOC_COL) rows = rows.filter(r => gcs.includes(clean(r[GCOC_COL])));
@@ -391,22 +391,83 @@ function renderClientes() {
 }
 
 function renderClasif2(rowsBase) {
+  const container = document.getElementById("clasif2List");
+  if (!container) return;
+
   const hint = document.getElementById("clasif2Hint");
   if (!CLASIF2_COL) {
     if (hint) hint.textContent = "Columna: (no encontrada)";
-    // deshabilito el select para que no moleste
-    const sel = document.getElementById("clasif2Select");
-    if (sel) { sel.disabled = true; sel.innerHTML = `<option value="">Todos</option>`; }
+    container.innerHTML = "";
     return;
   }
   if (hint) hint.textContent = `Columna: ${CLASIF2_COL}`;
 
-  // Las opciones ya no incluirán EQUIPOS MENORES porque fueron reclasificados a ALMACEN
-  const vals = uniqSorted(rowsBase.map(r => r[CLASIF2_COL]));
+  const vals = uniqSorted(rowsBase.map(r => clean(r[CLASIF2_COL])));
 
-  const sel = document.getElementById("clasif2Select");
-  if (sel) sel.disabled = false;
-  fillSelect("clasif2Select", vals, "Todos");
+  // Capture previous state
+  const prevChecked = new Set(
+    [...container.querySelectorAll("input[type='checkbox']:not(.check-all-cb):checked")]
+      .map(cb => cb.value)
+  );
+  const allWasChecked = (() => {
+    const allCb = container.querySelector(".check-all-cb");
+    return !allCb || allCb.checked;
+  })();
+
+  container.innerHTML = "";
+
+  // "Todos" checkbox
+  const allLabel = document.createElement("label");
+  allLabel.className = "check-all";
+  const allCb = document.createElement("input");
+  allCb.type = "checkbox";
+  allCb.className = "check-all-cb";
+  allCb.checked = prevChecked.size === 0 && allWasChecked;
+  allLabel.appendChild(allCb);
+  allLabel.appendChild(document.createTextNode(" Todos"));
+  container.appendChild(allLabel);
+
+  for (const v of vals) {
+    const lbl = document.createElement("label");
+    const cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.value = v;
+    cb.checked = (prevChecked.size === 0 && allWasChecked) || prevChecked.has(v);
+    lbl.appendChild(cb);
+    lbl.appendChild(document.createTextNode(" " + v));
+    container.appendChild(lbl);
+  }
+
+  // Logic
+  allCb.addEventListener("change", () => {
+    const itemCbs = [...container.querySelectorAll("input[type='checkbox']:not(.check-all-cb)")];
+    itemCbs.forEach(c => c.checked = allCb.checked);
+
+    // al cambiar clasif2, reseteo gcoc (depende del clasif2)
+    const gc = document.getElementById("gcocSelect");
+    if (gc) { gc.selectedIndex = 0; enforceAllOption(gc); }
+    applyAll();
+  });
+
+  container.querySelectorAll("input[type='checkbox']:not(.check-all-cb)").forEach(cb => {
+    cb.addEventListener("change", () => {
+      const items = [...container.querySelectorAll("input[type='checkbox']:not(.check-all-cb)")];
+      allCb.checked = items.every(c => c.checked);
+
+      // al cambiar clasif2, reseteo gcoc (depende del clasif2)
+      const gc = document.getElementById("gcocSelect");
+      if (gc) { gc.selectedIndex = 0; enforceAllOption(gc); }
+      applyAll();
+    });
+  });
+}
+
+function getCheckedClasif2() {
+  const container = document.getElementById("clasif2List");
+  if (!container) return [];
+  const allCb = container.querySelector(".check-all-cb");
+  if (allCb && allCb.checked) return [];
+  return [...container.querySelectorAll("input[type='checkbox']:not(.check-all-cb):checked")].map(cb => cb.value);
 }
 
 function renderGcoc(rowsBase) {
@@ -952,6 +1013,9 @@ function buildChartMes(rows) {
 /* ============================
    CHART 2: Trend lines (ECharts)
 ============================ */
+/* ============================
+   CHART 2: Trend lines (ECharts)
+============================ */
 function buildChartTendencia(rows) {
   const agg = new Map();
   const monthsSet = new Set();
@@ -963,31 +1027,23 @@ function buildChartTendencia(rows) {
     const mk = monthKey(d);
     monthsSet.add(mk);
 
-    if (!agg.has(mk)) agg.set(mk, { at: 0, ft: 0, no: 0 });
+    if (!agg.has(mk)) agg.set(mk, { at: 0, ft: 0, no: 0, comp: 0 });
     const c = agg.get(mk);
 
     c.at += toNumber(r[AT_COL]);
     c.ft += toNumber(r[FT_COL]);
     c.no += toNumber(r[NO_COL]);
+    // Aseguramos sumar el total de comprometidos físicos del mes
+    c.comp += toNumber(r["COMPROMETIDOS"]) || (toNumber(r[AT_COL]) + toNumber(r[FT_COL]) + toNumber(r[NO_COL]));
   }
 
   const months = [...monthsSet].sort();
 
+  // 1. Porcentajes mensuales individuales (ya los tenías)
   const pAT = months.map(m => {
     const c = agg.get(m); const t = (c?.at ?? 0) + (c?.ft ?? 0) + (c?.no ?? 0);
     return t ? ((c.at ?? 0) / t) * 100 : 0;
   });
-
-
-
-  // Promedio mensual acumulado de AT %
-  const pAT_acum = [];
-  let accAT = 0;
-  for (let i = 0; i < pAT.length; i++) {
-    const v = +pAT[i] || 0;
-    accAT += v;
-    pAT_acum.push(accAT / (i + 1));
-  }
 
   const pFT = months.map(m => {
     const c = agg.get(m); const t = (c?.at ?? 0) + (c?.ft ?? 0) + (c?.no ?? 0);
@@ -998,6 +1054,23 @@ function buildChartTendencia(rows) {
     const c = agg.get(m); const t = (c?.at ?? 0) + (c?.ft ?? 0) + (c?.no ?? 0);
     return t ? ((c.no ?? 0) / t) * 100 : 0;
   });
+
+  // 2. NUEVO CÁLCULO: %AT Acumulado Físico e Interactivo
+  const pAT_acum = [];
+  let sumaEntregadosATAcum = 0;
+  let sumaComprometidosAcum = 0;
+
+  for (let i = 0; i < months.length; i++) {
+    const c = agg.get(months[i]);
+    
+    // Vamos sumando el histórico acumulado mes a mes
+    sumaEntregadosATAcum += (c?.at ?? 0);
+    sumaComprometidosAcum += (c?.comp ?? 0);
+
+    // El % acumulado real del período actual
+    const pctAcum = sumaComprometidosAcum ? (sumaEntregadosATAcum / sumaComprometidosAcum) * 100 : 0;
+    pAT_acum.push(pctAcum);
+  }
 
   const el = document.getElementById("chartTendencia");
   if (!el || !window.echarts) return;
@@ -1050,54 +1123,27 @@ function buildChartTendencia(rows) {
           position: "top",
           formatter: (p) => {
             const v = +p.data || 0;
-            return (v < 78)
-              ? `{warn|⚠ ${_fmtPct(v)}}`
-              : `{ok|${_fmtPct(v)}}`;
+            return (v < 78) ? `{warn|⚠ ${_fmtPct(v)}}` : `{ok|${_fmtPct(v)}}`;
           },
           rich: {
             ok: { fontWeight: 900, color: COLORS.green },
-            warn: {
-              fontWeight: 950,
-              color: "#7f1d1d",
-              backgroundColor: "rgba(239,68,68,0.18)",
-              borderColor: "#ef4444",
-              borderWidth: 1,
-              borderRadius: 4,
-              padding: [2, 4]
-            }
+            warn: { fontWeight: 950, color: "#7f1d1d", backgroundColor: "rgba(239,68,68,0.18)", borderColor: "#ef4444", borderWidth: 1, borderRadius: 4, padding: [2, 4] }
           }
         },
         zlevel: 5, z: 5
       },
-
-      {
-        name: "AT % (Prom. mensual acumulado)",
+  {
+        name: "%AT Acumulado", // ◄ Cambiado para que se lea exactamente así en el tooltip y la leyenda
         type: "line",
         data: pAT_acum.map(v => +(+v).toFixed(2)),
         symbolSize: 7,
-        lineStyle: { width: 2, type: "dashed", color: COLORS.green },
-        itemStyle: { color: COLORS.green, borderColor: "#fff", borderWidth: 2, opacity: 0.9 },
+        lineStyle: { width: 3, type: "dashed", color: "#8b5cf6" }, // ◄ Violeta para la línea (Intensidad media/alta)
+        itemStyle: { color: "#8b5cf6", borderColor: "#fff", borderWidth: 2, opacity: 0.9 }, // ◄ Violeta para los nodos/puntos
         label: {
           show: true,
-          position: "top",
-          formatter: (p) => {
-            const v = +p.data || 0;
-            return (v < 78)
-              ? `{warn|⚠ ${_fmtPct(v)}}`
-              : `{ok|${_fmtPct(v)}}`;
-          },
-          rich: {
-            ok: { fontWeight: 900, color: COLORS.green },
-            warn: {
-              fontWeight: 950,
-              color: "#7f1d1d",
-              backgroundColor: "rgba(239,68,68,0.18)",
-              borderColor: "#ef4444",
-              borderWidth: 1,
-              borderRadius: 4,
-              padding: [2, 4]
-            }
-          }
+          position: "bottom",
+          formatter: (p) => _fmtPct(p.data),
+          textStyle: { fontWeight: 800, color: "#6d28d9" } // ◄ Violeta oscuro para los textos fijos del gráfico
         },
         zlevel: 4, z: 4
       },
@@ -1127,6 +1173,7 @@ function buildChartTendencia(rows) {
   chartTendencia.setOption(option, true);
   window.addEventListener("resize", () => chartTendencia && chartTendencia.resize(), { passive: true });
 }
+   
 
 /* ============================
    DOWNLOAD: NO ENTREGADOS
@@ -1172,7 +1219,7 @@ function applyAll() {
   // 3) refresco gcoc desde cliente + clasif2 actual
   const baseParaGc = (() => {
     let r = baseCliente;
-    const c2s = getSelValues("clasif2Select");
+    const c2s = getCheckedClasif2();
     if (c2s.length && CLASIF2_COL) r = r.filter(x => c2s.includes(clean(x[CLASIF2_COL])));
     return r;
   })();
@@ -1200,7 +1247,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
   // fecha (manual) en header
   setText("lastUpdate", (window.LAST_UPDATE || "").toString().trim() || "--/--/----");
-  fetch(csvUrl)
+  fetch(csvUrl + "?t=" + new Date().getTime())
     .then(r => {
       if (!r.ok) throw new Error(`No pude abrir ${csvUrl} (HTTP ${r.status})`);
       return r.text();
@@ -1259,13 +1306,7 @@ window.addEventListener("DOMContentLoaded", () => {
         applyAll();
       });
 
-      document.getElementById("clasif2Select")?.addEventListener("change", (e) => {
-        enforceAllOption(e.target);
-        // al cambiar clasif2, reseteo gcoc (depende del clasif2)
-        const gc = document.getElementById("gcocSelect");
-        if (gc) { gc.selectedIndex = 0; enforceAllOption(gc); }
-        applyAll();
-      });
+      // clasif2Select replaced by checkboxes wired in renderClasif2()
 
       document.getElementById("gcocSelect")?.addEventListener("change", (e) => { enforceAllOption(e.target); applyAll(); });
 
@@ -1309,6 +1350,7 @@ window.addEventListener("DOMContentLoaded", () => {
       if (loader && !loader.classList.contains("hidden")) loader.classList.add("hidden");
     });
 });
+
 
 
 

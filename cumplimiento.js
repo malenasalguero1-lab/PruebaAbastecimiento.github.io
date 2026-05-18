@@ -982,12 +982,12 @@ function buildChartMes(rows) {
         },
         itemStyle: { color: "#7c3aed" },
         label: {
-          show: true,         // SÍ se muestra en cada mes para los usuarios pasivos
-          position: "bottom", // ◄ CAMBIO: Se apoya abajo de la línea, liberando el espacio superior
-          distance: 8,        // Distancia justa para no encimarse con las barras
+          show: true,         // Se muestra en cada mes para los usuarios pasivos
+          position: "top",    // ◄ CAMBIO: El número vuelve a posicionarse ARRIBA de la línea
+          distance: 8,        // Separación justa para que se lea cómodo por encima del trazo
           formatter: (p) => _fmtPct(p.data),
           
-          // Fondo lavanda ultra sutil con bordes tenues para no sobrecargar la visual
+          // Fondo lavanda sutil para que el texto resalte frente a las barras de fondo
           backgroundColor: "rgba(245, 243, 255, 0.85)", 
           padding: [2, 4],                             
           borderRadius: 3,                             

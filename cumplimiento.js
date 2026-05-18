@@ -907,17 +907,18 @@ function buildChartMes(rows) {
         markLine: {
           silent: true,
           symbol: ["none", "none"],
-          label: {
-            show: true,
-            formatter: "Obj 78%", 
-            fontWeight: 800,
-            fontSize: 11,
-            position: "end",
-            backgroundColor: '#374151',
-            color: '#fff',
-            padding: [4, 6],
-            borderRadius: 4
-          },
+         label: {
+  show: true,
+  formatter: "Objetivo: 78%",
+  fontWeight: 800,
+  fontSize: 11,
+  position: "end",
+  distance: -4,
+  backgroundColor: '#374151',
+  color: '#fff',
+  padding: [4, 6],
+  borderRadius: 4
+},
           lineStyle: { type: "dashed", width: 2, color: "#374151" },
           data: (cambioDeAnoIdx !== -1) ? [
             // Línea del 2025 (desde la primera barra hasta el quiebre)

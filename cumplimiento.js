@@ -1049,6 +1049,18 @@ function buildChartTendencia(rows) {
     const c = agg.get(m); const t = (c?.at ?? 0) + (c?.ft ?? 0) + (c?.no ?? 0);
     return t ? ((c.ft ?? 0) / t) * 100 : 0;
   });
+  // --- CÁLCULO DEL ACUMULADO INTERACTIVO ---
+  const pAT_acum = [];
+  let sumaEntregadosATAcum = 0;
+  let sumaComprometidosAcum = 0;
+
+  for (let i = 0; i < months.length; i++) {
+    const c = agg.get(months[i]);
+    sumaEntregadosATAcum += (c?.at ?? 0);
+    sumaComprometidosAcum += (c?.comp ?? 0) || ((c?.at ?? 0) + (c?.ft ?? 0) + (c?.no ?? 0));
+    const pctAcum = sumaComprometidosAcum ? (sumaEntregadosATAcum / sumaComprometidosAcum) * 100 : 0;
+    pAT_acum.push(pctAcum);
+  }
 
   const pNO = months.map(m => {
     const c = agg.get(m); const t = (c?.at ?? 0) + (c?.ft ?? 0) + (c?.no ?? 0);

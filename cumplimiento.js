@@ -974,20 +974,27 @@ function buildChartMes(rows) {
         name: "%AT Acumulado",
         type: "line",
         data: pAT_acum.map(v => +(+v).toFixed(2)),
-        showSymbol: false,    // Línea continua y limpia sin círculos intermedios
+        
+        // --- PROPIEDADES CLAVE PARA QUE QUEDE FIJO ---
+        showSymbol: true,         // ◄ Cambiamos a true para que el nodo exista físicamente siempre
+        symbol: "circle",         
+        symbolSize: 1,            // ◄ Lo hacemos casi invisible (1px) para mantener tu estética de línea limpia
+        showAllSymbol: true,      // ◄ FUERZA a ECharts a renderizar los elementos de todos los meses de entrada
+        
         lineStyle: { 
           width: 3.5,         // Grosor marcado institucional
-          type: "solid",      // Línea sólida continua como en tu Excel
+          type: "solid",      // Línea sólida continua como tu Excel
           color: "#7c3aed"    // Violeta corporativo
         },
         itemStyle: { color: "#7c3aed" },
+        
         label: {
-          show: true,         // ◄ SÍ se muestra fijo en cada mes (no requiere selección)
-          position: "bottom", // ◄ Posición fija: justo por debajo del trazo violeta
-          distance: 8,        // Distancia justa para no encimarse con las barras de fondo
+          show: true,             // ◄ Se muestra de entrada
+          position: "bottom",     // Posición fija: justo por debajo de la línea
+          distance: 10,           // Despeje justo de la traza violeta
           formatter: (p) => _fmtPct(p.data),
           
-          // Cápsula lavanda ultra sutil para garantizar lectura sobre cualquier color de barra
+          // Tu cápsula lavanda sutil
           backgroundColor: "rgba(245, 243, 255, 0.85)", 
           padding: [2, 4],                             
           borderRadius: 3,                             
@@ -997,10 +1004,22 @@ function buildChartMes(rows) {
           textStyle: { 
             fontWeight: 700, 
             color: "#6d28d9",                          
-            fontSize: 10                               // Letra chica y delicada (10px) para no saturar
+            fontSize: 10                               // Letra chica y delicada
           }
         },
-        zlevel: 6, z: 6       // Pasa por encima de las barras apiladas y las etiquetas internas
+        
+        // --- EVITA QUE SE RE-CALCULE O DESAPAREZCA AL PASAR EL MOUSE ---
+        emphasis: {
+          disabled: false,
+          scale: false, // Evita que la línea se ensanche al pasar el mouse
+          label: {
+            show: true, // ◄ Sigue mostrando el número fijo aunque el usuario esté encima
+            position: "bottom",
+            textStyle: { fontWeight: 700, color: "#6d28d9", fontSize: 10 }
+          }
+        },
+        
+        zlevel: 6, z: 6       // Pasa por encima de las barras apiladas
       },
       {
         name: "Promedio días de demora",

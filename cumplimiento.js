@@ -846,53 +846,33 @@ function buildChartTendencia(rows) {
   for (const r of rows) {
     const d = parseDateAny(r[FECHA_COL]);
     if (!d) continue;
-
     const mk = monthKey(d);
     monthsSet.add(mk);
 
-    if (!agg.has(mk)) agg.set(mk, { at: 0, ft: 0, no: 0, comp: 0 });
+    if (!agg.has(mk)) agg.set(mk, { at: 0, ft: 0, no: 0 });
     const c = agg.get(mk);
-
     c.at += toNumber(r[AT_COL]);
     c.ft += toNumber(r[FT_COL]);
     c.no += toNumber(r[NO_COL]);
-    c.comp += toNumber(r["COMPROMETIDOS"]) || (toNumber(r[AT_COL]) + toNumber(r[FT_COL]) + toNumber(r[NO_COL]));
   }
 
   const months = [...monthsSet].sort();
 
-  // 1. Porcentajes mensuales individuales
   const pAT = months.map(m => {
     const c = agg.get(m); const t = (c?.at ?? 0) + (c?.ft ?? 0) + (c?.no ?? 0);
     return t ? ((c.at ?? 0) / t) * 100 : 0;
   });
-
   const pFT = months.map(m => {
     const c = agg.get(m); const t = (c?.at ?? 0) + (c?.ft ?? 0) + (c?.no ?? 0);
     return t ? ((c.ft ?? 0) / t) * 100 : 0;
   });
-
   const pNO = months.map(m => {
     const c = agg.get(m); const t = (c?.at ?? 0) + (c?.ft ?? 0) + (c?.no ?? 0);
     return t ? ((c.no ?? 0) / t) * 100 : 0;
   });
 
-  // 2. Cálculo limpio del %AT Acumulado Físico Interactivo
-  const pAT_acum = [];
-  let sumaEntregadosATAcum = 0;
-  let sumaComprometidosAcum = 0;
-
-  for (let i = 0; i < months.length; i++) {
-    const c = agg.get(months[i]);
-    sumaEntregadosATAcum += (c?.at ?? 0);
-    sumaComprometidosAcum += (c?.comp ?? 0);
-    const pctAcum = sumaComprometidosAcum ? (sumaEntregadosATAcum / sumaComprometidosAcum) * 100 : 0;
-    pAT_acum.push(pctAcum);
-  }
-
   const el = document.getElementById("chartTendencia");
   if (!el || !window.echarts) return;
-
   if (!chartTendencia) chartTendencia = echarts.init(el, null, { renderer: "canvas" });
 
   const option = {
@@ -916,11 +896,7 @@ function buildChartTendencia(rows) {
       itemHeight: 10,
       textStyle: { fontWeight: 800 }
     },
-    xAxis: {
-      type: "category",
-      data: months,
-      axisLabel: { fontWeight: 700 }
-    },
+    xAxis: { type: "category", data: months, axisLabel: { fontWeight: 700 } },
     yAxis: {
       type: "value",
       min: 0,
@@ -931,55 +907,43 @@ function buildChartTendencia(rows) {
     series: [
       {
         name: "A Tiempo %",
-        type: "bar",
-        stack: "cumplimiento",
+        type: "line",
         data: pAT.map(v => +(+v).toFixed(2)),
         symbolSize: 7,
         lineStyle: { width: 3, color: COLORS.green },
-        itemStyle: { color: COLORS.green },
-        label: {
-          show: true,
-          position: "inside",
-          formatter: (p) => _fmtPct(p.data),
-          textStyle: { fontWeight: 900, color: "#fff" }
-        },
-        zlevel: 3, z: 3
-      },
-      {
-        name: "Fuera Tiempo %",
-        type: "bar",
-        stack: "cumplimiento",
-        data: pFT.map(v => +(+v).toFixed(2)),
-        symbolSize: 7,
-        lineStyle: { width: 3, color: COLORS.amber },
-        itemStyle: { color: COLORS.amber },
-        label: { show: true, position: "inside", fontWeight: 900, color: "#111", formatter: (p) => _fmtPct(p.data) },
-        zlevel: 3, z: 3
-      },
-      {
-        name: "No Entregados %",
-        type: "bar",
-        stack: "cumplimiento",
-        data: pNO.map(v => +(+v).toFixed(2)),
-        symbolSize: 7,
-        lineStyle: { width: 3, color: COLORS.red },
-        itemStyle: { color: COLORS.red },
-        label: { show: true, position: "inside", fontWeight: 900, formatter: (p) => _fmtPct(p.data) },
-        zlevel: 3, z: 3
-      },
-      {
-        name: "%AT Acumulado",
-        type: "line",
-        data: pAT_acum.map(v => +(+v).toFixed(2)),
-        symbolSize: 8,
-        lineStyle: { width: 3.5, type: "dashed", color: "#8b5cf6" },
-        itemStyle: { color: "#8b5cf6", borderColor: "#fff", borderWidth: 2 },
+        itemStyle: { color: COLORS.green, borderColor: "#fff", borderWidth: 2 },
         label: {
           show: true,
           position: "top",
-          formatter: (p) => _fmtPct(p.data),
-          textStyle: { fontWeight: 800, color: "#6d28d9" }
+          formatter: (p) => {
+            const v = +p.data || 0;
+            return (v < 78) ? `{warn|⚠ ${_fmtPct(v)}}` : `{ok|${_fmtPct(v)}}`;
+          },
+          rich: {
+            ok: { fontWeight: 900, color: COLORS.green },
+            warn: { fontWeight: 950, color: "#7f1d1d", backgroundColor: "rgba(239,68,68,0.18)", borderColor: "#ef4444", borderWidth: 1, borderRadius: 4, padding: [2, 4] }
+          }
         },
+        zlevel: 5, z: 5
+      },
+      {
+        name: "Fuera Tiempo %",
+        type: "line",
+        data: pFT.map(v => +(+v).toFixed(2)),
+        symbolSize: 7,
+        lineStyle: { width: 3, color: COLORS.amber },
+        itemStyle: { color: COLORS.amber, borderColor: "#fff", borderWidth: 2 },
+        label: { show: true, position: "top", fontWeight: 900, formatter: (p) => _fmtPct(p.data) },
+        zlevel: 5, z: 5
+      },
+      {
+        name: "No Entregados %",
+        type: "line",
+        data: pNO.map(v => +(+v).toFixed(2)),
+        symbolSize: 7,
+        lineStyle: { width: 3, color: COLORS.red },
+        itemStyle: { color: COLORS.red, borderColor: "#fff", borderWidth: 2 },
+        label: { show: true, position: "top", fontWeight: 900, formatter: (p) => _fmtPct(p.data) },
         zlevel: 5, z: 5
       }
     ]

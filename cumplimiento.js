@@ -970,12 +970,12 @@ function buildChartMes(rows) {
         z: 1,
         zlevel: 0
       },
-      {
+   {
         name: "%AT Acumulado",
         type: "line",
         data: pAT_acum.map(v => +(+v).toFixed(2)),
         symbolSize: 7,
-        lineStyle: { width: 3, type: "dashed", color: "#8b5cf6" },
+        lineStyle: { width: 3, type: "dashed", color: "#8b5cf6" }, // Violeta
         itemStyle: { color: "#8b5cf6", borderColor: "#fff", borderWidth: 2, opacity: 0.9 },
         label: {
           show: true,

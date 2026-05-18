@@ -728,8 +728,6 @@ function buildChartMes(rows) {
   const agg = new Map();
   const monthsSet = new Set();
 
-  // El filtrado por checkboxes ya se resolvió en filteredRowsNoMes(),
-  // así que acá procesamos de forma directa y limpia todas las filas recibidas.
   for (const r of rows) {
     const d = parseDateAny(r[FECHA_COL]);
     if (!d) continue;
@@ -763,7 +761,7 @@ function buildChartMes(rows) {
     return (c && c.demCnt) ? (c.demSum / c.demCnt) : null;
   });
 
-  // --- CÁLCULO DEL ACUMULADO INTERACTIVO VIOLETA ---
+  // 1. Cálculo del %AT Acumulado Histórico
   const pAT_acum = [];
   let sumaEntregadosATAcum = 0;
   let sumaComprometidosAcum = 0;
@@ -775,6 +773,12 @@ function buildChartMes(rows) {
     const pctAcum = sumaComprometidosAcum ? (sumaEntregadosATAcum / sumaComprometidosAcum) * 100 : 0;
     pAT_acum.push(pctAcum);
   }
+
+  // 2. NUEVA LÓGICA: Arreglo del Objetivo con "Saltito" según el año de cada mes
+  const dataObjetivo = months.map(m => {
+    const ano = parseInt(m.substring(0, 4), 10);
+    return (ano >= 2026) ? 78 : 75;
+  });
 
   const el = document.getElementById("chartMes");
   if (!el || !window.echarts) return;
@@ -894,23 +898,7 @@ function buildChartMes(rows) {
         },
         labelLayout: { hideOverlap: true },
         emphasis: { disabled: true },
-        markLine: {
-          silent: true,
-          symbol: ["none", "none"],
-          label: {
-            show: true,
-            formatter: "Obj 78%",
-            fontWeight: 800,
-            fontSize: 11,
-            position: "end",
-            backgroundColor: '#374151',
-            color: '#fff',
-            padding: [4, 6],
-            borderRadius: 4
-          },
-          lineStyle: { type: "dashed", width: 2, color: "#374151" },
-          data: [{ yAxis: 78 }]
-        },
+        // ◄ NOTA: El markLine estático viejo que estaba acá se eliminó por completo
         z: 1,
         zlevel: 0
       },
@@ -970,50 +958,36 @@ function buildChartMes(rows) {
         z: 1,
         zlevel: 0
       },
-{
+      {
         name: "%AT Acumulado",
         type: "line",
         data: pAT_acum.map(v => +(+v).toFixed(2)),
-        
-        // Propiedades para que quede siempre fijo y visible en todos los meses
         showSymbol: true,         
         symbol: "circle",         
-        symbolSize: 1,            // Casi invisible para que la línea se vea limpia
-        showAllSymbol: true,      // Fuerza a que se rendericen todas las etiquetas de entrada
-        
+        symbolSize: 1,            
+        showAllSymbol: true,      
         lineStyle: { 
           width: 3.5,         
           type: "solid",      
           color: "#7c3aed"    
         },
         itemStyle: { color: "#7c3aed" },
-        
         label: {
           show: true,             
           position: "bottom",     
           distance: 10,           
-          // ◄ CAMBIO AQUÍ: Muestra siempre 2 decimales fijos y cambia el punto por la coma
           formatter: (p) => {
             const val = +p.data;
             if (val == null || isNaN(val)) return "";
             return val.toFixed(2).replace(".", ",") + "%";
           },
-          
-          // Tu cápsula lavanda sutil
           backgroundColor: "rgba(245, 243, 255, 0.85)", 
           padding: [2, 4],                             
           borderRadius: 3,                             
           borderColor: "rgba(124, 58, 237, 0.25)",      
           borderWidth: 1,
-          
-          textStyle: { 
-            fontWeight: 700, 
-            color: "#6d28d9",                          
-            fontSize: 10                               
-          }
+          textStyle: { fontWeight: 700, color: "#6d28d9", fontSize: 10 }
         },
-        
-        // Mantiene la visual estable y fija con 2 decimales cuando se pasa el cursor por encima
         emphasis: {
           disabled: false,
           scale: false, 
@@ -1028,7 +1002,6 @@ function buildChartMes(rows) {
             textStyle: { fontWeight: 700, color: "#6d28d9", fontSize: 10 }
           }
         },
-        
         zlevel: 6, z: 6       
       },
       {
@@ -1069,8 +1042,39 @@ function buildChartMes(rows) {
           lineStyle: { type: "dashed", width: 2, color: "#374151" },
           data: [{ yAxis: 7 }]
         },
-        zlevel: 10,
-        z: 10
+        zlevel: 10, z: 10
+      },
+      // ◄ NUEVA SERIE INYECTADA: Línea de meta escalonada gris con el "saltito" vertical
+      {
+        name: "Objetivo",
+        type: "line",
+        data: dataObjetivo,
+        step: "end",          // Dibuja el quiebre/escalón recto perfecto en el cambio de año
+        showSymbol: false,
+        silent: true,
+        lineStyle: {
+          width: 2,
+          type: "dashed",     // Línea punteada como la que tenías antes
+          color: "#475569"    // Gris oscuro descriptivo
+        },
+        label: {
+          show: true,
+          formatter: (p) => {
+            // Muestra el indicador al inicio, al final, o en el mes donde pega el salto de valor
+            if (p.dataIndex === 0 || p.dataIndex === dataObjetivo.length - 1 || dataObjetivo[p.dataIndex] !== dataObjetivo[p.dataIndex - 1]) {
+              return "Obj " + p.data + "%";
+            }
+            return "";
+          },
+          position: "end",
+          backgroundColor: "#475569",
+          color: "#fff",
+          padding: [3, 5],
+          borderRadius: 4,
+          fontSize: 10,
+          fontWeight: 800
+        },
+        zlevel: 2, z: 2
       }
     ]
   };

@@ -970,20 +970,37 @@ function buildChartMes(rows) {
         z: 1,
         zlevel: 0
       },
-   {
+  {
         name: "%AT Acumulado",
         type: "line",
         data: pAT_acum.map(v => +(+v).toFixed(2)),
-        symbolSize: 7,
-        lineStyle: { width: 3, type: "dashed", color: "#8b5cf6" }, // Violeta
-        itemStyle: { color: "#8b5cf6", borderColor: "#fff", borderWidth: 2, opacity: 0.9 },
-        label: {
-          show: true,
-          position: "top",
-          formatter: (p) => _fmtPct(p.data),
-          textStyle: { fontWeight: 800, color: "#6d28d9" }
+        showSymbol: false,    // Línea continua y limpia sin círculos intermedios
+        lineStyle: { 
+          width: 3.5,         // Grosor marcado
+          type: "solid",      // Línea sólida como en el Excel
+          color: "#7c3aed"    // Violeta vibrante
         },
-        zlevel: 4, z: 4
+        itemStyle: { color: "#7c3aed" },
+        label: {
+          show: true,         // ◄ SÍ mostramos el número en cada mes
+          position: "top",    // Lo ubica arriba de la línea
+          distance: 6,        // Distancia justa para que no flote demasiado
+          formatter: (p) => _fmtPct(p.data),
+          
+          // ◄ ESTA ES LA CLAVE: Fondo violeta hiper clarito (casi blanco) y texto chico
+          backgroundColor: "rgba(245, 243, 255, 0.85)", // Un tono lavanda/violeta muy sutil
+          padding: [2, 4],                             // Margen chiquito para que no ocupe mucho espacio
+          borderRadius: 3,                             // Bordes apenas redondeados
+          borderColor: "rgba(124, 58, 237, 0.3)",      // Borde violeta muy tenue para enmarcar
+          borderWidth: 1,
+          
+          textStyle: { 
+            fontWeight: 700, 
+            color: "#6d28d9",                          // Violeta intermedio para el número
+            fontSize: 10                               // ◄ Letra más chica (10px) para que quede delicado
+          }
+        },
+        zlevel: 6, z: 6       // Pasa por encima de las barras
       },
       {
         name: "Promedio días de demora",

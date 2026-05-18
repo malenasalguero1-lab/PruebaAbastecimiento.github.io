@@ -779,6 +779,37 @@ function buildChartMes(rows) {
 
   if (!chartMes) chartMes = echarts.init(el, null, { renderer: "canvas" });
 
+  // --- ARMADO DE LA LÍNEA DE OBJETIVO CON UN SOLO CARTEL A LA DERECHA ---
+  const lineSegments = [];
+  months.forEach((m, idx) => {
+    const ano = parseInt(m.substring(0, 4), 10);
+    const valorObjetivo = (ano >= 2026) ? 78 : 75;
+    
+    lineSegments.push([
+      { xAxis: idx, yAxis: valorObjetivo, label: { show: false } }, // Apagamos el cartel para los tramos internos
+      { xAxis: idx + 1, yAxis: valorObjetivo, label: { show: false } }
+    ]);
+  });
+
+  // Agregamos un punto fantasma al final que solo sirve para clavar el cartel fijo
+  lineSegments.push([
+    { yAxis: 78, x: "100%", label: { show: false } },
+    { 
+      yAxis: 78, 
+      position: "end",
+      label: {
+        show: true,
+        formatter: "Obj 78%",
+        fontWeight: 800,
+        fontSize: 11,
+        backgroundColor: '#374151',
+        color: '#fff',
+        padding: [4, 6],
+        borderRadius: 4
+      } 
+    }
+  ]);
+
   const option = {
     grid: { left: 56, right: 70, top: 40, bottom: 62 },
     tooltip: {
@@ -892,30 +923,12 @@ function buildChartMes(rows) {
         },
         labelLayout: { hideOverlap: true },
         emphasis: { disabled: true },
-        // ◄ MARKLINE INTELIGENTE CON EL SALTITO Y EL CARTEL DE OBJ 78% FIJO:
+        // ◄ ACÁ ESTÁ EL NUEVO REEMPLAZO LIMPIO:
         markLine: {
           silent: true,
           symbol: ["none", "none"],
-          label: {
-            show: true,
-            formatter: "Obj 78%", 
-            fontWeight: 800,
-            fontSize: 11,
-            position: "end",
-            backgroundColor: '#374151',
-            color: '#fff',
-            padding: [4, 6],
-            borderRadius: 4
-          },
           lineStyle: { type: "dashed", width: 2, color: "#374151" },
-          data: months.map((m, idx) => {
-            const ano = parseInt(m.substring(0, 4), 10);
-            const valorObjetivo = (ano >= 2026) ? 78 : 75;
-            return [
-              { xAxis: idx, yAxis: valorObjetivo },
-              { xAxis: idx + 1, yAxis: valorObjetivo }
-            ];
-          })
+          data: lineSegments
         },
         z: 1,
         zlevel: 0
@@ -1060,7 +1073,8 @@ function buildChartMes(rows) {
           lineStyle: { type: "dashed", width: 2, color: "#374151" },
           data: [{ yAxis: 7 }]
         },
-        zlevel: 10, z: 10
+        zlevel: 10,
+        z: 10
       }
     ]
   };

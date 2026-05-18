@@ -779,46 +779,47 @@ function buildChartMes(rows) {
 
   if (!chartMes) chartMes = echarts.init(el, null, { renderer: "canvas" });
 
-  // ◄ LOGICA DE ESCALÓN REPARADA: Construye las coordenadas del saltito de forma limpia
-  const lineSegments = [];
-  let ultimoIndice2025 = -1;
+  // ◄ LÓGICA DE ESCALÓN DEFECTO-CERO: Unimos los tramos usando coordenadas mixtas
+  const markLineData = [];
+  let ultimo2025Idx = -1;
 
   months.forEach((m, idx) => {
-    if (m.startsWith("2025")) {
-      ultimoIndice2025 = idx;
-    }
+    if (m.startsWith("2025")) ultimo2025Idx = idx;
   });
 
-  if (ultimoIndice2025 === -1) {
-    // Caso de que solo existan datos de 2026 en la pantalla
-    lineSegments.push([
-      { xAxis: 0, yAxis: 78, label: { show: false } }, 
-      { xAxis: months.length - 1, yAxis: 78 }
+  if (ultimo2025Idx === -1) {
+    // Caso 1: Solo hay meses de 2026 visibles -> Línea recta en 78 hasta el fondo
+    markLineData.push([
+      { xAxis: 0, yAxis: 78, label: { show: false } },
+      { x: "100%", yAxis: 78 } // Clava el cartel a la derecha
     ]);
-  } else if (ultimoIndice2025 === months.length - 1) {
-    // Caso de que solo existan datos de 2025 en la pantalla
-    lineSegments.push([
-      { xAxis: 0, yAxis: 75, label: { show: false } }, 
-      { xAxis: months.length - 1, yAxis: 75 }
+  } else if (ultimo2025Idx === months.length - 1) {
+    // Caso 2: Solo hay meses de 2025 visibles -> Línea recta en 75 hasta el fondo
+    markLineData.push([
+      { xAxis: 0, yAxis: 75, label: { show: false } },
+      { x: "100%", yAxis: 75, label: { formatter: "Obj 75%" } }
     ]);
   } else {
-    // Escenario Mixto Real: Une 2025 horizontal, quiebre vertical y tramo 2026 continuo
-    lineSegments.push([
-      { xAxis: 0, yAxis: 75, label: { show: false } }, 
-      { xAxis: ultimoIndice2025, yAxis: 75, label: { show: false } }
+    // Caso 3: Escenario mixto real (2025 y 2026 combinados)
+    // Tramo 1: Horizontal del 75% durante el 2025
+    markLineData.push([
+      { xAxis: 0, yAxis: 75, label: { show: false } },
+      { xAxis: ultimo2025Idx, yAxis: 75, label: { show: false } }
     ]);
-    lineSegments.push([
-      { xAxis: ultimoIndice2025, yAxis: 75, label: { show: false } }, 
-      { xAxis: ultimoIndice2025 + 1, yAxis: 78, label: { show: false } }
+    // Tramo 2: El "Saltito" vertical de unión justo entre diciembre y enero
+    markLineData.push([
+      { xAxis: ultimo2025Idx, yAxis: 75, label: { show: false } },
+      { xAxis: ultimo2025Idx + 1, yAxis: 78, label: { show: false } }
     ]);
-    lineSegments.push([
-      { xAxis: ultimoIndice2025 + 1, yAxis: 78, label: { show: false } }, 
-      { xAxis: months.length - 1, yAxis: 78 } // El último elemento maneja la etiqueta por defecto
+    // Tramo 3: Horizontal del 78% que continúa en 2026 y remata contra la pared derecha con el cartel
+    markLineData.push([
+      { xAxis: ultimo2025Idx + 1, yAxis: 78, label: { show: false } },
+      { x: "100%", yAxis: 78 } // ◄ CLAVE: x: "100%" fuerza a ECharts a terminar en el borde y pintar el cartel ahí
     ]);
   }
 
   const option = {
-    // ◄ CORRECCIÓN DE MÁRGENES: Recuperamos las proporciones para aprovechar la altura de la caja
+    // ◄ AJUSTE DE MÁRGENES ORIGINALES: Volvemos a las proporciones perfectas de tu plantilla base
     grid: { left: 56, right: 75, top: 40, bottom: 62 },
     tooltip: {
       trigger: "axis",
@@ -869,7 +870,7 @@ function buildChartMes(rows) {
         position: "right",
         axisLabel: { fontWeight: 700 },
         splitLine: { show: false },
-        boundaryGap: [0, '15%'] // ◄ REDUCIDO A 15%: Esto expande las barras y evita el achatamiento
+        boundaryGap: [0, '15%'] // Reducido a 15% para recuperar la escala natural y que las barras se luzcan altas
       }
     ],
     series: [
@@ -931,13 +932,13 @@ function buildChartMes(rows) {
         },
         labelLayout: { hideOverlap: true },
         emphasis: { disabled: true },
-        // ◄ COMPORTAMIENTO FIJO: Pinta el escalón y clava a la derecha un solo cartel Obj 78%
+        // ◄ CONFIGURACIÓN DE MARKLINE ULTRA LIMPIA Y REPARADA
         markLine: {
           silent: true,
           symbol: ["none", "none"],
           label: {
             show: true,
-            formatter: "Obj 78%", 
+            formatter: "Obj 78%", // Cartel rígido e inamovible
             fontWeight: 800,
             fontSize: 11,
             position: "end",
@@ -947,7 +948,7 @@ function buildChartMes(rows) {
             borderRadius: 4
           },
           lineStyle: { type: "dashed", width: 2, color: "#374151" },
-          data: lineSegments
+          data: markLineData
         },
         z: 1,
         zlevel: 0

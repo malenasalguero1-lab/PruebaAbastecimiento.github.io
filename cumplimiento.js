@@ -1125,58 +1125,55 @@ function buildChartTendencia(rows) {
     series: [
       {
         name: "A Tiempo %",
-        type: "line",
+        type: "bar",
+        stack: "cumplimiento",
         data: pAT.map(v => +(+v).toFixed(2)),
         symbolSize: 7,
         lineStyle: { width: 3, color: COLORS.green },
-        itemStyle: { color: COLORS.green, borderColor: "#fff", borderWidth: 2 },
+        itemStyle: { color: COLORS.green },
         label: {
           show: true,
-          position: "top",
-          formatter: (p) => {
-            const v = +p.data || 0;
-            return (v < 78) ? `{warn|⚠ ${_fmtPct(v)}}` : `{ok|${_fmtPct(v)}}`;
-          },
-          rich: {
-            ok: { fontWeight: 900, color: COLORS.green },
-            warn: { fontWeight: 950, color: "#7f1d1d", backgroundColor: "rgba(239,68,68,0.18)", borderColor: "#ef4444", borderWidth: 1, borderRadius: 4, padding: [2, 4] }
-          }
-        },
-        zlevel: 5, z: 5
-      },
-  {
-        name: "%AT Acumulado", // ◄ Cambiado para que se lea exactamente así en el tooltip y la leyenda
-        type: "line",
-        data: pAT_acum.map(v => +(+v).toFixed(2)),
-        symbolSize: 7,
-        lineStyle: { width: 3, type: "dashed", color: "#8b5cf6" }, // ◄ Violeta para la línea (Intensidad media/alta)
-        itemStyle: { color: "#8b5cf6", borderColor: "#fff", borderWidth: 2, opacity: 0.9 }, // ◄ Violeta para los nodos/puntos
-        label: {
-          show: true,
-          position: "bottom",
+          position: "inside",
           formatter: (p) => _fmtPct(p.data),
-          textStyle: { fontWeight: 800, color: "#6d28d9" } // ◄ Violeta oscuro para los textos fijos del gráfico
+          textStyle: { fontWeight: 900, color: "#fff" }
         },
-        zlevel: 4, z: 4
+        zlevel: 3, z: 3
       },
       {
         name: "Fuera Tiempo %",
-        type: "line",
+        type: "bar",
+        stack: "cumplimiento",
         data: pFT.map(v => +(+v).toFixed(2)),
         symbolSize: 7,
         lineStyle: { width: 3, color: COLORS.amber },
-        itemStyle: { color: COLORS.amber, borderColor: "#fff", borderWidth: 2 },
-        label: { show: true, position: "top", fontWeight: 900, formatter: (p) => _fmtPct(p.data) },
-        zlevel: 5, z: 5
+        itemStyle: { color: COLORS.amber },
+        label: { show: true, position: "inside", fontWeight: 900, color: "#111", formatter: (p) => _fmtPct(p.data) },
+        zlevel: 3, z: 3
       },
       {
         name: "No Entregados %",
-        type: "line",
+        type: "bar",
+        stack: "cumplimiento",
         data: pNO.map(v => +(+v).toFixed(2)),
         symbolSize: 7,
         lineStyle: { width: 3, color: COLORS.red },
-        itemStyle: { color: COLORS.red, borderColor: "#fff", borderWidth: 2 },
-        label: { show: true, position: "top", fontWeight: 900, formatter: (p) => _fmtPct(p.data) },
+        itemStyle: { color: COLORS.red },
+        label: { show: true, position: "inside", fontWeight: 900, formatter: (p) => _fmtPct(p.data) },
+        zlevel: 3, z: 3
+      },
+      {
+        name: "%AT Acumulado",
+        type: "line",
+        data: pAT_acum.map(v => +(+v).toFixed(2)),
+        symbolSize: 8,
+        lineStyle: { width: 3.5, type: "dashed", color: "#8b5cf6" },
+        itemStyle: { color: "#8b5cf6", borderColor: "#fff", borderWidth: 2 },
+        label: {
+          show: true,
+          position: "top",
+          formatter: (p) => _fmtPct(p.data),
+          textStyle: { fontWeight: 800, color: "#6d28d9" }
+        },
         zlevel: 5, z: 5
       }
     ]

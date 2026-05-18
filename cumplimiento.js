@@ -970,37 +970,37 @@ function buildChartMes(rows) {
         z: 1,
         zlevel: 0
       },
-  {
+ {
         name: "%AT Acumulado",
         type: "line",
         data: pAT_acum.map(v => +(+v).toFixed(2)),
-        showSymbol: false,    // Línea continua y limpia sin círculos intermedios
+        showSymbol: false,    // Mantiene la línea continua y limpia sin círculos
         lineStyle: { 
           width: 3.5,         // Grosor marcado
-          type: "solid",      // Línea sólida como en el Excel
+          type: "solid",      // Línea sólida tipo Excel
           color: "#7c3aed"    // Violeta vibrante
         },
         itemStyle: { color: "#7c3aed" },
         label: {
-          show: true,         // ◄ SÍ mostramos el número en cada mes
-          position: "top",    // Lo ubica arriba de la línea
-          distance: 6,        // Distancia justa para que no flote demasiado
+          show: true,         // SÍ se muestra en cada mes para los usuarios pasivos
+          position: "bottom", // ◄ CAMBIO: Se apoya abajo de la línea, liberando el espacio superior
+          distance: 8,        // Distancia justa para no encimarse con las barras
           formatter: (p) => _fmtPct(p.data),
           
-          // ◄ ESTA ES LA CLAVE: Fondo violeta hiper clarito (casi blanco) y texto chico
-          backgroundColor: "rgba(245, 243, 255, 0.85)", // Un tono lavanda/violeta muy sutil
-          padding: [2, 4],                             // Margen chiquito para que no ocupe mucho espacio
-          borderRadius: 3,                             // Bordes apenas redondeados
-          borderColor: "rgba(124, 58, 237, 0.3)",      // Borde violeta muy tenue para enmarcar
+          // Fondo lavanda ultra sutil con bordes tenues para no sobrecargar la visual
+          backgroundColor: "rgba(245, 243, 255, 0.85)", 
+          padding: [2, 4],                             
+          borderRadius: 3,                             
+          borderColor: "rgba(124, 58, 237, 0.25)",      
           borderWidth: 1,
           
           textStyle: { 
             fontWeight: 700, 
-            color: "#6d28d9",                          // Violeta intermedio para el número
-            fontSize: 10                               // ◄ Letra más chica (10px) para que quede delicado
+            color: "#6d28d9",                          
+            fontSize: 10                               // Letra chica y delicada (10px)
           }
         },
-        zlevel: 6, z: 6       // Pasa por encima de las barras
+        zlevel: 6, z: 6       // Pasa por encima de las barras apiladas
       },
       {
         name: "Promedio días de demora",

@@ -780,7 +780,7 @@ function buildChartMes(rows) {
   if (!chartMes) chartMes = echarts.init(el, null, { renderer: "canvas" });
 
   // =====================================================================
-  // --- ARMADO DE LÍNEA CON CONEXIÓN VERTICAL Y UN SOLO CARTEL FINAL ---
+  // --- GENERACIÓN DEL ESCALÓN CONTINUO PARA EL OBJETIVO DINÁMICO ---
   // =====================================================================
   const lineSegments = [];
 
@@ -788,44 +788,43 @@ function buildChartMes(rows) {
     const anoActual = parseInt(months[i].substring(0, 4), 10);
     const hActual = (anoActual >= 2026) ? 78 : 75;
 
-    // 1. TRAMO HORIZONTAL DEL MES: Camina recto de principio a fin de la barra actual
+    // 1. Tramo horizontal del mes actual
     lineSegments.push([
-      { xAxis: i, yAxis: hActual, label: { show: false } },
-      { xAxis: i + 1, yAxis: hActual, label: { show: false } }
+      { xAxis: i, yAxis: hActual },
+      { xAxis: i + 1, yAxis: hActual }
     ]);
 
-    // 2. CONEXIÓN VERTICAL PERFECTA: Si el mes siguiente cambia de año, tiramos el hilo hacia arriba
+    // 2. Unión vertical si el mes siguiente cambia de año
     if (i < months.length - 1) {
       const anoSig = parseInt(months[i + 1].substring(0, 4), 10);
       const hSig = (anoSig >= 2026) ? 78 : 75;
 
       if (hActual !== hSig) {
         lineSegments.push([
-          { xAxis: i + 1, yAxis: hActual, label: { show: false } },
-          { xAxis: i + 1, yAxis: hSig, label: { show: false } }
+          { xAxis: i + 1, yAxis: hActual },
+          { xAxis: i + 1, yAxis: hSig }
         ]);
       }
     }
   }
 
-  // 3. CARTEL DE LA DERECHA FIJO EN EL BORDE: Un punto único acoplado al final de la visualización
+  // 3. Agregamos un tramo final plano que se extiende de forma absoluta para activar el cartel fijo
   lineSegments.push([
-    { yAxis: 78, x: "100%", label: { show: false } }, 
+    { yAxis: 78, xAxis: months.length - 1 },
     { 
       yAxis: 78, 
-      x: "100%", 
+      type: 'max', 
       label: {
         show: true,
         formatter: "Obj 78%",
         fontWeight: 800,
         fontSize: 11,
         position: "end",
-        distance: -4, // Ajuste milimétrico para pegarse al eje derecho
         backgroundColor: '#374151',
         color: '#fff',
         padding: [4, 6],
         borderRadius: 4
-      } 
+      }
     }
   ]);
 
@@ -880,7 +879,7 @@ function buildChartMes(rows) {
         position: "right",
         axisLabel: { fontWeight: 700 },
         splitLine: { show: false },
-        boundaryGap: [0, '25%']
+        boundaryGap: [0, '35%'] // Mantiene el colchón del 35% que agregamos para las demoras
       }
     ],
     series: [
@@ -942,7 +941,7 @@ function buildChartMes(rows) {
         },
         labelLayout: { hideOverlap: true },
         emphasis: { disabled: true },
-        // EL MARKLINE CONECTADO DE FORMA IMPECABLE
+        // RESTRUCTURACIÓN DEL MARKLINE COMPLETO
         markLine: {
           silent: true,
           symbol: ["none", "none"],
@@ -1101,7 +1100,6 @@ function buildChartMes(rows) {
   chartMes.setOption(option, true);
   window.addEventListener("resize", () => chartMes && chartMes.resize(), { passive: true });
 }
-
 /* ============================
    CHART 2: Trend lines (ECharts)
 ============================ */

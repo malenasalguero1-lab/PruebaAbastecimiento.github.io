@@ -970,29 +970,34 @@ function buildChartMes(rows) {
         z: 1,
         zlevel: 0
       },
- {
+{
         name: "%AT Acumulado",
         type: "line",
         data: pAT_acum.map(v => +(+v).toFixed(2)),
         
-        // --- PROPIEDADES CLAVE PARA QUE QUEDE FIJO ---
-        showSymbol: true,         // ◄ Cambiamos a true para que el nodo exista físicamente siempre
+        // Propiedades para que quede siempre fijo y visible en todos los meses
+        showSymbol: true,         
         symbol: "circle",         
-        symbolSize: 1,            // ◄ Lo hacemos casi invisible (1px) para mantener tu estética de línea limpia
-        showAllSymbol: true,      // ◄ FUERZA a ECharts a renderizar los elementos de todos los meses de entrada
+        symbolSize: 1,            // Casi invisible para que la línea se vea limpia
+        showAllSymbol: true,      // Fuerza a que se rendericen todas las etiquetas de entrada
         
         lineStyle: { 
-          width: 3.5,         // Grosor marcado institucional
-          type: "solid",      // Línea sólida continua como tu Excel
-          color: "#7c3aed"    // Violeta corporativo
+          width: 3.5,         
+          type: "solid",      
+          color: "#7c3aed"    
         },
         itemStyle: { color: "#7c3aed" },
         
         label: {
-          show: true,             // ◄ Se muestra de entrada
-          position: "bottom",     // Posición fija: justo por debajo de la línea
-          distance: 10,           // Despeje justo de la traza violeta
-          formatter: (p) => _fmtPct(p.data),
+          show: true,             
+          position: "bottom",     
+          distance: 10,           
+          // ◄ CAMBIO AQUÍ: Muestra siempre 2 decimales fijos y cambia el punto por la coma
+          formatter: (p) => {
+            const val = +p.data;
+            if (val == null || isNaN(val)) return "";
+            return val.toFixed(2).replace(".", ",") + "%";
+          },
           
           // Tu cápsula lavanda sutil
           backgroundColor: "rgba(245, 243, 255, 0.85)", 
@@ -1004,22 +1009,27 @@ function buildChartMes(rows) {
           textStyle: { 
             fontWeight: 700, 
             color: "#6d28d9",                          
-            fontSize: 10                               // Letra chica y delicada
+            fontSize: 10                               
           }
         },
         
-        // --- EVITA QUE SE RE-CALCULE O DESAPAREZCA AL PASAR EL MOUSE ---
+        // Mantiene la visual estable y fija con 2 decimales cuando se pasa el cursor por encima
         emphasis: {
           disabled: false,
-          scale: false, // Evita que la línea se ensanche al pasar el mouse
+          scale: false, 
           label: {
-            show: true, // ◄ Sigue mostrando el número fijo aunque el usuario esté encima
+            show: true, 
             position: "bottom",
+            formatter: (p) => {
+              const val = +p.data;
+              if (val == null || isNaN(val)) return "";
+              return val.toFixed(2).replace(".", ",") + "%";
+            },
             textStyle: { fontWeight: 700, color: "#6d28d9", fontSize: 10 }
           }
         },
         
-        zlevel: 6, z: 6       // Pasa por encima de las barras apiladas
+        zlevel: 6, z: 6       
       },
       {
         name: "Promedio días de demora",

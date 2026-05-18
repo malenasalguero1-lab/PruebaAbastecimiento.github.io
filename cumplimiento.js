@@ -779,29 +779,48 @@ function buildChartMes(rows) {
 
   if (!chartMes) chartMes = echarts.init(el, null, { renderer: "canvas" });
 
-  // --- ARMADO DE LA LÍNEA DE OBJETIVO CON UN SOLO CARTEL A LA DERECHA ---
+  // =====================================================================
+  // --- ARMADO DE LÍNEA CON CONEXIÓN VERTICAL Y UN SOLO CARTEL FINAL ---
+  // =====================================================================
   const lineSegments = [];
-  months.forEach((m, idx) => {
-    const ano = parseInt(m.substring(0, 4), 10);
-    const valorObjetivo = (ano >= 2026) ? 78 : 75;
-    
-    lineSegments.push([
-      { xAxis: idx, yAxis: valorObjetivo, label: { show: false } }, // Apagamos el cartel para los tramos internos
-      { xAxis: idx + 1, yAxis: valorObjetivo, label: { show: false } }
-    ]);
-  });
 
-  // Agregamos un punto fantasma al final que solo sirve para clavar el cartel fijo
+  for (let i = 0; i < months.length; i++) {
+    const anoActual = parseInt(months[i].substring(0, 4), 10);
+    const hActual = (anoActual >= 2026) ? 78 : 75;
+
+    // 1. TRAMO HORIZONTAL DEL MES: Camina recto de principio a fin de la barra actual
+    lineSegments.push([
+      { xAxis: i, yAxis: hActual, label: { show: false } },
+      { xAxis: i + 1, yAxis: hActual, label: { show: false } }
+    ]);
+
+    // 2. CONEXIÓN VERTICAL PERFECTA: Si el mes siguiente cambia de año, tiramos el hilo hacia arriba
+    if (i < months.length - 1) {
+      const anoSig = parseInt(months[i + 1].substring(0, 4), 10);
+      const hSig = (anoSig >= 2026) ? 78 : 75;
+
+      if (hActual !== hSig) {
+        lineSegments.push([
+          { xAxis: i + 1, yAxis: hActual, label: { show: false } },
+          { xAxis: i + 1, yAxis: hSig, label: { show: false } }
+        ]);
+      }
+    }
+  }
+
+  // 3. CARTEL DE LA DERECHA FIJO EN EL BORDE: Un punto único acoplado al final de la visualización
   lineSegments.push([
-    { yAxis: 78, x: "100%", label: { show: false } },
+    { yAxis: 78, x: "100%", label: { show: false } }, 
     { 
       yAxis: 78, 
-      position: "end",
+      x: "100%", 
       label: {
         show: true,
         formatter: "Obj 78%",
         fontWeight: 800,
         fontSize: 11,
+        position: "end",
+        distance: -4, // Ajuste milimétrico para pegarse al eje derecho
         backgroundColor: '#374151',
         color: '#fff',
         padding: [4, 6],
@@ -923,7 +942,7 @@ function buildChartMes(rows) {
         },
         labelLayout: { hideOverlap: true },
         emphasis: { disabled: true },
-        // ◄ ACÁ ESTÁ EL NUEVO REEMPLAZO LIMPIO:
+        // EL MARKLINE CONECTADO DE FORMA IMPECABLE
         markLine: {
           silent: true,
           symbol: ["none", "none"],

@@ -63,9 +63,10 @@
   const GCOC_CANDIDATES = ["GRUPO DE COMPRAS OC", "GRUPO DE COMPRAS_OC", "GRUPO DE COMPRA OC"];
   const CENTRO_CANDIDATES = ["CENTRO"];
 
-  const AT_COL = "ENTREGADOS AT";
-  const FT_COL = "ENTREGADOS FT";
-  const NO_COL = "NO ENTREGADOS";
+  // Se cambian a 'let' para permitir la alternancia dinámica de columnas
+  let AT_COL = "ENTREGADOS AT";
+  let FT_COL = "ENTREGADOS FT";
+  let NO_COL = "NO ENTREGADOS";
 
   /* ============================
      COLORES (match KPIs)
@@ -90,6 +91,9 @@
   let CLASIF2_COL = null;
   let GCOC_COL = null;
   let CENTRO_COL = null;
+
+  // Estado para el modo de medición alternativo
+  let useFinalColumns = false;
 
   let chartMes = null;
   let chartTendencia = null;
@@ -122,7 +126,6 @@
     return Number(n || 0).toLocaleString("es-AR", { maximumFractionDigits: 0 });
   }
 
-  // Delta color helpers (restored from cumplimiento.js)
   function deltaInfo(curr, prev) {
     if (!isFinite(curr) || !isFinite(prev)) return { text: "Sin mes anterior", diff: NaN };
     const diff = curr - prev;
@@ -135,7 +138,7 @@
 
   function setDelta(el, text, cls) {
     if (!el) return;
-    el.className = "kpi-sub"; // Reset classes but keep base style
+    el.className = "kpi-sub"; 
     if (cls) el.classList.add(cls);
     el.textContent = text;
   }
@@ -261,7 +264,7 @@
   }
 
   /* ============================
-     FILTERS (Renamed element IDs)
+     FILTERS
   ============================ */
   function enforceAllOption(sel) {
     if (!sel) return;
@@ -516,7 +519,7 @@
   }
 
   /* ============================
-     KPIs UI (Updated unique IDs)
+     KPIs UI
   ============================ */
   function updateKPIsGeneral(rows) {
     const t = calcTotals(rows);
@@ -631,9 +634,7 @@
   /* ============================
      CHART DEFAULTS (ECharts)
   ============================ */
-  function applyChartDefaults() {
-    // ECharts global settings
-  }
+  function applyChartDefaults() {}
 
   /* ============================
      CHART 1: 100% stacked bar + línea (ECharts)
@@ -902,7 +903,7 @@
           boundaryGap: [0, '25%']
         }
       ],
-    series: [
+      series: [
         {
           name: "Entregados AT",
           type: "bar",
@@ -936,7 +937,7 @@
           },
           label: {
             show: true,
-            position: "insideBottom", // <--- Lo bajamos un toque al piso de la barra verde para dejar libre el centro
+            position: "insideBottom", 
             distance: 10,
             fontWeight: 900,
             fontSize: 11,
@@ -1000,7 +1001,7 @@
           },
           label: {
             show: true,
-            position: "insideTop", // <--- Forzamos a que el texto naranja ("630 (19%)") vaya al techo de su bloque, lejos de la línea morada
+            position: "insideTop", 
             distance: 4,
             color: "#111",
             fontWeight: 950,
@@ -1011,7 +1012,7 @@
               const pct = +p.data || 0;
               const q = (qFT)[i] || 0;
               if (!q) return "";
-              if (pct < 8) return ""; // Si el bloque es muy chico (menos de 8%), no ponemos etiqueta para que no tape nada
+              if (pct < 8) return ""; 
               return `${fmtInt(q)}\n(${Math.round(pct)}%)`;
             }
           },
@@ -1038,13 +1039,13 @@
           },
           label: {
             show: true,
-            position: "top", // <--- Las alertas rojas van ARRIBA de todo de la barra externa
+            position: "top", 
             distance: 2,
             color: "#fff",
             fontWeight: 900,
             fontSize: 11,
             lineHeight: 12,
-            backgroundColor: "rgba(239, 68, 68, 0.9)", // Le da un fondo rojo nítido para que flote limpio
+            backgroundColor: "rgba(239, 68, 68, 0.9)", 
             padding: [2, 4],
             borderRadius: 3,
             formatter: (p) => {
@@ -1060,7 +1061,7 @@
           z: 1,
           zlevel: 0
         },
-       {
+        {
           name: "%AT Acumulado",
           type: "line",
           data: pAT_acum.map(v => +(+v).toFixed(2)),
@@ -1076,14 +1077,14 @@
           itemStyle: { color: "#7c3aed" },
           label: {
             show: true,             
-            position: "bottom",   // <--- Vuelve abajo para no irse al techo
-            distance: 6,          // Ajuste fino para que quede pegado abajo de la línea morada
+            position: "bottom",   
+            distance: 6,          
             formatter: (p) => {
               const val = +p.data;
               if (val == null || isNaN(val)) return "";
               return val.toFixed(2).replace(".", ",") + "%";
             },
-            backgroundColor: "rgba(255, 255, 255, 0.85)", // Mantiene el cartel blanco para legibilidad
+            backgroundColor: "rgba(255, 255, 255, 0.85)", 
             padding: [2, 4],                             
             borderRadius: 3,                             
             borderColor: "rgba(124, 58, 237, 0.25)",      
@@ -1112,14 +1113,14 @@
           yAxisIndex: 1,
           data: avgDem,
           symbol: "circle",
-          symbolSize: 0,          // <--- TRUCO: Hace invisibles los círculos sin romper los textos
-          showSymbol: true,       // <--- Mantiene activo el motor de etiquetas
+          symbolSize: 0,          
+          showSymbol: true,       
           connectNulls: true,
           lineStyle: { width: 3, color: COLORS.blue },
           itemStyle: { color: COLORS.blue },
           label: {
             show: true,
-            position: "top",      // Las etiquetas de días flotan arriba de la línea celeste
+            position: "top",      
             distance: 8,
             backgroundColor: "rgba(255,255,255,0.85)", 
             padding: [2, 4],
@@ -1342,12 +1343,23 @@
       enforceAllOption(sel);
     });
 
+    // Resetear al formato de cumplimiento estándar al limpiar filtros
+    useFinalColumns = false;
+    AT_COL = "ENTREGADOS AT";
+    FT_COL = "ENTREGADOS FT";
+    NO_COL = "NO ENTREGADOS";
+    const btnAlt = document.getElementById("cumpl_btnAlternativo");
+    if (btnAlt) {
+      btnAlt.textContent = "Medir cumplimiento arriba";
+      btnAlt.classList.remove("btn-active");
+    }
+
     updateMesTitleFromSelect();
     applyAll();
   }
 
   /* ============================
-     APPLY ALL (con filtros nuevos)
+     APPLY ALL
   ============================ */
   function applyAll() {
     const baseCliente = rowsByClienteBase();
@@ -1382,10 +1394,8 @@
 
     applyChartDefaults();
 
-    // fecha en header
     setText("lastUpdate", (window.LAST_UPDATE || "").toString().trim() || "--/--/----");
     
-    // fetch with cache
     fetchWithCache(csvUrl + "?t=" + window.CACHE_BUSTER)
       .then(text => {
         const m = parseDelimited(text, DELIM);
@@ -1406,10 +1416,11 @@
         GCOC_COL = GCOC_CANDIDATES.find(c => headers.includes(c)) || null;
         CENTRO_COL = CENTRO_CANDIDATES.find(c => headers.includes(c)) || null;
 
-        const required = [FECHA_COL, AT_COL, FT_COL, NO_COL];
+        // Validación flexible: Verifica esquema base o que existan las columnas FINAL
+        const required = [FECHA_COL, "ENTREGADOS AT", "ENTREGADOS FT", "NO ENTREGADOS"];
         const missing = required.filter(c => !headers.includes(c));
-        if (missing.length) {
-          showError("Faltan columnas en el CSV: " + missing.join(", "));
+        if (missing.length && headers.includes("ENTREGADOS AT FINAL") === false) {
+          showError("Faltan columnas de entregas requeridas en el CSV.");
           return;
         }
 
@@ -1428,7 +1439,30 @@
         renderCentros();
         applyAll();
 
-        // Listeners con IDs únicos
+        // Listener interactivo para alternar columnas "FINAL"
+        const btnAlt = document.getElementById("cumpl_btnAlternativo");
+        if (btnAlt) {
+          btnAlt.addEventListener("click", () => {
+            useFinalColumns = !useFinalColumns;
+
+            if (useFinalColumns) {
+              AT_COL = "ENTREGADOS AT FINAL";
+              FT_COL = "ENTREGADOS FT FINAL";
+              NO_COL = "NO ENTREGADOS FINAL";
+              btnAlt.textContent = "Volver a cumplimiento estándar";
+              btnAlt.classList.add("btn-active");
+            } else {
+              AT_COL = "ENTREGADOS AT";
+              FT_COL = "ENTREGADOS FT";
+              NO_COL = "NO ENTREGADOS";
+              btnAlt.textContent = "Medir cumplimiento arriba";
+              btnAlt.classList.remove("btn-active");
+            }
+
+            applyAll();
+          });
+        }
+
         document.getElementById("cumpl_clienteSelect")?.addEventListener("change", (e) => {
           enforceAllOption(e.target);
           applyAll();
@@ -1471,7 +1505,7 @@
           const cols = headers.slice();
 
           const cliente = safeFilePart(selLabel("cumpl_clienteSelect"));
-          const c2 = "Todos"; // default
+          const c2 = "Todos"; 
           const gc = safeFilePart(selLabel("cumpl_gcocSelect"));
           const centro = safeFilePart(selLabel("centroSelect"));
           const mes = safeFilePart(selLabel("cumpl_mesSelect"));

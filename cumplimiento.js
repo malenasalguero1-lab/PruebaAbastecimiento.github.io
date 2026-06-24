@@ -63,7 +63,6 @@
   const GCOC_CANDIDATES = ["GRUPO DE COMPRAS OC", "GRUPO DE COMPRAS_OC", "GRUPO DE COMPRA OC"];
   const CENTRO_CANDIDATES = ["CENTRO"];
 
-  // Se cambian a 'let' para permitir la alternancia dinámica de columnas
   let AT_COL = "ENTREGADOS AT";
   let FT_COL = "ENTREGADOS FT";
   let NO_COL = "NO ENTREGADOS";
@@ -92,7 +91,6 @@
   let GCOC_COL = null;
   let CENTRO_COL = null;
 
-  // Estado para el modo de medición alternativo
   let useFinalColumns = false;
 
   let chartMes = null;
@@ -487,7 +485,7 @@
   }
 
   /* ============================
-     KPI CALCS
+     KPI CALCS CORREGIDOS (Con Fallback por si dan 0)
   ============================ */
   function calcTotals(rows) {
     let at = 0, ft = 0, no = 0;
@@ -496,22 +494,11 @@
       ft += toNumber(r[FT_COL]);
       no += toNumber(r[NO_COL]);
     }
-    const total = at + ft + no;
-    return { at, ft, no, total };
-  }
-
-  function calcTotals(rows) {
-    let at = 0, ft = 0, no = 0;
-    for (const r of rows) {
-      at += toNumber(r[AT_COL]);
-      ft += toNumber(r[FT_COL]);
-      no += toNumber(r[NO_COL]);
-    }
     let total = at + ft + no;
-    
-    // Fallback: Si activaste "cumplimiento arriba" pero para esta selección dió 0 
-    // (porque no hay datos en las columnas FINAL), usamos las columnas estándar.
+
+    // Fallback: Si da 0 y las columnas FINAL están activadas, recurre a las estándar
     if (total === 0 && useFinalColumns) {
+      at = 0; ft = 0; no = 0;
       for (const r of rows) {
         at += toNumber(r["ENTREGADOS AT"]);
         ft += toNumber(r["ENTREGADOS FT"]);
@@ -519,9 +506,40 @@
       }
       total = at + ft + no;
     }
-    
     return { at, ft, no, total };
   }
+
+  function calcMonthTotals(rows, month) {
+    let at = 0, ft = 0, no = 0;
+
+    for (const r of rows) {
+      if (getMonthKeyFromRow(r) !== month) continue;
+      at += toNumber(r[AT_COL]);
+      ft += toNumber(r[FT_COL]);
+      no += toNumber(r[NO_COL]);
+    }
+
+    let total = at + ft + no;
+
+    // Fallback mensual si la suma en la métrica alternativa da cero
+    if (total === 0 && useFinalColumns) {
+      at = 0; ft = 0; no = 0;
+      for (const r of rows) {
+        if (getMonthKeyFromRow(r) !== month) continue;
+        at += toNumber(r["ENTREGADOS AT"]);
+        ft += toNumber(r["ENTREGADOS FT"]);
+        no += toNumber(r["NO ENTREGADOS"]);
+      }
+      total = at + ft + no;
+    }
+
+    const pctAT = total ? at / total : NaN;
+    const pctFT = total ? ft / total : NaN;
+    const pctNO = total ? no / total : NaN;
+
+    return { at, ft, no, total, pctAT, pctFT, pctNO };
+  }
+
   /* ============================
      KPIs UI
   ============================ */
@@ -641,7 +659,7 @@
   function applyChartDefaults() {}
 
   /* ============================
-     CHART 1: 100% stacked bar + línea (ECharts)
+     CHART 1: 100% stacked bar + línea CORREGIDO
   ============================ */
   function buildChartMes(rows) {
     const agg = new Map();
@@ -657,10 +675,21 @@
       if (!agg.has(mk)) agg.set(mk, { at: 0, ft: 0, no: 0, comp: 0, demSum: 0, demCnt: 0 });
       const c = agg.get(mk);
 
-      c.at += toNumber(r[AT_COL]);
-      c.ft += toNumber(r[FT_COL]);
-      c.no += toNumber(r[NO_COL]);
-      c.comp += toNumber(r["COMPROMETIDOS"]) || (toNumber(r[AT_COL]) + toNumber(r[FT_COL]) + toNumber(r[NO_COL]));
+      let rAt = toNumber(r[AT_COL]);
+      let rFt = toNumber(r[FT_COL]);
+      let rNo = toNumber(r[NO_COL]);
+
+      // Fallback a nivel fila si la fila alternativa viene vacía
+      if (rAt + rFt + rNo === 0 && useFinalColumns) {
+        rAt = toNumber(r["ENTREGADOS AT"]);
+        rFt = toNumber(r["ENTREGADOS FT"]);
+        rNo = toNumber(r["NO ENTREGADOS"]);
+      }
+
+      c.at += rAt;
+      c.ft += rFt;
+      c.no += rNo;
+      c.comp += toNumber(r["COMPROMETIDOS"]) || (rAt + rFt + rNo);
 
       const dem = toNumAny(r[DEMORA_COL]);
       if (!isNaN(dem)) { c.demSum += dem; c.demCnt += 1; }
@@ -1174,9 +1203,20 @@
 
       if (!agg.has(mk)) agg.set(mk, { at: 0, ft: 0, no: 0 });
       const c = agg.get(mk);
-      c.at += toNumber(r[AT_COL]);
-      c.ft += toNumber(r[FT_COL]);
-      c.no += toNumber(r[NO_COL]);
+
+      let rAt = toNumber(r[AT_COL]);
+      let rFt = toNumber(r[FT_COL]);
+      let rNo = toNumber(r[NO_COL]);
+
+      if (rAt + rFt + rNo === 0 && useFinalColumns) {
+        rAt = toNumber(r["ENTREGADOS AT"]);
+        rFt = toNumber(r["ENTREGADOS FT"]);
+        rNo = toNumber(r["NO ENTREGADOS"]);
+      }
+
+      c.at += rAt;
+      c.ft += rFt;
+      c.no += rNo;
     }
 
     const months = [...monthsSet].sort();
@@ -1347,7 +1387,6 @@
       enforceAllOption(sel);
     });
 
-    // Resetear al formato de cumplimiento estándar al limpiar filtros
     useFinalColumns = false;
     AT_COL = "ENTREGADOS AT";
     FT_COL = "ENTREGADOS FT";
@@ -1420,7 +1459,6 @@
         GCOC_COL = GCOC_CANDIDATES.find(c => headers.includes(c)) || null;
         CENTRO_COL = CENTRO_CANDIDATES.find(c => headers.includes(c)) || null;
 
-        // Validación flexible: Verifica esquema base o que existan las columnas FINAL
         const required = [FECHA_COL, "ENTREGADOS AT", "ENTREGADOS FT", "NO ENTREGADOS"];
         const missing = required.filter(c => !headers.includes(c));
         if (missing.length && headers.includes("ENTREGADOS AT FINAL") === false) {
@@ -1443,7 +1481,6 @@
         renderCentros();
         applyAll();
 
-        // Listener interactivo para alternar columnas "FINAL"
         const btnAlt = document.getElementById("cumpl_btnAlternativo");
         if (btnAlt) {
           btnAlt.addEventListener("click", () => {

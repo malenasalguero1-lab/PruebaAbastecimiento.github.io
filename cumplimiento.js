@@ -500,24 +500,28 @@
     return { at, ft, no, total };
   }
 
-  function calcMonthTotals(rows, month) {
+  function calcTotals(rows) {
     let at = 0, ft = 0, no = 0;
-
     for (const r of rows) {
-      if (getMonthKeyFromRow(r) !== month) continue;
       at += toNumber(r[AT_COL]);
       ft += toNumber(r[FT_COL]);
       no += toNumber(r[NO_COL]);
     }
-
-    const total = at + ft + no;
-    const pctAT = total ? at / total : NaN;
-    const pctFT = total ? ft / total : NaN;
-    const pctNO = total ? no / total : NaN;
-
-    return { at, ft, no, total, pctAT, pctFT, pctNO };
+    let total = at + ft + no;
+    
+    // Fallback: Si activaste "cumplimiento arriba" pero para esta selección dió 0 
+    // (porque no hay datos en las columnas FINAL), usamos las columnas estándar.
+    if (total === 0 && useFinalColumns) {
+      for (const r of rows) {
+        at += toNumber(r["ENTREGADOS AT"]);
+        ft += toNumber(r["ENTREGADOS FT"]);
+        no += toNumber(r["NO ENTREGADOS"]);
+      }
+      total = at + ft + no;
+    }
+    
+    return { at, ft, no, total };
   }
-
   /* ============================
      KPIs UI
   ============================ */

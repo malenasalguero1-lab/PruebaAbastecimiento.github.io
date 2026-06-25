@@ -485,7 +485,7 @@
   }
 
   /* ============================
-     KPI CALCS CON FALLBACK (Protección total 0)
+     KPI CALCS 100% ESTRICTOS
   ============================ */
   function calcTotals(rows) {
     let at = 0, ft = 0, no = 0;
@@ -495,17 +495,6 @@
       no += toNumber(r[NO_COL]);
     }
     let total = at + ft + no;
-
-    // Si el total da cero y las columnas final están activas, cae en el fallback estándar
-    if (total === 0 && useFinalColumns) {
-      at = 0; ft = 0; no = 0;
-      for (const r of rows) {
-        at += toNumber(r["ENTREGADOS AT"]);
-        ft += toNumber(r["ENTREGADOS FT"]);
-        no += toNumber(r["NO ENTREGADOS"]);
-      }
-      total = at + ft + no;
-    }
     return { at, ft, no, total };
   }
 
@@ -520,17 +509,6 @@
     }
 
     let total = at + ft + no;
-
-    if (total === 0 && useFinalColumns) {
-      at = 0; ft = 0; no = 0;
-      for (const r of rows) {
-        if (getMonthKeyFromRow(r) !== month) continue;
-        at += toNumber(r["ENTREGADOS AT"]);
-        ft += toNumber(r["ENTREGADOS FT"]);
-        no += toNumber(r["NO ENTREGADOS"]);
-      }
-      total = at + ft + no;
-    }
 
     const pctAT = total ? at / total : NaN;
     const pctFT = total ? ft / total : NaN;
@@ -658,7 +636,7 @@
   function applyChartDefaults() {}
 
   /* ============================
-     CHART 1: 100% stacked bar + línea CON FALLBACK
+     CHART 1: 100% stacked bar + línea ESTRICTO
   ============================ */
   function buildChartMes(rows) {
     const agg = new Map();
@@ -677,13 +655,6 @@
       let rAt = toNumber(r[AT_COL]);
       let rFt = toNumber(r[FT_COL]);
       let rNo = toNumber(r[NO_COL]);
-
-      // Fallback local: Si las columnas FINAL vienen en 0 para esta fila, usamos estándar temporalmente
-      if (rAt + rFt + rNo === 0 && useFinalColumns) {
-        rAt = toNumber(r["ENTREGADOS AT"]);
-        rFt = toNumber(r["ENTREGADOS FT"]);
-        rNo = toNumber(r["NO ENTREGADOS"]);
-      }
 
       c.at += rAt;
       c.ft += rFt;
@@ -1188,7 +1159,7 @@
   }
 
   /* ============================
-     CHART 2: Trend lines (ECharts) CON FALLBACK
+     CHART 2: Trend lines (ECharts) ESTRICTO
   ============================ */
   function buildChartTendencia(rows) {
     const agg = new Map();
@@ -1206,12 +1177,6 @@
       let rAt = toNumber(r[AT_COL]);
       let rFt = toNumber(r[FT_COL]);
       let rNo = toNumber(r[NO_COL]);
-
-      if (rAt + rFt + rNo === 0 && useFinalColumns) {
-        rAt = toNumber(r["ENTREGADOS AT"]);
-        rFt = toNumber(r["ENTREGADOS FT"]);
-        rNo = toNumber(r["NO ENTREGADOS"]);
-      }
 
       c.at += rAt;
       c.ft += rFt;
@@ -1293,7 +1258,7 @@
         type: "value",
         min: 0,max: 100,
         axisLabel: { formatter: "{value}%" },
-        splitLine: { lineStyle: { color: "rgba(15,23,42,0.10)" } }
+        splitLine: { lineStyle: { color: "rgba(15, 23, 42, 0.10)" } }
       },
       series: [
         {
@@ -1371,15 +1336,8 @@
     URL.revokeObjectURL(url);
   }
 
-  // Modificación menor para el download respetando fallback
   function getNoEntregadosRows(rows) {
-    return rows.filter(r => {
-      let val = toNumber(r[NO_COL]);
-      if (val === 0 && useFinalColumns && toNumber(r["ENTREGADOS AT"]) + toNumber(r["ENTREGADOS FT"]) + toNumber(r["NO ENTREGADOS"]) > 0) {
-        val = toNumber(r["NO ENTREGADOS"]);
-      }
-      return val > 0;
-    });
+    return rows.filter(r => toNumber(r[NO_COL]) > 0);
   }
 
   function clearAllFilters() {
@@ -1408,23 +1366,10 @@
   }
 
   /* ============================
-     APPLY ALL
+     APPLY ALL CORREGIDO (Sin renderizadores repetitivos que rompen eventos)
   ============================ */
   function applyAll() {
-    const baseCliente = rowsByClienteBase();
-
-    renderClasif2(baseCliente);
-
-    const baseParaGc = (() => {
-      let r = baseCliente;
-      const c2s = getCheckedClasif2();
-      if (c2s.length && CLASIF2_COL) r = r.filter(x => c2s.includes(clean(x[CLASIF2_COL])));
-      return r;
-    })();
-    renderGcoc(baseParaGc);
-
     const rows = filteredRowsNoMes();
-
     const months = buildMesSelect(rows);
 
     updateKPIsGeneral(rows);
@@ -1483,8 +1428,13 @@
         setText("cumpl_gcocHint", GCOC_COL ? `Columna: ${GCOC_COL}` : "Columna: (no encontrada)");
         setText("centroHint", CENTRO_COL ? `Columna: ${CENTRO_COL}` : "Columna: (no encontrada)");
 
+        // Renderizadores iniciales (Corren una sola vez al cargar la app)
         renderClientes();
         renderCentros();
+        const baseCliente = rowsByClienteBase();
+        renderClasif2(baseCliente);
+        renderGcoc(baseCliente);
+        
         applyAll();
 
         const btnAlt = document.getElementById("cumpl_btnAlternativo");
@@ -1506,19 +1456,23 @@
               btnAlt.classList.remove("btn-active");
             }
 
+            // Calculamos directo sin refrescar las listas HTML secundarias
             applyAll();
           });
         }
 
         document.getElementById("cumpl_clienteSelect")?.addEventListener("change", (e) => {
           enforceAllOption(e.target);
+          const baseCliente = rowsByClienteBase();
+          renderClasif2(baseCliente);
+          renderGcoc(baseCliente);
           applyAll();
         });
 
         document.getElementById("cumpl_clasif2Select")?.addEventListener("change", (e) => {
           enforceAllOption(e.target);
-          const gc = document.getElementById("cumpl_gcocSelect");
-          if (gc) { gc.selectedIndex = 0; enforceAllOption(gc); }
+          const baseCliente = rowsByClienteBase();
+          renderGcoc(baseCliente);
           applyAll();
         });
 

@@ -485,9 +485,6 @@
   }
 
   /* ============================
-     KPI CALCS CORREGIDOS (Con Fallback por si dan 0)
-  ============================ */
-  /* ============================
      KPI CALCS CORREGIDOS
   ============================ */
   function calcTotals(rows) {
@@ -645,7 +642,7 @@
     const agg = new Map();
     const monthsSet = new Set();
 
-for (const r of rows) {
+    for (const r of rows) {
       const d = parseDateAny(r[FECHA_COL]);
       if (!d) continue;
 
@@ -655,7 +652,6 @@ for (const r of rows) {
       if (!agg.has(mk)) agg.set(mk, { at: 0, ft: 0, no: 0, comp: 0, demSum: 0, demCnt: 0 });
       const c = agg.get(mk);
 
-      // Leemos puramente las variables dinámicas configuradas por el botón
       let rAt = toNumber(r[AT_COL]);
       let rFt = toNumber(r[FT_COL]);
       let rNo = toNumber(r[NO_COL]);
@@ -1169,7 +1165,7 @@ for (const r of rows) {
     const agg = new Map();
     const monthsSet = new Set();
 
-   for (const r of rows) {
+    for (const r of rows) {
       const d = parseDateAny(r[FECHA_COL]);
       if (!d) continue;
       const mk = monthKey(d);

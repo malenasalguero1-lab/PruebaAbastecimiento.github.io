@@ -1169,7 +1169,7 @@ for (const r of rows) {
     const agg = new Map();
     const monthsSet = new Set();
 
-    for (const r of rows) {
+   for (const r of rows) {
       const d = parseDateAny(r[FECHA_COL]);
       if (!d) continue;
       const mk = monthKey(d);
@@ -1181,12 +1181,6 @@ for (const r of rows) {
       let rAt = toNumber(r[AT_COL]);
       let rFt = toNumber(r[FT_COL]);
       let rNo = toNumber(r[NO_COL]);
-
-      if (rAt + rFt + rNo === 0 && useFinalColumns) {
-        rAt = toNumber(r["ENTREGADOS AT"]);
-        rFt = toNumber(r["ENTREGADOS FT"]);
-        rNo = toNumber(r["NO ENTREGADOS"]);
-      }
 
       c.at += rAt;
       c.ft += rFt;

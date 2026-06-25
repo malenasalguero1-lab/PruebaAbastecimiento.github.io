@@ -485,7 +485,7 @@
   }
 
   /* ============================
-     KPI CALCS CORREGIDOS
+     KPI CALCS CON FALLBACK (Protección total 0)
   ============================ */
   function calcTotals(rows) {
     let at = 0, ft = 0, no = 0;
@@ -495,6 +495,17 @@
       no += toNumber(r[NO_COL]);
     }
     let total = at + ft + no;
+
+    // Si el total da cero y las columnas final están activas, cae en el fallback estándar
+    if (total === 0 && useFinalColumns) {
+      at = 0; ft = 0; no = 0;
+      for (const r of rows) {
+        at += toNumber(r["ENTREGADOS AT"]);
+        ft += toNumber(r["ENTREGADOS FT"]);
+        no += toNumber(r["NO ENTREGADOS"]);
+      }
+      total = at + ft + no;
+    }
     return { at, ft, no, total };
   }
 
@@ -509,6 +520,17 @@
     }
 
     let total = at + ft + no;
+
+    if (total === 0 && useFinalColumns) {
+      at = 0; ft = 0; no = 0;
+      for (const r of rows) {
+        if (getMonthKeyFromRow(r) !== month) continue;
+        at += toNumber(r["ENTREGADOS AT"]);
+        ft += toNumber(r["ENTREGADOS FT"]);
+        no += toNumber(r["NO ENTREGADOS"]);
+      }
+      total = at + ft + no;
+    }
 
     const pctAT = total ? at / total : NaN;
     const pctFT = total ? ft / total : NaN;
@@ -636,7 +658,7 @@
   function applyChartDefaults() {}
 
   /* ============================
-     CHART 1: 100% stacked bar + línea CORREGIDO
+     CHART 1: 100% stacked bar + línea CON FALLBACK
   ============================ */
   function buildChartMes(rows) {
     const agg = new Map();
@@ -655,6 +677,13 @@
       let rAt = toNumber(r[AT_COL]);
       let rFt = toNumber(r[FT_COL]);
       let rNo = toNumber(r[NO_COL]);
+
+      // Fallback local: Si las columnas FINAL vienen en 0 para esta fila, usamos estándar temporalmente
+      if (rAt + rFt + rNo === 0 && useFinalColumns) {
+        rAt = toNumber(r["ENTREGADOS AT"]);
+        rFt = toNumber(r["ENTREGADOS FT"]);
+        rNo = toNumber(r["NO ENTREGADOS"]);
+      }
 
       c.at += rAt;
       c.ft += rFt;
@@ -1159,7 +1188,7 @@
   }
 
   /* ============================
-     CHART 2: Trend lines (ECharts)
+     CHART 2: Trend lines (ECharts) CON FALLBACK
   ============================ */
   function buildChartTendencia(rows) {
     const agg = new Map();
@@ -1177,6 +1206,12 @@
       let rAt = toNumber(r[AT_COL]);
       let rFt = toNumber(r[FT_COL]);
       let rNo = toNumber(r[NO_COL]);
+
+      if (rAt + rFt + rNo === 0 && useFinalColumns) {
+        rAt = toNumber(r["ENTREGADOS AT"]);
+        rFt = toNumber(r["ENTREGADOS FT"]);
+        rNo = toNumber(r["NO ENTREGADOS"]);
+      }
 
       c.at += rAt;
       c.ft += rFt;
@@ -1336,8 +1371,15 @@
     URL.revokeObjectURL(url);
   }
 
+  // Modificación menor para el download respetando fallback
   function getNoEntregadosRows(rows) {
-    return rows.filter(r => toNumber(r[NO_COL]) > 0);
+    return rows.filter(r => {
+      let val = toNumber(r[NO_COL]);
+      if (val === 0 && useFinalColumns && toNumber(r["ENTREGADOS AT"]) + toNumber(r["ENTREGADOS FT"]) + toNumber(r["NO ENTREGADOS"]) > 0) {
+        val = toNumber(r["NO ENTREGADOS"]);
+      }
+      return val > 0;
+    });
   }
 
   function clearAllFilters() {

@@ -47,7 +47,7 @@
   const DELIM = ";";
 
   const FECHA_COL = "FECHA ENTREGA ESPERADA";
-  const DEMORA_COL = "DIAS DE DEMORA";
+  let DEMORA_COL = "DIAS DE DEMORA";
 
   function avgDelay(rows) {
     let s = 0, c = 0;

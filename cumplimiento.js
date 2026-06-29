@@ -1340,7 +1340,7 @@
     return rows.filter(r => toNumber(r[NO_COL]) > 0);
   }
 
-  function clearAllFilters() {
+ function clearAllFilters() {
     const selects = ["cumpl_clienteSelect", "cumpl_clasif2Select", "cumpl_gcocSelect", "cumpl_mesSelect", "centroSelect"];
     selects.forEach(id => {
       const sel = document.getElementById(id);
@@ -1355,6 +1355,7 @@
     AT_COL = "ENTREGADOS AT";
     FT_COL = "ENTREGADOS FT";
     NO_COL = "NO ENTREGADOS";
+    DEMORA_COL = "DIAS DE DEMORA"; // <-- NUEVO: Resetea la columna al limpiar filtros
     const btnAlt = document.getElementById("cumpl_btnAlternativo");
     if (btnAlt) {
       btnAlt.textContent = "Medir cumplimiento arriba";

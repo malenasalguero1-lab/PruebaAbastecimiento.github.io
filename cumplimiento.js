@@ -1,4 +1,4 @@
-(function() {
+function() {
   function _fmtPct(v) { if (v == null || isNaN(v)) return ""; const n = Math.round(v * 10) / 10; return n.toString().replace(".", ",") + "%"; }
   function _fmtNum1(v) { if (v == null || isNaN(v)) return ""; const n = Math.round(v * 10) / 10; return n.toString().replace(".", ","); }
 
@@ -47,7 +47,7 @@
   const DELIM = ";";
 
   const FECHA_COL = "FECHA ENTREGA ESPERADA";
-  const DEMORA_COL = "DIAS DE DEMORA";
+  let DEMORA_COL = "DIAS DE DEMORA"; // <-- Modificado a 'let' dinámico
 
   function avgDelay(rows) {
     let s = 0, c = 0;
@@ -1355,6 +1355,7 @@
     AT_COL = "ENTREGADOS AT";
     FT_COL = "ENTREGADOS FT";
     NO_COL = "NO ENTREGADOS";
+    DEMORA_COL = "DIAS DE DEMORA"; // <-- Sincronizado en el reset de filtros
     const btnAlt = document.getElementById("cumpl_btnAlternativo");
     if (btnAlt) {
       btnAlt.textContent = "Medir cumplimiento arriba";
@@ -1381,7 +1382,7 @@
 
   /* ============================
      EXPOSE DEFERRED INITIALIZATION LIFE CYCLE HOOK
-  =========================== */
+  ============================ */
   window.initCumplimiento = function() {
     if (window.cumplimientoInitialized) return;
     window.cumplimientoInitialized = true;
@@ -1446,12 +1447,14 @@
               AT_COL = "ENTREGADOS AT FINAL";
               FT_COL = "ENTREGADOS FT FINAL";
               NO_COL = "NO ENTREGADOS FINAL";
+              DEMORA_COL = "DEMORA FINAL"; // <-- Sincronizado en el click alternativo
               btnAlt.textContent = "Volver a cumplimiento estándar";
               btnAlt.classList.add("btn-active");
             } else {
               AT_COL = "ENTREGADOS AT";
               FT_COL = "ENTREGADOS FT";
               NO_COL = "NO ENTREGADOS";
+              DEMORA_COL = "DIAS DE DEMORA"; // <-- Sincronizado para volver al estándar
               btnAlt.textContent = "Medir cumplimiento arriba";
               btnAlt.classList.remove("btn-active");
             }
@@ -1532,4 +1535,3 @@
   };
 
 })();
-

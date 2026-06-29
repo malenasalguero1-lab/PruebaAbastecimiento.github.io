@@ -1435,8 +1435,7 @@
         renderClasif2(baseCliente);
         renderGcoc(baseCliente);
         
-        applyAll();
-
+      
         const btnAlt = document.getElementById("cumpl_btnAlternativo");
         if (btnAlt) {
           btnAlt.addEventListener("click", () => {
@@ -1446,12 +1445,14 @@
               AT_COL = "ENTREGADOS AT FINAL";
               FT_COL = "ENTREGADOS FT FINAL";
               NO_COL = "NO ENTREGADOS FINAL";
+              DEMORA_COL = "DEMORA FINAL"; // <-- NUEVO: Cambia a la demora calculada de tu script de Power Query
               btnAlt.textContent = "Volver a cumplimiento estándar";
               btnAlt.classList.add("btn-active");
             } else {
               AT_COL = "ENTREGADOS AT";
               FT_COL = "ENTREGADOS FT";
               NO_COL = "NO ENTREGADOS";
+              DEMORA_COL = "DIAS DE DEMORA"; // <-- NUEVO: Vuelve a la demora base de SAP
               btnAlt.textContent = "Medir cumplimiento arriba";
               btnAlt.classList.remove("btn-active");
             }

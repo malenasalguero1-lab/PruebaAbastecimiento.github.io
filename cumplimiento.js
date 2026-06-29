@@ -47,7 +47,7 @@
   const DELIM = ";";
 
   const FECHA_COL = "FECHA ENTREGA ESPERADA";
-  let DEMORA_COL = "DIAS DE DEMORA";
+  const DEMORA_COL = "DIAS DE DEMORA";
 
   function avgDelay(rows) {
     let s = 0, c = 0;
@@ -1340,7 +1340,7 @@
     return rows.filter(r => toNumber(r[NO_COL]) > 0);
   }
 
- function clearAllFilters() {
+  function clearAllFilters() {
     const selects = ["cumpl_clienteSelect", "cumpl_clasif2Select", "cumpl_gcocSelect", "cumpl_mesSelect", "centroSelect"];
     selects.forEach(id => {
       const sel = document.getElementById(id);
@@ -1355,7 +1355,6 @@
     AT_COL = "ENTREGADOS AT";
     FT_COL = "ENTREGADOS FT";
     NO_COL = "NO ENTREGADOS";
-    DEMORA_COL = "DIAS DE DEMORA"; // <-- NUEVO: Resetea la columna al limpiar filtros
     const btnAlt = document.getElementById("cumpl_btnAlternativo");
     if (btnAlt) {
       btnAlt.textContent = "Medir cumplimiento arriba";
@@ -1436,7 +1435,8 @@
         renderClasif2(baseCliente);
         renderGcoc(baseCliente);
         
-      
+        applyAll();
+
         const btnAlt = document.getElementById("cumpl_btnAlternativo");
         if (btnAlt) {
           btnAlt.addEventListener("click", () => {
@@ -1446,14 +1446,12 @@
               AT_COL = "ENTREGADOS AT FINAL";
               FT_COL = "ENTREGADOS FT FINAL";
               NO_COL = "NO ENTREGADOS FINAL";
-              DEMORA_COL = "DEMORA FINAL"; // <-- NUEVO: Cambia a la demora calculada de tu script de Power Query
               btnAlt.textContent = "Volver a cumplimiento estándar";
               btnAlt.classList.add("btn-active");
             } else {
               AT_COL = "ENTREGADOS AT";
               FT_COL = "ENTREGADOS FT";
               NO_COL = "NO ENTREGADOS";
-              DEMORA_COL = "DIAS DE DEMORA"; // <-- NUEVO: Vuelve a la demora base de SAP
               btnAlt.textContent = "Medir cumplimiento arriba";
               btnAlt.classList.remove("btn-active");
             }
@@ -1534,3 +1532,4 @@
   };
 
 })();
+

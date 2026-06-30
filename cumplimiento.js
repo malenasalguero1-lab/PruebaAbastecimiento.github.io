@@ -1438,28 +1438,30 @@ let DEMORA_COL = "DIAS DE DEMORA";
         applyAll();
 
         const btnAlt = document.getElementById("cumpl_btnAlternativo");
-        if (btnAlt) {
-          btnAlt.addEventListener("click", () => {
-            useFinalColumns = !useFinalColumns;
+if (btnAlt) {
+  btnAlt.addEventListener("click", () => {
+    useFinalColumns = !useFinalColumns;
 
-            if (useFinalColumns) {
-              AT_COL = "ENTREGADOS AT FINAL";
-              FT_COL = "ENTREGADOS FT FINAL";
-              NO_COL = "NO ENTREGADOS FINAL";
-              btnAlt.textContent = "Volver a cumplimiento estándar";
-              btnAlt.classList.add("btn-active");
-            } else {
-              AT_COL = "ENTREGADOS AT";
-              FT_COL = "ENTREGADOS FT";
-              NO_COL = "NO ENTREGADOS";
-              btnAlt.textContent = "Medir cumplimiento arriba";
-              btnAlt.classList.remove("btn-active");
-            }
+    if (useFinalColumns) {
+      AT_COL = "ENTREGADOS AT FINAL";
+      FT_COL = "ENTREGADOS FT FINAL";
+      NO_COL = "NO ENTREGADOS FINAL";
+      DEMORA_COL = "DEMORA FINAL";  // <-- NUEVA LÍNEA: Cambia a la demora optimizada de Power Query
+      btnAlt.textContent = "Volver a cumplimiento estándar";
+      btnAlt.classList.add("btn-active");
+    } else {
+      AT_COL = "ENTREGADOS AT";
+      FT_COL = "ENTREGADOS FT";
+      NO_COL = "NO ENTREGADOS";
+      DEMORA_COL = "DIAS DE DEMORA"; // <-- NUEVA LÍNEA: Vuelve a la demora estándar de SAP
+      btnAlt.textContent = "Medir cumplimiento arriba";
+      btnAlt.classList.remove("btn-active");
+    }
 
-            // Calculamos directo sin refrescar las listas HTML secundarias
-            applyAll();
-          });
-        }
+    // Volver a calcular todo el tablero con las nuevas columnas seleccionadas
+    applyAll();
+  });
+}
 
         document.getElementById("cumpl_clienteSelect")?.addEventListener("change", (e) => {
           enforceAllOption(e.target);

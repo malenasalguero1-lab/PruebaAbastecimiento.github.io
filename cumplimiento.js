@@ -485,14 +485,18 @@
   }
 
   /* ============================
-     KPI CALCS 100% ESTRICTOS
+     KPI CALCS CON CAÍDA INTELIGENTE
   ============================ */
   function calcTotals(rows) {
     let at = 0, ft = 0, no = 0;
     for (const r of rows) {
-      at += toNumber(r[AT_COL]);
-      ft += toNumber(r[FT_COL]);
-      no += toNumber(r[NO_COL]);
+      let valAt = clean(r[AT_COL]);
+      let valFt = clean(r[FT_COL]);
+      let valNo = clean(r[NO_COL]);
+
+      at += valAt !== "" ? toNumber(valAt) : toNumber(r["ENTREGADOS AT"]);
+      ft += valFt !== "" ? toNumber(valFt) : toNumber(r["ENTREGADOS FT"]);
+      no += valNo !== "" ? toNumber(valNo) : toNumber(r["NO ENTREGADOS"]);
     }
     let total = at + ft + no;
     return { at, ft, no, total };
@@ -503,9 +507,14 @@
 
     for (const r of rows) {
       if (getMonthKeyFromRow(r) !== month) continue;
-      at += toNumber(r[AT_COL]);
-      ft += toNumber(r[FT_COL]);
-      no += toNumber(r[NO_COL]);
+
+      let valAt = clean(r[AT_COL]);
+      let valFt = clean(r[FT_COL]);
+      let valNo = clean(r[NO_COL]);
+
+      at += valAt !== "" ? toNumber(valAt) : toNumber(r["ENTREGADOS AT"]);
+      ft += valFt !== "" ? toNumber(valFt) : toNumber(r["ENTREGADOS FT"]);
+      no += valNo !== "" ? toNumber(valNo) : toNumber(r["NO ENTREGADOS"]);
     }
 
     let total = at + ft + no;
@@ -636,9 +645,13 @@
   function applyChartDefaults() {}
 
   /* ============================
-     CHART 1: 100% stacked bar + línea ESTRICTO
+     CHART 1: 100% stacked bar + línea ACUMULADA
   ============================ */
-  for (const r of rows) {
+  function buildChartMes(rows) {
+    const agg = new Map();
+    const monthsSet = new Set();
+
+    for (const r of rows) {
       const d = parseDateAny(r[FECHA_COL]);
       if (!d) continue;
 
@@ -648,9 +661,8 @@
       if (!agg.has(mk)) agg.set(mk, { at: 0, ft: 0, no: 0, comp: 0, demSum: 0, demCnt: 0 });
       const c = agg.get(mk);
 
-      // --- CAÍDA INTELIGENTE (FALLBACK) ---
-      // Si estamos en "Medir Arriba" pero la fila no tiene valor en la columna FINAL,
-      // usamos la columna estándar correspondiente.
+      // CAÍDA INTELIGENTE (FALLBACK) POR FILA:
+      // Si la columna seleccionada no tiene valor en esa fila, usamos el valor estándar
       let valAt = clean(r[AT_COL]);
       let valFt = clean(r[FT_COL]);
       let valNo = clean(r[NO_COL]);
@@ -663,7 +675,7 @@
       c.ft += rFt;
       c.no += rNo;
       
-      // Denominador real de la métrica activa
+      // Comprometidos reales evaluados en la métrica activa
       c.comp += (rAt + rFt + rNo);
 
       const dem = toNumAny(r[DEMORA_COL]);
@@ -1164,7 +1176,7 @@
   }
 
   /* ============================
-     CHART 2: Trend lines (ECharts) ESTRICTO
+     CHART 2: Trend lines (ECharts) CON CAÍDA INTELIGENTE
   ============================ */
   function buildChartTendencia(rows) {
     const agg = new Map();
@@ -1179,9 +1191,13 @@
       if (!agg.has(mk)) agg.set(mk, { at: 0, ft: 0, no: 0 });
       const c = agg.get(mk);
 
-      let rAt = toNumber(r[AT_COL]);
-      let rFt = toNumber(r[FT_COL]);
-      let rNo = toNumber(r[NO_COL]);
+      let valAt = clean(r[AT_COL]);
+      let valFt = clean(r[FT_COL]);
+      let valNo = clean(r[NO_COL]);
+
+      let rAt = valAt !== "" ? toNumber(valAt) : toNumber(r["ENTREGADOS AT"]);
+      let rFt = valFt !== "" ? toNumber(valFt) : toNumber(r["ENTREGADOS FT"]);
+      let rNo = valNo !== "" ? toNumber(valNo) : toNumber(r["NO ENTREGADOS"]);
 
       c.at += rAt;
       c.ft += rFt;
@@ -1360,7 +1376,7 @@
     AT_COL = "ENTREGADOS AT";
     FT_COL = "ENTREGADOS FT";
     NO_COL = "NO ENTREGADOS";
-    DEMORA_COL = "DIAS DE DEMORA"; // FIX APLICADO: Restablecer columna de demora
+    DEMORA_COL = "DIAS DE DEMORA";
     
     const btnAlt = document.getElementById("cumpl_btnAlternativo");
     if (btnAlt) {

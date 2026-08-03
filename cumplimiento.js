@@ -638,11 +638,7 @@
   /* ============================
      CHART 1: 100% stacked bar + línea ESTRICTO
   ============================ */
-  function buildChartMes(rows) {
-    const agg = new Map();
-    const monthsSet = new Set();
-
-    for (const r of rows) {
+  for (const r of rows) {
       const d = parseDateAny(r[FECHA_COL]);
       if (!d) continue;
 
@@ -652,15 +648,22 @@
       if (!agg.has(mk)) agg.set(mk, { at: 0, ft: 0, no: 0, comp: 0, demSum: 0, demCnt: 0 });
       const c = agg.get(mk);
 
-      let rAt = toNumber(r[AT_COL]);
-      let rFt = toNumber(r[FT_COL]);
-      let rNo = toNumber(r[NO_COL]);
+      // --- CAÍDA INTELIGENTE (FALLBACK) ---
+      // Si estamos en "Medir Arriba" pero la fila no tiene valor en la columna FINAL,
+      // usamos la columna estándar correspondiente.
+      let valAt = clean(r[AT_COL]);
+      let valFt = clean(r[FT_COL]);
+      let valNo = clean(r[NO_COL]);
+
+      let rAt = valAt !== "" ? toNumber(valAt) : toNumber(r["ENTREGADOS AT"]);
+      let rFt = valFt !== "" ? toNumber(valFt) : toNumber(r["ENTREGADOS FT"]);
+      let rNo = valNo !== "" ? toNumber(valNo) : toNumber(r["NO ENTREGADOS"]);
 
       c.at += rAt;
       c.ft += rFt;
       c.no += rNo;
       
-      // FIX APLICADO: Suma dinámica de los pedidos evaluados en la métrica activa
+      // Denominador real de la métrica activa
       c.comp += (rAt + rFt + rNo);
 
       const dem = toNumAny(r[DEMORA_COL]);

@@ -47,7 +47,7 @@
   const DELIM = ";";
 
   const FECHA_COL = "FECHA ENTREGA ESPERADA";
-let DEMORA_COL = "DIAS DE DEMORA";
+  let DEMORA_COL = "DIAS DE DEMORA";
 
   function avgDelay(rows) {
     let s = 0, c = 0;
@@ -659,7 +659,9 @@ let DEMORA_COL = "DIAS DE DEMORA";
       c.at += rAt;
       c.ft += rFt;
       c.no += rNo;
-      c.comp += toNumber(r["COMPROMETIDOS"]) || (rAt + rFt + rNo);
+      
+      // FIX APLICADO: Suma dinámica de los pedidos evaluados en la métrica activa
+      c.comp += (rAt + rFt + rNo);
 
       const dem = toNumAny(r[DEMORA_COL]);
       if (!isNaN(dem)) { c.demSum += dem; c.demCnt += 1; }
@@ -853,7 +855,7 @@ let DEMORA_COL = "DIAS DE DEMORA";
                   <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #7c3aed;"></span>
                   % AT Acum.
                 </span>
-                <span style="font-weight: 800; color: #7c3aed;">${_fmtNum1(acum.value)}%</span>
+                <span style="font-weight: 800; color: #7c3aed;">${acum.value != null ? acum.value.toFixed(2).replace(".", ",") : ""}%</span>
               </div>
             `;
           }
@@ -1256,7 +1258,7 @@ let DEMORA_COL = "DIAS DE DEMORA";
       xAxis: { type: "category", data: months, axisLabel: { fontWeight: 700 } },
       yAxis: {
         type: "value",
-        min: 0,max: 100,
+        min: 0, max: 100,
         axisLabel: { formatter: "{value}%" },
         splitLine: { lineStyle: { color: "rgba(15, 23, 42, 0.10)" } }
       },
@@ -1355,6 +1357,8 @@ let DEMORA_COL = "DIAS DE DEMORA";
     AT_COL = "ENTREGADOS AT";
     FT_COL = "ENTREGADOS FT";
     NO_COL = "NO ENTREGADOS";
+    DEMORA_COL = "DIAS DE DEMORA"; // FIX APLICADO: Restablecer columna de demora
+    
     const btnAlt = document.getElementById("cumpl_btnAlternativo");
     if (btnAlt) {
       btnAlt.textContent = "Medir cumplimiento arriba";
@@ -1366,7 +1370,7 @@ let DEMORA_COL = "DIAS DE DEMORA";
   }
 
   /* ============================
-     APPLY ALL CORREGIDO (Sin renderizadores repetitivos que rompen eventos)
+     APPLY ALL CORREGIDO
   ============================ */
   function applyAll() {
     const rows = filteredRowsNoMes();
@@ -1428,7 +1432,7 @@ let DEMORA_COL = "DIAS DE DEMORA";
         setText("cumpl_gcocHint", GCOC_COL ? `Columna: ${GCOC_COL}` : "Columna: (no encontrada)");
         setText("centroHint", CENTRO_COL ? `Columna: ${CENTRO_COL}` : "Columna: (no encontrada)");
 
-        // Renderizadores iniciales (Corren una sola vez al cargar la app)
+        // Renderizadores iniciales
         renderClientes();
         renderCentros();
         const baseCliente = rowsByClienteBase();
@@ -1438,30 +1442,29 @@ let DEMORA_COL = "DIAS DE DEMORA";
         applyAll();
 
         const btnAlt = document.getElementById("cumpl_btnAlternativo");
-if (btnAlt) {
-  btnAlt.addEventListener("click", () => {
-    useFinalColumns = !useFinalColumns;
+        if (btnAlt) {
+          btnAlt.addEventListener("click", () => {
+            useFinalColumns = !useFinalColumns;
 
-    if (useFinalColumns) {
-      AT_COL = "ENTREGADOS AT FINAL";
-      FT_COL = "ENTREGADOS FT FINAL";
-      NO_COL = "NO ENTREGADOS FINAL";
-      DEMORA_COL = "DEMORA FINAL";  // <-- NUEVA LÍNEA: Cambia a la demora optimizada de Power Query
-      btnAlt.textContent = "Volver a cumplimiento estándar";
-      btnAlt.classList.add("btn-active");
-    } else {
-      AT_COL = "ENTREGADOS AT";
-      FT_COL = "ENTREGADOS FT";
-      NO_COL = "NO ENTREGADOS";
-      DEMORA_COL = "DIAS DE DEMORA"; // <-- NUEVA LÍNEA: Vuelve a la demora estándar de SAP
-      btnAlt.textContent = "Medir cumplimiento arriba";
-      btnAlt.classList.remove("btn-active");
-    }
+            if (useFinalColumns) {
+              AT_COL = "ENTREGADOS AT FINAL";
+              FT_COL = "ENTREGADOS FT FINAL";
+              NO_COL = "NO ENTREGADOS FINAL";
+              DEMORA_COL = "DEMORA FINAL";
+              btnAlt.textContent = "Volver a cumplimiento estándar";
+              btnAlt.classList.add("btn-active");
+            } else {
+              AT_COL = "ENTREGADOS AT";
+              FT_COL = "ENTREGADOS FT";
+              NO_COL = "NO ENTREGADOS";
+              DEMORA_COL = "DIAS DE DEMORA";
+              btnAlt.textContent = "Medir cumplimiento arriba";
+              btnAlt.classList.remove("btn-active");
+            }
 
-    // Volver a calcular todo el tablero con las nuevas columnas seleccionadas
-    applyAll();
-  });
-}
+            applyAll();
+          });
+        }
 
         document.getElementById("cumpl_clienteSelect")?.addEventListener("change", (e) => {
           enforceAllOption(e.target);
@@ -1534,4 +1537,3 @@ if (btnAlt) {
   };
 
 })();
-

@@ -485,49 +485,37 @@
   }
 
   /* ============================
-     KPI CALCS CON CAÍDA INTELIGENTE
+     KPI CALCS CORREGIDOS
   ============================ */
- function calcTotals(rows) {
-  let at = 0, ft = 0, no = 0, total = 0;
-  for (const r of rows) {
-    let valAt = clean(r[AT_COL]);
-    let valFt = clean(r[FT_COL]);
-    let valNo = clean(r[NO_COL]);
-
-    at += valAt !== "" ? toNumber(valAt) : toNumber(r["ENTREGADOS AT"]);
-    ft += valFt !== "" ? toNumber(valFt) : toNumber(r["ENTREGADOS FT"]);
-    no += valNo !== "" ? toNumber(valNo) : toNumber(r["NO ENTREGADOS"]);
-    
-    // Leer el comprometido real fijo de la fila
-    total += toNumber(r["COMPROMETIDOS"]);
+  function calcTotals(rows) {
+    let at = 0, ft = 0, no = 0, total = 0;
+    for (const r of rows) {
+      at += toNumber(r[AT_COL]);
+      ft += toNumber(r[FT_COL]);
+      no += toNumber(r[NO_COL]);
+      total += toNumber(r["COMPROMETIDOS"]);
+    }
+    return { at, ft, no, total };
   }
-  return { at, ft, no, total };
-}
 
   function calcMonthTotals(rows, month) {
-  let at = 0, ft = 0, no = 0, total = 0;
+    let at = 0, ft = 0, no = 0, total = 0;
 
-  for (const r of rows) {
-    if (getMonthKeyFromRow(r) !== month) continue;
+    for (const r of rows) {
+      if (getMonthKeyFromRow(r) !== month) continue;
 
-    let valAt = clean(r[AT_COL]);
-    let valFt = clean(r[FT_COL]);
-    let valNo = clean(r[NO_COL]);
+      at += toNumber(r[AT_COL]);
+      ft += toNumber(r[FT_COL]);
+      no += toNumber(r[NO_COL]);
+      total += toNumber(r["COMPROMETIDOS"]);
+    }
 
-    at += valAt !== "" ? toNumber(valAt) : toNumber(r["ENTREGADOS AT"]);
-    ft += valFt !== "" ? toNumber(valFt) : toNumber(r["ENTREGADOS FT"]);
-    no += valNo !== "" ? toNumber(valNo) : toNumber(r["NO ENTREGADOS"]);
+    const pctAT = total ? at / total : NaN;
+    const pctFT = total ? ft / total : NaN;
+    const pctNO = total ? no / total : NaN;
 
-    // Leer el comprometido real fijo de la fila para ese mes
-    total += toNumber(r["COMPROMETIDOS"]);
+    return { at, ft, no, total, pctAT, pctFT, pctNO };
   }
-
-  const pctAT = total ? at / total : NaN;
-  const pctFT = total ? ft / total : NaN;
-  const pctNO = total ? no / total : NaN;
-
-  return { at, ft, no, total, pctAT, pctFT, pctNO };
-}
 
   /* ============================
      KPIs UI
@@ -664,22 +652,14 @@
       if (!agg.has(mk)) agg.set(mk, { at: 0, ft: 0, no: 0, comp: 0, demSum: 0, demCnt: 0 });
       const c = agg.get(mk);
 
-      // CAÍDA INTELIGENTE (FALLBACK) POR FILA:
-      // Si la columna seleccionada no tiene valor en esa fila, usamos el valor estándar
-      let valAt = clean(r[AT_COL]);
-      let valFt = clean(r[FT_COL]);
-      let valNo = clean(r[NO_COL]);
-
-      let rAt = valAt !== "" ? toNumber(valAt) : toNumber(r["ENTREGADOS AT"]);
-      let rFt = valFt !== "" ? toNumber(valFt) : toNumber(r["ENTREGADOS FT"]);
-      let rNo = valNo !== "" ? toNumber(valNo) : toNumber(r["NO ENTREGADOS"]);
+      let rAt = toNumber(r[AT_COL]);
+      let rFt = toNumber(r[FT_COL]);
+      let rNo = toNumber(r[NO_COL]);
 
       c.at += rAt;
       c.ft += rFt;
       c.no += rNo;
-      
-      // Comprometidos reales evaluados en la métrica activa
-      c.comp += (rAt + rFt + rNo);
+      c.comp += toNumber(r["COMPROMETIDOS"]);
 
       const dem = toNumAny(r[DEMORA_COL]);
       if (!isNaN(dem)) { c.demSum += dem; c.demCnt += 1; }
@@ -690,9 +670,9 @@
     const qFT = months.map(m => agg.get(m)?.ft ?? 0);
     const qNO = months.map(m => agg.get(m)?.no ?? 0);
 
-    const pAT = qAT.map((v, i) => { const t = qAT[i] + qFT[i] + qNO[i]; return t ? (v / t) * 100 : 0; });
-    const pFT = qFT.map((v, i) => { const t = qAT[i] + qFT[i] + qNO[i]; return t ? (v / t) * 100 : 0; });
-    const pNO = qNO.map((v, i) => { const t = qAT[i] + qFT[i] + qNO[i]; return t ? (v / t) * 100 : 0; });
+    const pAT = qAT.map((v, i) => { const t = agg.get(months[i])?.comp ?? 0; return t ? (v / t) * 100 : 0; });
+    const pFT = qFT.map((v, i) => { const t = agg.get(months[i])?.comp ?? 0; return t ? (v / t) * 100 : 0; });
+    const pNO = qNO.map((v, i) => { const t = agg.get(months[i])?.comp ?? 0; return t ? (v / t) * 100 : 0; });
 
     const avgDem = months.map(m => {
       const c = agg.get(m);
@@ -1179,7 +1159,7 @@
   }
 
   /* ============================
-     CHART 2: Trend lines (ECharts) CON CAÍDA INTELIGENTE
+     CHART 2: Trend lines (ECharts)
   ============================ */
   function buildChartTendencia(rows) {
     const agg = new Map();
@@ -1191,34 +1171,27 @@
       const mk = monthKey(d);
       monthsSet.add(mk);
 
-      if (!agg.has(mk)) agg.set(mk, { at: 0, ft: 0, no: 0 });
+      if (!agg.has(mk)) agg.set(mk, { at: 0, ft: 0, no: 0, comp: 0 });
       const c = agg.get(mk);
 
-      let valAt = clean(r[AT_COL]);
-      let valFt = clean(r[FT_COL]);
-      let valNo = clean(r[NO_COL]);
-
-      let rAt = valAt !== "" ? toNumber(valAt) : toNumber(r["ENTREGADOS AT"]);
-      let rFt = valFt !== "" ? toNumber(valFt) : toNumber(r["ENTREGADOS FT"]);
-      let rNo = valNo !== "" ? toNumber(valNo) : toNumber(r["NO ENTREGADOS"]);
-
-      c.at += rAt;
-      c.ft += rFt;
-      c.no += rNo;
+      c.at += toNumber(r[AT_COL]);
+      c.ft += toNumber(r[FT_COL]);
+      c.no += toNumber(r[NO_COL]);
+      c.comp += toNumber(r["COMPROMETIDOS"]);
     }
 
     const months = [...monthsSet].sort();
 
     const pAT = months.map(m => {
-      const c = agg.get(m); const t = (c?.at ?? 0) + (c?.ft ?? 0) + (c?.no ?? 0);
+      const c = agg.get(m); const t = c?.comp ?? 0;
       return t ? ((c.at ?? 0) / t) * 100 : 0;
     });
     const pFT = months.map(m => {
-      const c = agg.get(m); const t = (c?.at ?? 0) + (c?.ft ?? 0) + (c?.no ?? 0);
+      const c = agg.get(m); const t = c?.comp ?? 0;
       return t ? ((c.ft ?? 0) / t) * 100 : 0;
     });
     const pNO = months.map(m => {
-      const c = agg.get(m); const t = (c?.at ?? 0) + (c?.ft ?? 0) + (c?.no ?? 0);
+      const c = agg.get(m); const t = c?.comp ?? 0;
       return t ? ((c.no ?? 0) / t) * 100 : 0;
     });
 

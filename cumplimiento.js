@@ -505,28 +505,29 @@
 }
 
   function calcMonthTotals(rows, month) {
-    let at = 0, ft = 0, no = 0;
+  let at = 0, ft = 0, no = 0, total = 0;
 
-    for (const r of rows) {
-      if (getMonthKeyFromRow(r) !== month) continue;
+  for (const r of rows) {
+    if (getMonthKeyFromRow(r) !== month) continue;
 
-      let valAt = clean(r[AT_COL]);
-      let valFt = clean(r[FT_COL]);
-      let valNo = clean(r[NO_COL]);
+    let valAt = clean(r[AT_COL]);
+    let valFt = clean(r[FT_COL]);
+    let valNo = clean(r[NO_COL]);
 
-      at += valAt !== "" ? toNumber(valAt) : toNumber(r["ENTREGADOS AT"]);
-      ft += valFt !== "" ? toNumber(valFt) : toNumber(r["ENTREGADOS FT"]);
-      no += valNo !== "" ? toNumber(valNo) : toNumber(r["NO ENTREGADOS"]);
-    }
+    at += valAt !== "" ? toNumber(valAt) : toNumber(r["ENTREGADOS AT"]);
+    ft += valFt !== "" ? toNumber(valFt) : toNumber(r["ENTREGADOS FT"]);
+    no += valNo !== "" ? toNumber(valNo) : toNumber(r["NO ENTREGADOS"]);
 
-    let total = at + ft + no;
-
-    const pctAT = total ? at / total : NaN;
-    const pctFT = total ? ft / total : NaN;
-    const pctNO = total ? no / total : NaN;
-
-    return { at, ft, no, total, pctAT, pctFT, pctNO };
+    // Leer el comprometido real fijo de la fila para ese mes
+    total += toNumber(r["COMPROMETIDOS"]);
   }
+
+  const pctAT = total ? at / total : NaN;
+  const pctFT = total ? ft / total : NaN;
+  const pctNO = total ? no / total : NaN;
+
+  return { at, ft, no, total, pctAT, pctFT, pctNO };
+}
 
   /* ============================
      KPIs UI

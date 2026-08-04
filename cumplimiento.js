@@ -487,20 +487,22 @@
   /* ============================
      KPI CALCS CON CAÍDA INTELIGENTE
   ============================ */
-  function calcTotals(rows) {
-    let at = 0, ft = 0, no = 0;
-    for (const r of rows) {
-      let valAt = clean(r[AT_COL]);
-      let valFt = clean(r[FT_COL]);
-      let valNo = clean(r[NO_COL]);
+ function calcTotals(rows) {
+  let at = 0, ft = 0, no = 0, total = 0;
+  for (const r of rows) {
+    let valAt = clean(r[AT_COL]);
+    let valFt = clean(r[FT_COL]);
+    let valNo = clean(r[NO_COL]);
 
-      at += valAt !== "" ? toNumber(valAt) : toNumber(r["ENTREGADOS AT"]);
-      ft += valFt !== "" ? toNumber(valFt) : toNumber(r["ENTREGADOS FT"]);
-      no += valNo !== "" ? toNumber(valNo) : toNumber(r["NO ENTREGADOS"]);
-    }
-    let total = at + ft + no;
-    return { at, ft, no, total };
+    at += valAt !== "" ? toNumber(valAt) : toNumber(r["ENTREGADOS AT"]);
+    ft += valFt !== "" ? toNumber(valFt) : toNumber(r["ENTREGADOS FT"]);
+    no += valNo !== "" ? toNumber(valNo) : toNumber(r["NO ENTREGADOS"]);
+    
+    // Leer el comprometido real fijo de la fila
+    total += toNumber(r["COMPROMETIDOS"]);
   }
+  return { at, ft, no, total };
+}
 
   function calcMonthTotals(rows, month) {
     let at = 0, ft = 0, no = 0;
